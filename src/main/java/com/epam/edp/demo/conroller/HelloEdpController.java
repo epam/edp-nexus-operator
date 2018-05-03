@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloEdpController {
 
-    @GetMapping(value = "/hello")
+    @GetMapping(value = "/api/hello")
     public String hello() {
         return "Hello, EDP!";
     }
