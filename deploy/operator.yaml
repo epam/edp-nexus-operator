@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nexus-operator
+  template:
+    metadata:
+      labels:
+        name: nexus-operator
+    spec:
+      serviceAccountName: nexus-operator
+      containers:
+        - name: nexus-operator
+          # Replace this with the built image name
+          image: REPLACE_IMAGE
+          command:
+          - nexus-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "nexus-operator"

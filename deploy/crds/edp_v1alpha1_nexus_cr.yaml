@@ -1,0 +1,7 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: Nexus
+metadata:
+  name: example-nexus
+spec:
+  # Add fields here
+  size: 3
