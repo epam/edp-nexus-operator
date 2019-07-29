@@ -101,6 +101,14 @@
   version = "v1.1.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:d8e63d9554a7413d79ea455dc4029160f6a665d2beabeceab8ab35028381e111"
+  name = "github.com/dchest/uniuri"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "8902c56451e9b58ff940bbe5fec35d5f9c04584a"
+
+[[projects]]
   digest = "1:3a5601f7ac7fc10fc2a98039b18d83a767f3830141a08c19ae45c45244f43e57"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
@@ -386,6 +394,40 @@
   version = "1.0.1"
 
 [[projects]]
+  digest = "1:8bc8f43d2332d035857c92581df240f247c287629d5f60c751df609f9b6215c5"
+  name = "github.com/openshift/api"
+  packages = [
+    "apps/v1",
+    "pkg/serialization",
+    "project/v1",
+    "route/v1",
+    "security/v1",
+    "template/v1",
+  ]
+  pruneopts = "NT"
+  revision = "0d921e363e951d89f583292c60d013c318df64dc"
+  version = "v3.9.0"
+
+[[projects]]
+  digest = "1:3e8b0f8d2ed4b10f83a0719c1e8853bdb4bbce2ca365aba2843dc9487e4ab35c"
+  name = "github.com/openshift/client-go"
+  packages = [
+    "apps/clientset/versioned/scheme",
+    "apps/clientset/versioned/typed/apps/v1",
+    "project/clientset/versioned/scheme",
+    "project/clientset/versioned/typed/project/v1",
+    "route/clientset/versioned/scheme",
+    "route/clientset/versioned/typed/route/v1",
+    "security/clientset/versioned/scheme",
+    "security/clientset/versioned/typed/security/v1",
+    "template/clientset/versioned/scheme",
+    "template/clientset/versioned/typed/template/v1",
+  ]
+  pruneopts = "NT"
+  revision = "1fa528d3be060e4c7178eb69e76d37cf7e699e3c"
+  version = "v3.9.0"
+
+[[projects]]
   branch = "master"
   digest = "1:66095c393bd50c748450fdbdd4d0e4f6697fd0f77e4942463a2dbaa9fa152bea"
   name = "github.com/operator-framework/operator-sdk"
@@ -583,6 +625,7 @@
     "http2/hpack",
     "idna",
     "internal/timeseries",
+    "publicsuffix",
     "trace",
   ]
   pruneopts = "NT"
@@ -763,6 +806,14 @@
   pruneopts = "NT"
   revision = "d2d2541c53f18d2a059457998ce2876cc8e67cbf"
   version = "v0.9.1"
+
+[[projects]]
+  digest = "1:0942599d1f614d9ca4dfe052db1f60d4547b1b581206006be352f629a8b37d8d"
+  name = "gopkg.in/resty.v1"
+  packages = ["."]
+  pruneopts = "NT"
+  revision = "fa5875c0caa5c260ab78acec5a244215a730247f"
+  version = "v1.12.0"
 
 [[projects]]
   digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
@@ -1085,18 +1136,28 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/dchest/uniuri",
     "github.com/go-openapi/spec",
+    "github.com/openshift/client-go/apps/clientset/versioned/typed/apps/v1",
+    "github.com/openshift/client-go/project/clientset/versioned/typed/project/v1",
+    "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1",
+    "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1",
+    "github.com/openshift/client-go/template/clientset/versioned/typed/template/v1",
     "github.com/operator-framework/operator-sdk/pkg/k8sutil",
     "github.com/operator-framework/operator-sdk/pkg/leader",
     "github.com/operator-framework/operator-sdk/pkg/log/zap",
     "github.com/operator-framework/operator-sdk/pkg/metrics",
     "github.com/operator-framework/operator-sdk/version",
     "github.com/spf13/pflag",
+    "gopkg.in/resty.v1",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/runtime",
     "k8s.io/apimachinery/pkg/runtime/schema",
+    "k8s.io/client-go/kubernetes/typed/core/v1",
     "k8s.io/client-go/plugin/pkg/client/auth",
+    "k8s.io/client-go/rest",
+    "k8s.io/client-go/tools/clientcmd",
     "k8s.io/code-generator/cmd/client-gen",
     "k8s.io/code-generator/cmd/conversion-gen",
     "k8s.io/code-generator/cmd/deepcopy-gen",
