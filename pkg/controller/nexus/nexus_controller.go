@@ -2,6 +2,9 @@ package nexus
 
 import (
 	"context"
+	"fmt"
+	"nexus-operator/pkg/service"
+	"time"
 
 	edpv1alpha1 "nexus-operator/pkg/apis/edp/v1alpha1"
 
@@ -31,7 +34,16 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileNexus{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	scheme := mgr.GetScheme()
+	client := mgr.GetClient()
+	platformService, _ := service.NewPlatformService(scheme)
+
+	nexusService := service.NewNexusService(platformService, client)
+	return &ReconcileNexus{
+		client:  client,
+		scheme:  scheme,
+		service: nexusService,
+	}
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -57,8 +69,9 @@ var _ reconcile.Reconciler = &ReconcileNexus{}
 type ReconcileNexus struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
-	client client.Client
-	scheme *runtime.Scheme
+	client  client.Client
+	scheme  *runtime.Scheme
+	service service.NexusService
 }
 
 // Reconcile reads that state of the cluster for a Nexus object and makes changes based on the state read
@@ -84,6 +97,12 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
+	}
+
+	err = r.service.Install(instance)
+	if err != nil {
+		log.Error(err, fmt.Sprintf("[ERROR] Cannot install Nexus object with name %s", instance.Name))
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
 	}
 
 	reqLogger.Info("Reconciling Nexus component %s/%s has been finished", request.Namespace, request.Name)
