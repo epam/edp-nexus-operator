@@ -1,14 +1,18 @@
-FROM registry.access.redhat.com/ubi7-dev-preview/ubi-minimal:7.6
+FROM alpine:3.8
 
 ENV OPERATOR=/usr/local/bin/nexus-operator \
     USER_UID=1001 \
-    USER_NAME=nexus-operator
+    USER_NAME=nexus-operator \
+    HOME=/home/nexus-operator
 
 # install operator binary
-COPY build/_output/bin/nexus-operator ${OPERATOR}
+COPY nexus-operator ${OPERATOR}
 
-COPY build/bin /usr/local/bin
-RUN  /usr/local/bin/user_setup
+COPY bin /usr/local/bin
+
+RUN chmod u+x /usr/local/bin/user_setup && \
+    chmod ugo+x /usr/local/bin/entrypoint && \
+    /usr/local/bin/user_setup
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
