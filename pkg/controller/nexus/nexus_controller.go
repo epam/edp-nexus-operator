@@ -3,10 +3,10 @@ package nexus
 import (
 	"context"
 	"fmt"
+	logPrint "log"
+	edpv1alpha1 "nexus-operator/pkg/apis/edp/v1alpha1"
 	"nexus-operator/pkg/service"
 	"time"
-
-	edpv1alpha1 "nexus-operator/pkg/apis/edp/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -17,6 +17,18 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+)
+
+const (
+	StatusInstall          = "installing"
+	StatusFailed           = "failed"
+	StatusCreated          = "created"
+	StatusConfiguring      = "configuring"
+	StatusConfigured       = "configured"
+	StatusExposeStart      = "exposing config"
+	StatusExposeFinish     = "config exposed"
+	StatusIntegrationStart = "integration started"
+	StatusReady            = "ready"
 )
 
 var log = logf.Log.WithName("controller_nexus")
@@ -99,12 +111,65 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		return reconcile.Result{}, err
 	}
 
-	err = r.service.Install(instance)
+	if instance.Status.Status == "" || instance.Status.Status == StatusFailed {
+		err = r.updateStatus(instance, StatusInstall)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
+	}
+
+	instance, err = r.service.Install(*instance)
 	if err != nil {
-		log.Error(err, fmt.Sprintf("[ERROR] Cannot install Nexus object with name %s", instance.Name))
+		logPrint.Printf("[ERROR] Cannot install Nexus object with name %s", instance.Name)
+		r.updateStatus(instance, StatusFailed)
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
 	}
 
-	reqLogger.Info("Reconciling Nexus component %s/%s has been finished", request.Namespace, request.Name)
+	if instance.Status.Status == StatusInstall {
+		err = r.updateStatus(instance, StatusReady)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
+	}
+
+	err = r.updateAvailableStatus(instance, true)
+	if err != nil {
+		logPrint.Printf("[WARNING] Failed update avalability status for Nexus object with name %s", instance.Name)
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+	}
+
+	reqLogger.Info(fmt.Sprintf("Reconciling Nexus component %v/%v has been finished", request.Namespace, request.Name))
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileNexus) updateStatus(instance *edpv1alpha1.Nexus, status string) error {
+	instance.Status.Status = status
+	instance.Status.LastTimeUpdated = time.Now()
+	err := r.client.Status().Update(context.TODO(), instance)
+	if err != nil {
+		err := r.client.Update(context.TODO(), instance)
+		if err != nil {
+			return err
+		}
+	}
+
+	logPrint.Printf("[INFO] Status for Nexus component %v has been updated to '%v'", instance.Name, status)
+	return nil
+}
+
+func (r ReconcileNexus) updateAvailableStatus(instance *edpv1alpha1.Nexus, value bool) error {
+	if instance.Status.Available != value {
+		instance.Status.Available = value
+		instance.Status.LastTimeUpdated = time.Now()
+		err := r.client.Status().Update(context.TODO(), instance)
+		if err != nil {
+			err := r.client.Update(context.TODO(), instance)
+			if err != nil {
+				return err
+			}
+		}
+		logPrint.Printf("[INFO] Availability status for Nexus component %v has been updated to '%v'", instance.Name, value)
+	}
+
+	return nil
 }
