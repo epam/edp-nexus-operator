@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	NexusProperties = "/usr/local/configs/nexus-default.properties"
-	NexusPort       = 8081
+	NexusProperties    = "/usr/local/configs/nexus-default.properties"
+	NexusPort          = 8081
+	NexusDockerImage   = "sonatype/nexus3"
+	NexusMemoryRequest = "500Mi"
 )
 
 type Client struct {
@@ -62,7 +64,18 @@ func (s NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 
 	err = s.platformService.CreateConfigMapFromFile(instance, "nexus-properties", NexusProperties)
 	if err != nil {
-		return &instance, errors.Wrap(err, "[ERROR] Failed to create Service")
+		return &instance, errors.Wrap(err, "[ERROR] Failed to create Config Map")
 	}
+
+	err = s.platformService.CreateDeployConf(instance)
+	if err != nil {
+		return &instance, errors.Wrap(err, "[ERROR] Failed to create Deployment Config")
+	}
+
+	err = s.platformService.CreateExternalEndpoint(instance)
+	if err != nil {
+		return &instance, errors.Wrap(err, "[ERROR] Failed to create External Route")
+	}
+
 	return &instance, nil
 }

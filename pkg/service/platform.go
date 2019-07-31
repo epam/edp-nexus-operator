@@ -13,6 +13,8 @@ type PlatformService interface {
 	CreateVolume(sonar v1alpha1.Nexus) error
 	CreateServiceAccount(sonar v1alpha1.Nexus) (*coreV1Api.ServiceAccount, error)
 	CreateConfigMapFromFile(sonar v1alpha1.Nexus, configMapName string, filePath string) error
+	CreateDeployConf(ac v1alpha1.Nexus) error
+	CreateExternalEndpoint(ac v1alpha1.Nexus) error
 }
 
 func NewPlatformService(scheme *runtime.Scheme) (PlatformService, error) {
