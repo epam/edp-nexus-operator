@@ -1,4 +1,4 @@
-package service
+package openshift
 
 import (
 	"fmt"
@@ -15,39 +15,47 @@ import (
 	"k8s.io/client-go/rest"
 	"log"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
+	"nexus-operator/pkg/helper"
+	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
+	platformHelper "nexus-operator/pkg/service/platform/helper"
+	"nexus-operator/pkg/service/platform/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+// OpenshiftService struct for Openshift platform service
 type OpenshiftService struct {
-	K8SService
+	kubernetes.K8SService
 
 	appClient   appsV1client.AppsV1Client
 	routeClient routeV1Client.RouteV1Client
 }
 
+// Init initializes OpenshiftService
 func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Scheme) error {
 	err := service.K8SService.Init(config, scheme)
 	if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
 
 	appClient, err := appsV1client.NewForConfig(config)
 	if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
 	service.appClient = *appClient
 
 	routeClient, err := routeV1Client.NewForConfig(config)
 	if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
 	service.routeClient = *routeClient
 
 	return nil
 }
 
+// CreateDeployConf performs creating DeploymentConfig in Openshift
 func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error {
-	labels := generateLabels(instance.Name)
+
+	labels := platformHelper.GenerateLabels(instance.Name)
 	deploymentConfigObject := &appsV1Api.DeploymentConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
@@ -73,7 +81,7 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 					Containers: []coreV1Api.Container{
 						{
 							Name:            instance.Name,
-							Image:           NexusDockerImage + ":" + instance.Spec.Version,
+							Image:           nexusDefaultSpec.NexusDockerImage + ":" + instance.Spec.Version,
 							ImagePullPolicy: coreV1Api.PullAlways,
 							Env: []coreV1Api.EnvVar{
 								{
@@ -83,7 +91,7 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 							},
 							Ports: []coreV1Api.ContainerPort{
 								{
-									ContainerPort: NexusPort,
+									ContainerPort: nexusDefaultSpec.NexusPort,
 								},
 							},
 							LivenessProbe: &coreV1Api.Probe{
@@ -93,7 +101,7 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 								SuccessThreshold:    1,
 								Handler: coreV1Api.Handler{
 									TCPSocket: &coreV1Api.TCPSocketAction{
-										Port: intstr.FromInt(NexusPort),
+										Port: intstr.FromInt(nexusDefaultSpec.NexusPort),
 									},
 								},
 							},
@@ -104,14 +112,14 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 								SuccessThreshold:    1,
 								Handler: coreV1Api.Handler{
 									TCPSocket: &coreV1Api.TCPSocketAction{
-										Port: intstr.FromInt(NexusPort),
+										Port: intstr.FromInt(nexusDefaultSpec.NexusPort),
 									},
 								},
 							},
 							TerminationMessagePath: "/dev/termination-log",
 							Resources: coreV1Api.ResourceRequirements{
 								Requests: map[coreV1Api.ResourceName]resource.Quantity{
-									coreV1Api.ResourceMemory: resource.MustParse(NexusMemoryRequest),
+									coreV1Api.ResourceMemory: resource.MustParse(nexusDefaultSpec.NexusMemoryRequest),
 								},
 							},
 							VolumeMounts: []coreV1Api.VolumeMount{
@@ -150,28 +158,29 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 			},
 		},
 	}
-	if err := controllerutil.SetControllerReference(&instance, deploymentConfigObject, service.scheme); err != nil {
-		return logErrorAndReturn(err)
+	if err := controllerutil.SetControllerReference(&instance, deploymentConfigObject, service.Scheme); err != nil {
+		return helper.LogErrorAndReturn(err)
 	}
 
 	deploymentConfig, err := service.appClient.DeploymentConfigs(deploymentConfigObject.Namespace).Get(deploymentConfigObject.Name, metav1.GetOptions{})
 	if err != nil && k8serrors.IsNotFound(err) {
 		deploymentConfig, err = service.appClient.DeploymentConfigs(deploymentConfigObject.Namespace).Create(deploymentConfigObject)
 		if err != nil {
-			return logErrorAndReturn(err)
+			return helper.LogErrorAndReturn(err)
 		}
 
 		log.Printf("[INFO] DeploymentConfig %s/%s has been created", deploymentConfig.Namespace, deploymentConfig.Name)
 	} else if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
 
 	return nil
 }
 
+// CreateExternalEndpoint performs creating Route in Openshift
 func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
 
-	labels := generateLabels(instance.Name)
+	labels := platformHelper.GenerateLabels(instance.Name)
 
 	routeObject := &routeV1Api.Route{
 		ObjectMeta: metav1.ObjectMeta{
@@ -191,8 +200,8 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 		},
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, routeObject, service.scheme); err != nil {
-		return logErrorAndReturn(err)
+	if err := controllerutil.SetControllerReference(&instance, routeObject, service.Scheme); err != nil {
+		return helper.LogErrorAndReturn(err)
 	}
 
 	route, err := service.routeClient.Routes(routeObject.Namespace).Get(routeObject.Name, metav1.GetOptions{})
@@ -200,12 +209,39 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 	if err != nil && k8serrors.IsNotFound(err) {
 		route, err = service.routeClient.Routes(routeObject.Namespace).Create(routeObject)
 		if err != nil {
-			return logErrorAndReturn(err)
+			return helper.LogErrorAndReturn(err)
 		}
 		log.Printf("[INFO] Route %s/%s has been created", route.Namespace, route.Name)
 	} else if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
 
 	return nil
+}
+
+// GetRoute returns Route object from Openshift
+func (service OpenshiftService) GetRoute(namespace string, name string) (*routeV1Api.Route, string, error) {
+	route, err := service.routeClient.Routes(namespace).Get(name, metav1.GetOptions{})
+	if err != nil && k8serrors.IsNotFound(err) {
+		log.Printf("Route %v in namespace %v not found", name, namespace)
+		return nil, "", nil
+	} else if err != nil {
+		return nil, "", helper.LogErrorAndReturn(err)
+	}
+
+	var routeScheme = "http"
+	if route.Spec.TLS.Termination != "" {
+		routeScheme = "https"
+	}
+	return route, routeScheme, nil
+}
+
+// GetDeploymentConfig returns DeploymentConfig object from Openshift
+func (service OpenshiftService) GetDeploymentConfig(instance v1alpha1.Nexus) (*appsV1Api.DeploymentConfig, error) {
+	deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, helper.LogErrorAndReturn(err)
+	}
+
+	return deploymentConfig, nil
 }

@@ -5,7 +5,8 @@ import (
 	"fmt"
 	logPrint "log"
 	edpv1alpha1 "nexus-operator/pkg/apis/edp/v1alpha1"
-	"nexus-operator/pkg/service"
+	"nexus-operator/pkg/service/nexus"
+	"nexus-operator/pkg/service/platform"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -48,9 +49,9 @@ func Add(mgr manager.Manager) error {
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	scheme := mgr.GetScheme()
 	client := mgr.GetClient()
-	platformService, _ := service.NewPlatformService(scheme)
+	platformService, _ := platform.NewPlatformService(scheme)
 
-	nexusService := service.NewNexusService(platformService, client)
+	nexusService := nexus.NewNexusService(platformService, client)
 	return &ReconcileNexus{
 		client:  client,
 		scheme:  scheme,
@@ -83,7 +84,7 @@ type ReconcileNexus struct {
 	// that reads objects from the cache and writes to the apiserver
 	client  client.Client
 	scheme  *runtime.Scheme
-	service service.NexusService
+	service nexus.NexusService
 }
 
 // Reconcile reads that state of the cluster for a Nexus object and makes changes based on the state read
@@ -112,6 +113,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	}
 
 	if instance.Status.Status == "" || instance.Status.Status == StatusFailed {
+		logPrint.Printf("[INFO] Installation of %v/%v object with name has been started", instance.Namespace, instance.Name)
 		err = r.updateStatus(instance, StatusInstall)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
@@ -120,12 +122,41 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, err = r.service.Install(*instance)
 	if err != nil {
-		logPrint.Printf("[ERROR] Cannot install Nexus object with name %s", instance.Name)
+		logPrint.Printf("[ERROR] Installation of %v/%v object has been failed", instance.Namespace, instance.Name)
 		r.updateStatus(instance, StatusFailed)
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
 	}
 
 	if instance.Status.Status == StatusInstall {
+		logPrint.Printf("[INFO] Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
+		r.updateStatus(instance, StatusCreated)
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+	}
+
+	if instance.Status.Status == StatusCreated || instance.Status.Status == "" {
+		logPrint.Printf("[INFO] Configuration of %v/%v object with name has been started", instance.Namespace, instance.Name)
+		err := r.updateStatus(instance, StatusConfiguring)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
+	}
+
+	if dcIsReady, err := r.service.IsDeploymentConfigReady(*instance); err != nil {
+		logPrint.Printf("[ERROR] Checking if Deployment config for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+	} else if !dcIsReady {
+		logPrint.Printf("[WARNING] Deployment config for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name)
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+	}
+
+	instance, err = r.service.Configure(*instance)
+	if err != nil {
+		logPrint.Printf("[ERROR] Configuration of %v/%v object has been failed", instance.Namespace, instance.Name)
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+	}
+
+	if instance.Status.Status == StatusConfiguring {
+		logPrint.Printf("[INFO] Configuration of %v/%v object has been finished", instance.Namespace, instance.Name)
 		err = r.updateStatus(instance, StatusReady)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
@@ -135,7 +166,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	err = r.updateAvailableStatus(instance, true)
 	if err != nil {
 		logPrint.Printf("[WARNING] Failed update avalability status for Nexus object with name %s", instance.Name)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
 	}
 
 	reqLogger.Info(fmt.Sprintf("Reconciling Nexus component %v/%v has been finished", request.Namespace, request.Name))

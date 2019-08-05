@@ -1,4 +1,4 @@
-package service
+package kubernetes
 
 import (
 	"io/ioutil"
@@ -12,28 +12,33 @@ import (
 	"k8s.io/client-go/rest"
 	"log"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
+	"nexus-operator/pkg/helper"
+	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
+	platformHelper "nexus-operator/pkg/service/platform/helper"
 	"path/filepath"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+// K8SService struct for K8S platform service
 type K8SService struct {
-	scheme     *runtime.Scheme
-	coreClient coreV1Client.CoreV1Client
+	Scheme     *runtime.Scheme
+	CoreClient coreV1Client.CoreV1Client
 }
 
-func (service *K8SService) Init(config *rest.Config, scheme *runtime.Scheme) error {
-
-	coreClient, err := coreV1Client.NewForConfig(config)
+// Init initializes K8SService
+func (service *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme) error {
+	CoreClient, err := coreV1Client.NewForConfig(config)
 	if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
-	service.coreClient = *coreClient
-	service.scheme = scheme
+	service.CoreClient = *CoreClient
+	service.Scheme = Scheme
 	return nil
 }
 
+// CreateVolume performs creating PersistentVolumeClaim in K8S
 func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
-	labels := generateLabels(instance.Name)
+	labels := platformHelper.GenerateLabels(instance.Name)
 
 	for _, volume := range instance.Spec.Volumes {
 		volumeObject := &coreV1Api.PersistentVolumeClaim{
@@ -55,27 +60,28 @@ func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 			},
 		}
 
-		if err := controllerutil.SetControllerReference(&instance, volumeObject, service.scheme); err != nil {
-			return logErrorAndReturn(err)
+		if err := controllerutil.SetControllerReference(&instance, volumeObject, service.Scheme); err != nil {
+			return helper.LogErrorAndReturn(err)
 		}
 
-		volume, err := service.coreClient.PersistentVolumeClaims(volumeObject.Namespace).Get(volumeObject.Name, metav1.GetOptions{})
+		volume, err := service.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Get(volumeObject.Name, metav1.GetOptions{})
 
 		if err != nil && k8serr.IsNotFound(err) {
-			volume, err = service.coreClient.PersistentVolumeClaims(volumeObject.Namespace).Create(volumeObject)
+			volume, err = service.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Create(volumeObject)
 			if err != nil {
-				return logErrorAndReturn(err)
+				return helper.LogErrorAndReturn(err)
 			}
 			log.Printf("[INFO] PersistantVolumeClaim %s/%s has been created", volume.Namespace, volume.Name)
 		} else if err != nil {
-			return logErrorAndReturn(err)
+			return helper.LogErrorAndReturn(err)
 		}
 	}
 	return nil
 }
 
+// CreateServiceAccount performs creating ServiceAccount in K8S
 func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1Api.ServiceAccount, error) {
-	labels := generateLabels(instance.Name)
+	labels := platformHelper.GenerateLabels(instance.Name)
 
 	serviceAccountObject := &coreV1Api.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
@@ -85,26 +91,27 @@ func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1
 		},
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, serviceAccountObject, service.scheme); err != nil {
-		return nil, logErrorAndReturn(err)
+	if err := controllerutil.SetControllerReference(&instance, serviceAccountObject, service.Scheme); err != nil {
+		return nil, helper.LogErrorAndReturn(err)
 	}
 
-	serviceAccount, err := service.coreClient.ServiceAccounts(serviceAccountObject.Namespace).Get(serviceAccountObject.Name, metav1.GetOptions{})
+	serviceAccount, err := service.CoreClient.ServiceAccounts(serviceAccountObject.Namespace).Get(serviceAccountObject.Name, metav1.GetOptions{})
 	if err != nil && k8serr.IsNotFound(err) {
-		serviceAccount, err = service.coreClient.ServiceAccounts(serviceAccountObject.Namespace).Create(serviceAccountObject)
+		serviceAccount, err = service.CoreClient.ServiceAccounts(serviceAccountObject.Namespace).Create(serviceAccountObject)
 		if err != nil {
-			return nil, logErrorAndReturn(err)
+			return nil, helper.LogErrorAndReturn(err)
 		}
 		log.Printf("[INFO] ServiceAccount %s/%s has been created", serviceAccount.Namespace, serviceAccount.Name)
 	} else if err != nil {
-		return nil, logErrorAndReturn(err)
+		return nil, helper.LogErrorAndReturn(err)
 	}
 
 	return serviceAccount, nil
 }
 
+// CreateService performs creating Service in K8S
 func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
-	labels := generateLabels(instance.Name)
+	labels := platformHelper.GenerateLabels(instance.Name)
 
 	serviceObject := &coreV1Api.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -117,33 +124,34 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 			Ports: []coreV1Api.ServicePort{
 				{
 					TargetPort: intstr.IntOrString{StrVal: instance.Name},
-					Port:       NexusPort,
+					Port:       nexusDefaultSpec.NexusPort,
 				},
 			},
 		},
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, serviceObject, service.scheme); err != nil {
-		return logErrorAndReturn(err)
+	if err := controllerutil.SetControllerReference(&instance, serviceObject, service.Scheme); err != nil {
+		return helper.LogErrorAndReturn(err)
 	}
 
-	svc, err := service.coreClient.Services(instance.Namespace).Get(serviceObject.Name, metav1.GetOptions{})
+	svc, err := service.CoreClient.Services(instance.Namespace).Get(serviceObject.Name, metav1.GetOptions{})
 
 	if err != nil && k8serr.IsNotFound(err) {
-		svc, err = service.coreClient.Services(serviceObject.Namespace).Create(serviceObject)
+		svc, err = service.CoreClient.Services(serviceObject.Namespace).Create(serviceObject)
 		if err != nil {
-			return logErrorAndReturn(err)
+			return helper.LogErrorAndReturn(err)
 		}
 		log.Printf("[INFO] Service %s/%s has been created", svc.Namespace, svc.Name)
 	} else if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
 
 	return nil
 }
 
+// CreateConfigMapFromFile performs creating ConfigMap in K8S
 func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error {
-	labels := generateLabels(instance.Name)
+	labels := platformHelper.GenerateLabels(instance.Name)
 	data, err := ioutil.ReadFile(filePath)
 
 	configMapObject := &coreV1Api.ConfigMap{
@@ -157,20 +165,20 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 		},
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, configMapObject, service.scheme); err != nil {
-		return logErrorAndReturn(err)
+	if err := controllerutil.SetControllerReference(&instance, configMapObject, service.Scheme); err != nil {
+		return helper.LogErrorAndReturn(err)
 	}
 
-	configMap, err := service.coreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
+	configMap, err := service.CoreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
 
 	if err != nil && k8serr.IsNotFound(err) {
-		configMap, err = service.coreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
+		configMap, err = service.CoreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
 		if err != nil {
-			return logErrorAndReturn(err)
+			return helper.LogErrorAndReturn(err)
 		}
 		log.Printf("[INFO] ConfigMap %s/%s has been created", configMap.Namespace, configMapName)
 	} else if err != nil {
-		return logErrorAndReturn(err)
+		return helper.LogErrorAndReturn(err)
 	}
 
 	return nil
