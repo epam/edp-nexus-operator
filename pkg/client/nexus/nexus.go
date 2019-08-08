@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/resty.v1"
-	"io/ioutil"
-
 	"nexus-operator/pkg/apis/edp/v1alpha1"
 	nexusClientHelper "nexus-operator/pkg/client/helper"
 	"nexus-operator/pkg/helper"
@@ -69,9 +67,8 @@ func (nc NexusClient) CheckScriptExist(scriptName string) (bool, error) {
 }
 
 // UploadScript uploads script to Nexus
-func (nc NexusClient) UploadScript(scriptName string, scriptType string, scriptPath string) error {
-	scriptContent, err := ioutil.ReadFile(scriptPath)
-	formattedContent := nexusClientHelper.FormateNexusScript(string(scriptContent))
+func (nc NexusClient) UploadScript(scriptName string, scriptType string, scriptContent string) error {
+	formattedContent := nexusClientHelper.FormateNexusScript(scriptContent)
 	resp, err := nc.resty.R().
 		SetBody(`{"name":"` + scriptName + `", "type":"` + scriptType + `", "content": "` + formattedContent + `"}`).
 		SetHeaders(map[string]string{"accept": "application/json", "Content-type": "application/json"}).
@@ -83,15 +80,11 @@ func (nc NexusClient) UploadScript(scriptName string, scriptType string, scriptP
 }
 
 // AreDefaultScriptsDeclared checks if default scripts are already declared in Nexus
-func (nc NexusClient) AreDefaultScriptsDeclared(scriptsPath string) (bool, error) {
+func (nc NexusClient) AreDefaultScriptsDeclared(listOfScripts map[string]string) (bool, error) {
 	defaultScriptsAreDeclared := true
-	files, err := ioutil.ReadDir(scriptsPath)
-	if err != nil {
-		return false, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't read directory with scripts for %v/%v. Err - %v.", nc.instance.Namespace, nc.instance.Name, err)))
-	}
 
-	for _, f := range files {
-		scriptName := strings.Split(f.Name(), ".")[0]
+	for scriptFullName, _ := range listOfScripts {
+		scriptName := strings.Split(scriptFullName, ".")[0]
 		scriptExist, err := nc.CheckScriptExist(scriptName)
 		if err != nil {
 			return false, err
@@ -104,21 +97,16 @@ func (nc NexusClient) AreDefaultScriptsDeclared(scriptsPath string) (bool, error
 }
 
 // DeclareDefaultScripts declares default scripts in Nexus
-func (nc NexusClient) DeclareDefaultScripts(scriptsPath string) error {
-	files, err := ioutil.ReadDir(scriptsPath)
-	if err != nil {
-		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't read directory with scripts for %v/%v. Err - %v.", nc.instance.Namespace, nc.instance.Name, err)))
-	}
-
-	for _, f := range files {
-		scriptName := strings.Split(f.Name(), ".")[0]
-		scriptExtension := strings.Split(f.Name(), ".")[1]
+func (nc NexusClient) DeclareDefaultScripts(listOfScripts map[string]string) error {
+	for scriptFullName, scriptContent := range listOfScripts {
+		scriptName := strings.Split(scriptFullName, ".")[0]
+		scriptExtension := strings.Split(scriptFullName, ".")[1]
 		scriptExist, err := nc.CheckScriptExist(scriptName)
 		if err != nil {
 			return err
 		}
 		if !scriptExist {
-			nc.UploadScript(scriptName, scriptExtension, fmt.Sprintf("%v/%v", scriptsPath, f.Name()))
+			nc.UploadScript(scriptName, scriptExtension, scriptContent)
 			if err != nil {
 				return err
 			}

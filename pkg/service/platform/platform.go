@@ -20,7 +20,7 @@ type PlatformService interface {
 	CreateVolume(instance v1alpha1.Nexus) error
 	CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1Api.ServiceAccount, error)
 	CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error
-	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string) error
+	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error
 	CreateDeployConf(instance v1alpha1.Nexus) error
 	CreateExternalEndpoint(instance v1alpha1.Nexus) error
 }

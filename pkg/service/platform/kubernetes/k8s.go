@@ -17,6 +17,7 @@ import (
 	"nexus-operator/pkg/helper"
 	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
 	platformHelper "nexus-operator/pkg/service/platform/helper"
+	"os"
 	"path/filepath"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -152,19 +153,42 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 }
 
 // CreateConfigMapFromFile performs creating ConfigMap in K8S
-func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error {
-	labels := platformHelper.GenerateLabels(instance.Name)
-	data, err := ioutil.ReadFile(filePath)
+func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, path string) error {
+	configMapData := make(map[string]string)
+	pathInfo, err := os.Stat(path)
+	if err != nil {
+		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't open path %v. Err - %v.", path, err)))
+	}
+	if pathInfo.Mode().IsDir() {
+		directory, err := ioutil.ReadDir(path)
+		if err != nil {
+			return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't read directory %v. Err - %v.", path, err)))
+		}
+		for _, file := range directory {
+			content, err := ioutil.ReadFile(fmt.Sprintf("%v/%v", path, file.Name()))
+			if err != nil {
+				return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't read file %v. Err - %v.", path, err)))
+			}
+			configMapData[file.Name()] = string(content)
+		}
+	} else {
+		content, err := ioutil.ReadFile(path)
+		if err != nil {
+			return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't read file %v. Err - %v.", path, err)))
+		}
+		configMapData = map[string]string{
+			filepath.Base(path): string(content),
+		}
+	}
 
+	labels := platformHelper.GenerateLabels(instance.Name)
 	configMapObject := &coreV1Api.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapName,
 			Namespace: instance.Namespace,
 			Labels:    labels,
 		},
-		Data: map[string]string{
-			filepath.Base(filePath): string(data),
-		},
+		Data: configMapData,
 	}
 
 	if err := controllerutil.SetControllerReference(&instance, configMapObject, service.Scheme); err != nil {
@@ -187,10 +211,19 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 }
 
 // CreateConfigMapFromFile performs creating ConfigMap in K8S
-func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string) error {
+func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error {
 	directory, err := ioutil.ReadDir(directoryPath)
 	if err != nil {
 		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't read directory %v with scripts for %v/%v. Err - %v.", directoryPath, instance.Namespace, instance.Name, err)))
+	}
+
+	if !createDedicatedConfigMaps {
+		configMapName := fmt.Sprintf("%v-%v", instance.Name, filepath.Base(directoryPath))
+		service.CreateConfigMapFromFile(instance, configMapName, directoryPath)
+		if err != nil {
+			return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't create config-map %v in namespace %v. Err - %v.", configMapName, instance.Namespace, err)))
+		}
+		return nil
 	}
 
 	for _, file := range directory {

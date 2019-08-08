@@ -81,12 +81,17 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, e
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to check status for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.nexusClient.DeclareDefaultScripts(NexusDefaultScriptsPath)
+	nexusDefaultScriptsToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultScriptsConfigMapPrefix))
+	if err != nil {
+		return &instance, errors.Wrap(err, "[ERROR] Failed to get default tasks from Config Map")
+	}
+
+	err = n.nexusClient.DeclareDefaultScripts(nexusDefaultScriptsToCreate)
 	if err != nil {
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to upload default scripts for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	defaultScriptsAreDeclared, err := n.nexusClient.AreDefaultScriptsDeclared(NexusDefaultScriptsPath)
+	defaultScriptsAreDeclared, err := n.nexusClient.AreDefaultScriptsDeclared(nexusDefaultScriptsToCreate)
 	if !defaultScriptsAreDeclared || err != nil {
 		return &instance, errors.Wrapf(err, "[ERROR] Default scripts for %v/%v are not uploaded yet", instance.Namespace, instance.Name)
 	}
@@ -122,9 +127,14 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Service for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusDefaultConfigurationDirectoryPath)
+	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusDefaultConfigurationDirectoryPath, true)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for configuration %v/%v", instance.Namespace, instance.Name)
+	}
+
+	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusDefaultScriptsPath, false)
+	if err != nil {
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for scripts for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateDeployConf(instance)
