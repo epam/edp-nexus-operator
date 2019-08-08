@@ -133,20 +133,20 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
 	}
 
-	if instance.Status.Status == StatusCreated || instance.Status.Status == "" {
-		logPrint.Printf("[INFO] Configuration of %v/%v object with name has been started", instance.Namespace, instance.Name)
-		err := r.updateStatus(instance, StatusConfiguring)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
-		}
-	}
-
 	if dcIsReady, err := r.service.IsDeploymentConfigReady(*instance); err != nil {
 		logPrint.Printf("[ERROR] Checking if Deployment config for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
 	} else if !dcIsReady {
 		logPrint.Printf("[WARNING] Deployment config for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name)
 		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+	}
+
+	if instance.Status.Status == StatusCreated || instance.Status.Status == "" {
+		logPrint.Printf("[INFO] Configuration of %v/%v object has been started", instance.Namespace, instance.Name)
+		err := r.updateStatus(instance, StatusConfiguring)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
 	}
 
 	instance, err = r.service.Configure(*instance)

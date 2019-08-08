@@ -128,9 +128,9 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 									Name:      "data",
 								},
 								{
-									MountPath: "/opt/sonatype/nexus/etc/nexus-default.properties",
+									MountPath: "/opt/sonatype/nexus/etc/default-properties",
 									Name:      "config",
-									SubPath:   "nexus-default.properties",
+									SubPath:   "default-properties",
 								},
 							},
 						},
@@ -149,7 +149,7 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 							Name: "config",
 							VolumeSource: coreV1Api.VolumeSource{
 								ConfigMap: &coreV1Api.ConfigMapVolumeSource{
-									LocalObjectReference: coreV1Api.LocalObjectReference{Name: "nexus-properties"},
+									LocalObjectReference: coreV1Api.LocalObjectReference{Name: fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultPropertiesConfigMapPrefix)},
 								},
 							},
 						},

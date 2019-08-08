@@ -1,6 +1,8 @@
 package kubernetes
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
 	coreV1Api "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
@@ -182,4 +184,33 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 	}
 
 	return nil
+}
+
+// CreateConfigMapFromFile performs creating ConfigMap in K8S
+func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string) error {
+	directory, err := ioutil.ReadDir(directoryPath)
+	if err != nil {
+		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't read directory %v with scripts for %v/%v. Err - %v.", directoryPath, instance.Namespace, instance.Name, err)))
+	}
+
+	for _, file := range directory {
+		configMapName := fmt.Sprintf("%v-%v", instance.Name, file.Name())
+		service.CreateConfigMapFromFile(instance, configMapName, fmt.Sprintf("%v/%v", directoryPath, file.Name()))
+		if err != nil {
+			return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("[ERROR] Couldn't create config-map %v in namespace %v. Err - %v.", configMapName, instance.Namespace, err)))
+		}
+	}
+	return nil
+}
+
+func (service K8SService) GetConfigMapData(namespace string, name string) (map[string]string, error) {
+	configMap, err := service.CoreClient.ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+
+	if err != nil && k8serr.IsNotFound(err) {
+		log.Printf("Config map %v in namespace %v not found", name, namespace)
+		return nil, nil
+	} else if err != nil {
+		return nil, helper.LogErrorAndReturn(err)
+	}
+	return configMap.Data, nil
 }

@@ -145,3 +145,28 @@ func (nc NexusClient) CheckTaskExist(taskName string) (bool, error) {
 	}
 	return false, nil
 }
+
+// RunScript runs script in Nexus
+func (nc NexusClient) RunScript(scriptName string, parameters map[string]interface{}) error {
+	body, err := json.Marshal(parameters)
+	if err != nil {
+		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Creating task %v failed. Err - %v. Response - %s", parameters["name"], err)))
+	}
+	resp, err := nc.resty.R().
+		SetBody(body).
+		SetHeader("Content-type", "text/plain").
+		Post(fmt.Sprintf("/script/%v/run", scriptName))
+	if err != nil || resp.IsError() {
+		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Creating task %v failed. Err - %v. Response - %s", parameters["name"], err, resp.Status())))
+	}
+	return nil
+}
+
+// CreateTask creates task in Nexus
+func (nc NexusClient) CreateTask(parameters map[string]interface{}) error {
+	err := nc.RunScript("create-task", parameters)
+	if err != nil {
+		return err
+	}
+	return nil
+}

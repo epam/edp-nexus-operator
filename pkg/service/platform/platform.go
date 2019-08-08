@@ -14,11 +14,13 @@ import (
 // PlatformService interface
 type PlatformService interface {
 	GetRoute(namespace string, name string) (*routeV1Api.Route, string, error)
+	GetConfigMapData(namespace string, name string) (map[string]string, error)
 	GetDeploymentConfig(instance v1alpha1.Nexus) (*appsV1Api.DeploymentConfig, error)
 	CreateService(instance v1alpha1.Nexus) error
 	CreateVolume(instance v1alpha1.Nexus) error
 	CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1Api.ServiceAccount, error)
 	CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error
+	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string) error
 	CreateDeployConf(instance v1alpha1.Nexus) error
 	CreateExternalEndpoint(instance v1alpha1.Nexus) error
 }

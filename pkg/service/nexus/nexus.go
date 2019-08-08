@@ -1,6 +1,7 @@
 package nexus
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
@@ -9,6 +10,14 @@ import (
 	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
 	"nexus-operator/pkg/service/platform"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	//NexusDefaultConfigurationDirectoryPath
+	NexusDefaultConfigurationDirectoryPath = "/usr/local/configs/default-configuration"
+
+	//NexusDefaultScriptsPath - default scripts for uploading to Nexus
+	NexusDefaultScriptsPath = "/usr/local/configs/scripts"
 )
 
 // NexusService interface for Nexus EDP component
@@ -59,28 +68,40 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 	nexusRoute, nexusRouteScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
 	if err != nil {
-		return &instance, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to get route for %v/%v", instance.Namespace, instance.Name))
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to get route for %v/%v", instance.Namespace, instance.Name)
 	}
 	nexusApiUrl := fmt.Sprintf("%v://%v/%v", nexusRouteScheme, nexusRoute.Spec.Host, nexusDefaultSpec.NexusRestApiUrlPath)
 	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusDefaultSpec.NexusDefaultAdminPassword)
 	if err != nil {
-		return &instance, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name))
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.nexusClient.WaitForStatusIsUp(60, 10)
 	if err != nil {
-		return &instance, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to check status for %v/%v", instance.Namespace, instance.Name))
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to check status for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.nexusClient.DeclareDefaultScripts(nexusDefaultSpec.NexusScriptsPath)
+	err = n.nexusClient.DeclareDefaultScripts(NexusDefaultScriptsPath)
 	if err != nil {
-		return &instance, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to upload default scripts for %v/%v", instance.Namespace, instance.Name))
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to upload default scripts for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	defaultScriptsAreDeclared, err := n.nexusClient.AreDefaultScriptsDeclared(nexusDefaultSpec.NexusScriptsPath)
+	defaultScriptsAreDeclared, err := n.nexusClient.AreDefaultScriptsDeclared(NexusDefaultScriptsPath)
 	if !defaultScriptsAreDeclared || err != nil {
-		return &instance, errors.Wrap(err, fmt.Sprintf("[ERROR] Default scripts for %v/%v are not uploaded yet", instance.Namespace, instance.Name))
+		return &instance, errors.Wrapf(err, "[ERROR] Default scripts for %v/%v are not uploaded yet", instance.Namespace, instance.Name)
 	}
+
+	nexusDefaultTasksToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
+	if err != nil {
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to get default tasks from Config Map for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	var parsedTasks []map[string]interface{}
+	err = json.Unmarshal([]byte(nexusDefaultTasksToCreate[nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix]), &parsedTasks)
+	for _, taskParameters := range parsedTasks {
+		n.nexusClient.CreateTask(taskParameters)
+	}
+
 	return &instance, nil
 }
 
@@ -88,32 +109,32 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, e
 func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 	err := n.platformService.CreateVolume(instance)
 	if err != nil {
-		return &instance, errors.Wrap(err, "[ERROR] Failed to create Volume")
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Volume for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	_, err = n.platformService.CreateServiceAccount(instance)
 	if err != nil {
-		return &instance, errors.Wrap(err, "[ERROR] Failed to create Service Account")
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Service Account for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateService(instance)
 	if err != nil {
-		return &instance, errors.Wrap(err, "[ERROR] Failed to create Service")
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Service for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.platformService.CreateConfigMapFromFile(instance, "nexus-properties", nexusDefaultSpec.NexusProperties)
+	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusDefaultConfigurationDirectoryPath)
 	if err != nil {
-		return &instance, errors.Wrap(err, "[ERROR] Failed to create Config Map")
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateDeployConf(instance)
 	if err != nil {
-		return &instance, errors.Wrap(err, "[ERROR] Failed to create Deployment Config")
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Deployment Config for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateExternalEndpoint(instance)
 	if err != nil {
-		return &instance, errors.Wrap(err, "[ERROR] Failed to create External Route")
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to create External Route for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	return &instance, nil
