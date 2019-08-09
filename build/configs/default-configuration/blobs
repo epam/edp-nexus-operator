@@ -1,0 +1,1 @@
+[  {    "name": "edp-npm",    "path": "/nexus-data/blobs/edp-npm"  },  {    "name": "edp-maven",    "path": "/nexus-data/blobs/edp-maven"  },  {    "name": "edp-dotnet",    "path": "/nexus-data/blobs/edp-dotnet"  }]

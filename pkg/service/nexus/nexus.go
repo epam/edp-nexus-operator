@@ -151,6 +151,38 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		}
 	}
 
+	// Creating blob storage configuration from config map
+	blobs, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-blobs", instance.Name))
+	if err != nil {
+		return &instance,false, errors.Wrapf(err, "[ERROR] Failed to get data from ConfigMap %v-blobs", instance.Name)
+	}
+
+	var parsedBlobs []map[string]interface{}
+	err = json.Unmarshal([]byte(blobs["blobs"]), &parsedBlobs)
+	if err != nil {
+		return  &instance,false, errors.Wrapf(err, "[ERROR] Failed to unmarshal blob ConfigMap")
+	}
+
+	err = n.nexusClient.CreateBlobStorages(parsedBlobs)
+	if err != nil {
+		return &instance,false, err
+	}
+
+	// Creating repositories from config map
+	repositories, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-repos", instance.Name))
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR]  Failed to get data from ConfigMap %v-repos", instance.Name)
+	}
+
+	var parsedRepositories []map[string]interface{}
+
+	err = json.Unmarshal([]byte(repositories["repos"]), &parsedRepositories)
+
+	err = n.nexusClient.CreateRepositories(parsedRepositories)
+	if err != nil {
+		return &instance,false, err
+	}
+
 	return &instance, true, nil
 }
 

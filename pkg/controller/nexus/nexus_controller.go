@@ -151,7 +151,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, isFinished, err := r.service.Configure(*instance)
 	if err != nil {
-		logPrint.Printf("[ERROR] Configuration of %v/%v object has been failed", instance.Namespace, instance.Name)
+		logPrint.Printf("[ERROR] Configuration of %v/%v object has been failed. Err: %v", instance.Namespace, instance.Name, err)
 		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
 	} else if !isFinished {
 		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil

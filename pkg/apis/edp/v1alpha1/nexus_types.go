@@ -12,12 +12,12 @@ import (
 // +k8s:openapi-gen=true
 type NexusSpec struct {
 	Version string         `json:"version"`
-	Volumes []SonarVolumes `json:"volumes,omitempty"`
+	Volumes []NexusVolumes `json:"volumes,omitempty"`
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 }
 
-type SonarVolumes struct {
+type NexusVolumes struct {
 	Name         string `json:"name"`
 	StorageClass string `json:"storage_class"`
 	Capacity     string `json:"capacity"`
