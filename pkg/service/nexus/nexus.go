@@ -3,6 +3,7 @@ package nexus
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
 	"log"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
@@ -19,6 +20,8 @@ const (
 
 	//NexusDefaultScriptsPath - default scripts for uploading to Nexus
 	NexusDefaultScriptsPath = "/usr/local/configs/scripts"
+
+	LocalConfigsRelativePath = "configs"
 )
 
 // NexusService interface for Nexus EDP component
@@ -67,12 +70,15 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 
 // Configure performs self-configuration of Nexus
 func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
-	//nexusRoute, nexusRouteScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
-	//if err != nil {
-	//	return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get route for %v/%v", instance.Namespace, instance.Name)
-	//}
-	//nexusApiUrl := fmt.Sprintf("%v://%v/%v", nexusRouteScheme, nexusRoute.Spec.Host, nexusDefaultSpec.NexusRestApiUrlPath)
 	nexusApiUrl := fmt.Sprintf("http://%v.%v:%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, nexusDefaultSpec.NexusRestApiUrlPath)
+	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
+		nexusRoute, nexusRouteScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get route for %v/%v", instance.Namespace, instance.Name)
+		}
+		nexusApiUrl = fmt.Sprintf("%v://%v/%v", nexusRouteScheme, nexusRoute.Spec.Host, nexusDefaultSpec.NexusRestApiUrlPath)
+	}
+
 	err := n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusDefaultSpec.NexusDefaultAdminPassword)
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
@@ -132,12 +138,21 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Service for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusDefaultConfigurationDirectoryPath, true)
+	executableFilePath := helper.GetExecutableFilePath()
+	NexusConfigurationDirectoryPath := NexusDefaultConfigurationDirectoryPath
+	if _, err = k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
+		NexusConfigurationDirectoryPath = fmt.Sprintf("%v/../%v/default-configuration", executableFilePath, LocalConfigsRelativePath)
+	}
+	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusConfigurationDirectoryPath, true)
 	if err != nil {
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for configuration %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusDefaultScriptsPath, false)
+	NexusScriptsPath := NexusDefaultScriptsPath
+	if _, err = k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
+		NexusScriptsPath = fmt.Sprintf("%v/../%v/scripts", executableFilePath, LocalConfigsRelativePath)
+	}
+	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusScriptsPath, false)
 	if err != nil {
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for scripts for %v/%v", instance.Namespace, instance.Name)
 	}
