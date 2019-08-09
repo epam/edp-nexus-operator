@@ -9,7 +9,6 @@ import (
 	nexusClientHelper "nexus-operator/pkg/client/helper"
 	"nexus-operator/pkg/helper"
 	"strings"
-	"time"
 )
 
 type NexusClient struct {
@@ -27,24 +26,16 @@ func (nc *NexusClient) InitNewRestClient(instance *v1alpha1.Nexus, url string, u
 }
 
 // WaitForStatusIsUp waits for Nexus to be up
-func (nc NexusClient) WaitForStatusIsUp(retryCount int, timeout time.Duration) error {
-	resp, err := nc.resty.
-		SetRetryCount(retryCount).
-		SetRetryWaitTime(timeout * time.Second).
-		AddRetryCondition(
-			func(response *resty.Response) (bool, error) {
-				if response.IsError() || !response.IsSuccess() {
-					return response.IsError(), nil
-				}
-				return false, nil
-			},
-		).
-		R().
+func (nc NexusClient) IsNexusRestApiReady() (bool, error) {
+	nexusIsReady := true
+	resp, err := nc.resty.R().
 		Get("/status")
-	if err != nil || resp.IsError() {
-		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Checking Nexus component %v/%v status failed. Err - %v. Response - %s", nc.instance.Namespace, nc.instance.Name, err, resp.Status())))
+	if err != nil {
+		return nexusIsReady, helper.LogErrorAndReturn(err)
+	} else if resp.IsError() {
+		nexusIsReady = false
 	}
-	return nil
+	return nexusIsReady, nil
 }
 
 // CheckScriptExist checks if script is already uploaded
