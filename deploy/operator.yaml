@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nexus-operator
+  name: nexus-operator-v2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: nexus-operator
+      name: nexus-operator-v2
   template:
     metadata:
       labels:
-        name: nexus-operator
+        name: nexus-operator-v2
     spec:
       serviceAccountName: edp
       containers:
-        - name: nexus-operator
+        - name: nexus-operator-v2
           # Replace this with the built image name
           image: REPLACE_IMAGE
           command:
@@ -28,4 +28,4 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: "nexus-operator"
+              value: "nexus-operator-v2"
