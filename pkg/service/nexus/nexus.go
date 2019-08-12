@@ -115,23 +115,40 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	var parsedTasks []map[string]interface{}
 	err = json.Unmarshal([]byte(nexusDefaultTasksToCreate[nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix]), &parsedTasks)
 	for _, taskParameters := range parsedTasks {
-		n.nexusClient.CreateTask(taskParameters)
+		_, err = n.nexusClient.RunScript("create-task", taskParameters)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create task %v for %v/%v", taskParameters["name"], instance.Namespace, instance.Name)
+		}
 	}
 
 	var emptyParameter map[string]interface{}
-
-	err = n.nexusClient.RunScript("disable-outreach-capability", emptyParameter)
+	_, err = n.nexusClient.RunScript("disable-outreach-capability", emptyParameter)
 	if err != nil {
-		return &instance, false, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to run disable-outreach-capability scripts"))
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to run disable-outreach-capability scripts for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	realmName := map[string]interface{}{
-		"name": "NuGetApiKey",
+	enabledRealms := []map[string]interface{}{
+		{"name": "NuGetApiKey"},
+	}
+	for _, realmName := range enabledRealms {
+		_, err = n.nexusClient.RunScript("enable-realm", realmName)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed enable %v for %v/%v", enabledRealms, instance.Namespace, instance.Name)
+		}
 	}
 
-	err = n.nexusClient.RunScript("enable-realm", realmName)
+	nexusDefaultRolesToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix))
 	if err != nil {
-		return &instance, false, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to run disable-outreach-capability scripts"))
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get default roles from Config Map for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	var parsedRoles []map[string]interface{}
+	err = json.Unmarshal([]byte(nexusDefaultRolesToCreate[nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix]), &parsedRoles)
+	for _, roleParameters := range parsedRoles {
+		_, err := n.nexusClient.RunScript("setup-role", roleParameters)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create role %v for %v/%v", roleParameters["name"], instance.Namespace, instance.Name)
+		}
 	}
 
 	return &instance, true, nil

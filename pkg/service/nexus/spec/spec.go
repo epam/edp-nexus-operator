@@ -10,6 +10,9 @@ const (
 	//NexusDefaultTasksConfigMapPrefix
 	NexusDefaultScriptsConfigMapPrefix = "scripts"
 
+	//NexusDefaultRolesConfigMapPrefix
+	NexusDefaultRolesConfigMapPrefix = "default-roles"
+
 	//NexusPort - default Nexus port
 	NexusPort = 8081
 
