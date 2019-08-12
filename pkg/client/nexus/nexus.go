@@ -97,7 +97,7 @@ func (nc NexusClient) DeclareDefaultScripts(listOfScripts map[string]string) err
 			return err
 		}
 		if !scriptExist {
-			err := nc.UploadScript(scriptName, scriptExtension, scriptContent)
+			nc.UploadScript(scriptName, scriptExtension, scriptContent)
 			if err != nil {
 				return err
 			}
@@ -126,55 +126,24 @@ func (nc NexusClient) CheckTaskExist(taskName string) (bool, error) {
 }
 
 // RunScript runs script in Nexus
-func (nc NexusClient) RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error) {
+func (nc NexusClient) RunScript(scriptName string, parameters map[string]interface{}) error {
 	body, err := json.Marshal(parameters)
 	if err != nil {
-		return nil, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Couldn't marshmal parameters %v from script %v. Err - %v", parameters, scriptName, err)))
+		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Creating task %v failed. Err - %v. Response - %s", parameters["name"], err)))
 	}
 	resp, err := nc.resty.R().
 		SetBody(body).
 		SetHeader("Content-type", "text/plain").
 		Post(fmt.Sprintf("/script/%v/run", scriptName))
 	if err != nil || resp.IsError() {
-		return nil, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Running script %v with parameters %v failed. Err - %v. Response - %s", scriptName, parameters, err, resp.Status())))
-	}
-	return resp.Body(), nil
-}
-
-// CreateTask creates task in Nexus
-func (nc NexusClient) CreateTask(parameters map[string]interface{}) error {
-	_, err := nc.RunScript("create-task", parameters)
-	if err != nil {
-		return err
+		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Creating task %v failed. Err - %v. Response - %s", parameters["name"], err, resp.Status())))
 	}
 	return nil
 }
 
-// CheckRoleExist checks if role is already exist
-func (nc NexusClient) CheckRoleExist(roleName interface{}) (bool, error) {
-	resp, err := nc.RunScript("get-role", map[string]interface{}{"id": roleName})
-	if err != nil {
-		return false, err
-	}
-	var parsedResponse map[string]string
-	err = json.Unmarshal(resp, &parsedResponse)
-	if err != nil {
-		return false, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Unable to unmarshmal %v. Err - %v.", string(resp), err)))
-	}
-	var parsedResult map[string]interface{}
-	err = json.Unmarshal([]byte(parsedResponse["result"]), &parsedResult)
-	if err != nil {
-		return false, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Unable to unmarshmal %v. Err - %v.", parsedResponse["result"], err)))
-	}
-	if parsedResult["roleId"] == roleName {
-		return true, nil
-	}
-	return false, nil
-}
-
-// CreateRole creates roles in Nexus
-func (nc NexusClient) CreateRole(parameters map[string]interface{}) error {
-	_, err := nc.RunScript("setup-role", parameters)
+// CreateTask creates task in Nexus
+func (nc NexusClient) CreateTask(parameters map[string]interface{}) error {
+	err := nc.RunScript("create-task", parameters)
 	if err != nil {
 		return err
 	}
