@@ -3,18 +3,12 @@ package spec
 const (
 	//NexusDefaultPropertiesConfigMapPrefix
 	NexusDefaultPropertiesConfigMapPrefix = "default-properties"
-	//NexusProperties - default configuration of Nexus
-	//NexusProperties = "/usr/local/configs/nexus-default.properties"
-	NexusProperties = "C:\\Users\\Viktor_Voronin\\go\\src\\nexus-operator\\build\\configs\\nexus-default.properties"
 
 	//NexusDefaultTasksConfigMapPrefix
 	NexusDefaultTasksConfigMapPrefix = "default-tasks"
 
 	//NexusDefaultTasksConfigMapPrefix
 	NexusDefaultScriptsConfigMapPrefix = "scripts"
-	//NexusScriptsPath - default scripts for uploading to Nexus
-	//NexusScriptsPath = "/usr/local/configs/scripts"
-	NexusScriptsPath = "C:\\Users\\Viktor_Voronin\\go\\src\\nexus-operator\\build\\configs\\scripts"
 
 	//NexusPort - default Nexus port
 	NexusPort = 8081

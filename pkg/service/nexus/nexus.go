@@ -118,22 +118,6 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		n.nexusClient.CreateTask(taskParameters)
 	}
 
-	var emptyParameter map[string]interface{}
-
-	err = n.nexusClient.RunScript("disable-outreach-capability", emptyParameter)
-	if err != nil {
-		return &instance, false, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to run disable-outreach-capability scripts"))
-	}
-
-	realmName := map[string]interface{}{
-		"name": "NuGetApiKey",
-	}
-
-	err = n.nexusClient.RunScript("enable-realm", realmName)
-	if err != nil {
-		return &instance, false, errors.Wrap(err, fmt.Sprintf("[ERROR] Failed to run disable-outreach-capability scripts"))
-	}
-
 	return &instance, true, nil
 }
 
