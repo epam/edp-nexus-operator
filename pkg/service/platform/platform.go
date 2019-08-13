@@ -13,9 +13,11 @@ import (
 
 // PlatformService interface
 type PlatformService interface {
+	GetSecretData(namespace string, name string) (map[string][]byte, error)
 	GetRoute(namespace string, name string) (*routeV1Api.Route, string, error)
 	GetConfigMapData(namespace string, name string) (map[string]string, error)
 	GetDeploymentConfig(instance v1alpha1.Nexus) (*appsV1Api.DeploymentConfig, error)
+	CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error
 	CreateService(instance v1alpha1.Nexus) error
 	CreateVolume(instance v1alpha1.Nexus) error
 	CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1Api.ServiceAccount, error)

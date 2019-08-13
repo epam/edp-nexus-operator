@@ -15,28 +15,26 @@ import (
 type NexusClient struct {
 	instance *v1alpha1.Nexus
 	resty    resty.Client
-	ApiUrl   string
 }
 
 // InitNewRestClient performs initialization of Nexus connection
 func (nc *NexusClient) InitNewRestClient(instance *v1alpha1.Nexus, url string, user string, password string) error {
 	nc.resty = *resty.SetHostURL(url).SetBasicAuth(user, password)
 	nc.instance = instance
-	nc.ApiUrl = url
 	return nil
 }
 
 // WaitForStatusIsUp waits for Nexus to be up
-func (nc NexusClient) IsNexusRestApiReady() (bool, error) {
+func (nc NexusClient) IsNexusRestApiReady() (bool, int, error) {
 	nexusIsReady := true
 	resp, err := nc.resty.R().
 		Get("/status")
 	if err != nil {
-		return nexusIsReady, helper.LogErrorAndReturn(err)
+		return nexusIsReady, resp.StatusCode(), helper.LogErrorAndReturn(err)
 	} else if resp.IsError() {
 		nexusIsReady = false
 	}
-	return nexusIsReady, nil
+	return nexusIsReady, resp.StatusCode(), nil
 }
 
 // CheckScriptExist checks if script is already uploaded
@@ -137,7 +135,7 @@ func (nc NexusClient) RunScript(scriptName string, parameters map[string]interfa
 		SetHeader("Content-type", "text/plain").
 		Post(fmt.Sprintf("/script/%v/run", scriptName))
 	if err != nil || resp.IsError() {
-		return nil, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Running script %v with parameters %v failed. Err - %v. Response - %s", scriptName, parameters, err, resp.Status())))
+		return nil, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Running script %v failed. Err - %v. Response - %s", scriptName, err, resp.Status())))
 	}
 	return resp.Body(), nil
 }

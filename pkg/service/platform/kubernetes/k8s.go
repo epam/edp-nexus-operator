@@ -38,6 +38,40 @@ func (service *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme) err
 	return nil
 }
 
+// CreateSecret performs creating Secret in K8S
+func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error {
+	labels := platformHelper.GenerateLabels(instance.Name)
+
+	secretObject := &coreV1Api.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: instance.Namespace,
+			Labels:    labels,
+		},
+		Data: data,
+		Type: "Opaque",
+	}
+
+	if err := controllerutil.SetControllerReference(&instance, secretObject, service.Scheme); err != nil {
+		return err
+	}
+
+	secret, err := service.CoreClient.Secrets(secretObject.Namespace).Get(secretObject.Name, metav1.GetOptions{})
+
+	if err != nil && k8serr.IsNotFound(err) {
+		secret, err = service.CoreClient.Secrets(secretObject.Namespace).Create(secretObject)
+		if err != nil {
+			return err
+		}
+		log.Printf("[INFO] Secret %s/%s has been created", secret.Namespace, secret.Name)
+
+	} else if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreateVolume performs creating PersistentVolumeClaim in K8S
 func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
@@ -235,6 +269,7 @@ func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus,
 	return nil
 }
 
+// GetConfigMapData return data field of ConfigMap
 func (service K8SService) GetConfigMapData(namespace string, name string) (map[string]string, error) {
 	configMap, err := service.CoreClient.ConfigMaps(namespace).Get(name, metav1.GetOptions{})
 
@@ -245,4 +280,16 @@ func (service K8SService) GetConfigMapData(namespace string, name string) (map[s
 		return nil, helper.LogErrorAndReturn(err)
 	}
 	return configMap.Data, nil
+}
+
+// GetSecret return data field of Secret
+func (service K8SService) GetSecretData(namespace string, name string) (map[string][]byte, error) {
+	secret, err := service.CoreClient.Secrets(namespace).Get(name, metav1.GetOptions{})
+	if err != nil && k8serr.IsNotFound(err) {
+		log.Printf("Secret %v in namespace %v not found", name, namespace)
+		return nil, nil
+	} else if err != nil {
+		return nil, helper.LogErrorAndReturn(err)
+	}
+	return secret.Data, nil
 }

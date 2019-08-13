@@ -3,6 +3,7 @@ package nexus
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/dchest/uniuri"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
 	"log"
@@ -58,6 +59,27 @@ func (n NexusServiceImpl) IsDeploymentConfigReady(instance v1alpha1.Nexus) (bool
 	return nexusIsReady, nil
 }
 
+func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
+	nexusApiUrl := fmt.Sprintf("http://%v.%v:%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, nexusDefaultSpec.NexusRestApiUrlPath)
+	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
+		nexusRoute, nexusRouteScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
+		if err != nil {
+			return "", errors.Wrapf(err, "[ERROR] Failed to get Route for %v/%v", instance.Namespace, instance.Name)
+		}
+		nexusApiUrl = fmt.Sprintf("%v://%v/%v", nexusRouteScheme, nexusRoute.Spec.Host, nexusDefaultSpec.NexusRestApiUrlPath)
+	}
+	return nexusApiUrl, nil
+}
+
+func (n NexusServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string, error) {
+	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
+	nexusAdminCredentials, err := n.platformService.GetSecretData(instance.Namespace, secretName)
+	if err != nil {
+		return "", errors.Wrapf(err, "[ERROR] Failed to get Secret %v for %v/%v", secretName, instance.Namespace, instance.Name)
+	}
+	return string(nexusAdminCredentials["password"]), nil
+}
+
 // Integration performs integration Nexus with other EDP components
 func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 	return &instance, nil
@@ -70,22 +92,31 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 
 // Configure performs self-configuration of Nexus
 func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
-	nexusApiUrl := fmt.Sprintf("http://%v.%v:%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, nexusDefaultSpec.NexusRestApiUrlPath)
-	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
-		nexusRoute, nexusRouteScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
-		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get route for %v/%v", instance.Namespace, instance.Name)
-		}
-		nexusApiUrl = fmt.Sprintf("%v://%v/%v", nexusRouteScheme, nexusRoute.Spec.Host, nexusDefaultSpec.NexusRestApiUrlPath)
+	nexusApiUrl, err := n.getNexusRestApiUrl(instance)
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err := n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusDefaultSpec.NexusDefaultAdminPassword)
+	nexusGeneratedPassword, err := n.getNexusAdminPassword(instance)
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get Nexus admin password from secret for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusDefaultSpec.NexusDefaultAdminPassword)
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	nexusApiIsReady, err := n.nexusClient.IsNexusRestApiReady()
-	if nexusApiIsReady, err = n.nexusClient.IsNexusRestApiReady(); err != nil {
+	if _, responseStatus, err := n.nexusClient.IsNexusRestApiReady(); err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR] Checking if Nexus REST API for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
+	} else if responseStatus == 401 {
+		err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusGeneratedPassword)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
+		}
+	}
+
+	if nexusApiIsReady, _, err := n.nexusClient.IsNexusRestApiReady(); err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Checking if Nexus REST API for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
 	} else if !nexusApiIsReady {
 		log.Printf("[WARNING] Nexus REST API for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name)
@@ -105,6 +136,16 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	defaultScriptsAreDeclared, err := n.nexusClient.AreDefaultScriptsDeclared(nexusDefaultScriptsToCreate)
 	if !defaultScriptsAreDeclared || err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Default scripts for %v/%v are not uploaded yet", instance.Namespace, instance.Name)
+	}
+
+	updatePasswordParameters := map[string]interface{}{"new_password": nexusGeneratedPassword}
+	_, err = n.nexusClient.RunScript("update-admin-password", updatePasswordParameters)
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed update admin password for %v/%v", instance.Namespace, instance.Name)
+	}
+	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusGeneratedPassword)
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	nexusDefaultTasksToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
@@ -177,7 +218,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	var parsedReposToCreate []map[string]interface{}
-	
+
 	err = json.Unmarshal([]byte(reposToCreate["repos"]), &parsedReposToCreate)
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to unmarshal %v-repos ConfigMap!", instance.Name)
@@ -198,7 +239,17 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 // Install performs installation of Nexus
 func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
-	err := n.platformService.CreateVolume(instance)
+	adminSecret := map[string][]byte{
+		"user":     []byte(nexusDefaultSpec.NexusDefaultAdminUser),
+		"password": []byte(uniuri.New()),
+	}
+
+	err := n.platformService.CreateSecret(instance, instance.Name+"-admin-password", adminSecret)
+	if err != nil {
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to Secret for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	err = n.platformService.CreateVolume(instance)
 	if err != nil {
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Volume for %v/%v", instance.Namespace, instance.Name)
 	}
