@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
 
-	"log"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
 	nexusClientHelper "nexus-operator/pkg/client/helper"
 	"nexus-operator/pkg/helper"
@@ -165,32 +164,31 @@ func (nc NexusClient) CheckRoleExist(roleName interface{}) (bool, error) {
 	return false, nil
 }
 
-// CreateRepositories creates repositories from config map
-func (nc NexusClient) CreateRepositories(parameters []map[string]interface{}) error {
-
-	for _, value := range parameters {
-		repositoryName := value["name"].(string)
-		repositoryType := value["repositoryType"].(string)
-		err := nc.RunScript(fmt.Sprintf("create-repo-%v", repositoryType), value)
-		if err != nil {
-			return errors.Wrapf(err, "[ERROR] Failed to create repository %v!", repositoryName)
-		}
-		log.Printf("[INFO] Created repository %v", repositoryName)
+// CheckRepositoryExist checks if repository name is present in Nexus repository list
+func (nc NexusClient) CheckRepositoryExist(repositoryName string) (bool, error) {
+	serverRepoList, err := nc.GetRepositoryList()
+	if err != nil {
+		return false, errors.Wrap(err, "[ERROR] Failed to get repository list from Nexus!")
 	}
 
-	return nil
+	for _, repository := range serverRepoList {
+		if repository["name"] == repositoryName {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
-// CreateBlobStorages creates blob storages for repositories in Nexus from config map data
-func (nc NexusClient) CreateBlobStorages(parameters []map[string]interface{}) error {
+// GetRepositoryList takes list of repositories from Nexus server
+func (nc NexusClient) GetRepositoryList() ([]map[string]interface{}, error) {
+	var out []map[string]interface{}
 
-	for _, value := range parameters {
-		err := nc.RunScript("create-blobstore", value)
-		if err != nil {
-			return errors.Wrapf(err, "[ERROR] Failed to create blob store %v!", value["name"])
-		}
-		log.Printf("[INFO] Created blob %v", value["name"])
+	resp, err := nc.resty.R().Get("/repositories")
+	if err != nil {
+		return nil, errors.Wrap(err, "[ERROR] Failed to get repository list from Nexus!")
 	}
 
-	return nil
+	err = json.Unmarshal(resp.Body(), &out)
+
+	return out, nil
 }

@@ -152,35 +152,45 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	// Creating blob storage configuration from config map
-	blobs, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-blobs", instance.Name))
+	blobsConfig, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-blobs", instance.Name))
 	if err != nil {
-		return &instance,false, errors.Wrapf(err, "[ERROR] Failed to get data from ConfigMap %v-blobs", instance.Name)
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get data from ConfigMap %v-blobs", instance.Name)
 	}
 
-	var parsedBlobs []map[string]interface{}
-	err = json.Unmarshal([]byte(blobs["blobs"]), &parsedBlobs)
+	var parsedBlobsConfig []map[string]interface{}
+	err = json.Unmarshal([]byte(blobsConfig["blobs"]), &parsedBlobsConfig)
 	if err != nil {
-		return  &instance,false, errors.Wrapf(err, "[ERROR] Failed to unmarshal blob ConfigMap")
+		return &instance, false, errors.Wrap(err, "[ERROR] Failed to unmarshal blob ConfigMap")
 	}
 
-	err = n.nexusClient.CreateBlobStorages(parsedBlobs)
-	if err != nil {
-		return &instance,false, err
+	for _, blob := range parsedBlobsConfig {
+		_, err := n.nexusClient.RunScript("create-blobstore", blob)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create blob store %v!", blob["name"])
+		}
 	}
 
-	// Creating repositories from config map
-	repositories, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-repos", instance.Name))
+	// Creating repositoriesToCreate from config map
+	reposToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-repos", instance.Name))
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR]  Failed to get data from ConfigMap %v-repos", instance.Name)
 	}
 
-	var parsedRepositories []map[string]interface{}
-
-	err = json.Unmarshal([]byte(repositories["repos"]), &parsedRepositories)
-
-	err = n.nexusClient.CreateRepositories(parsedRepositories)
+	var parsedReposToCreate []map[string]interface{}
+	
+	err = json.Unmarshal([]byte(reposToCreate["repos"]), &parsedReposToCreate)
 	if err != nil {
-		return &instance,false, err
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to unmarshal %v-repos ConfigMap!", instance.Name)
+	}
+
+	for _, repositoryToCreate := range parsedReposToCreate {
+		repositoryName := repositoryToCreate["name"].(string)
+		repositoryType := repositoryToCreate["repositoryType"].(string)
+		_, err := n.nexusClient.RunScript(fmt.Sprintf("create-repo-%v", repositoryType), repositoryToCreate)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create repository %v!", repositoryName)
+		}
+
 	}
 
 	return &instance, true, nil
