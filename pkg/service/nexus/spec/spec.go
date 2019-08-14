@@ -13,6 +13,12 @@ const (
 	//NexusDefaultRolesConfigMapPrefix
 	NexusDefaultRolesConfigMapPrefix = "default-roles"
 
+	//NexusDefaultReposToCreateConfigMapPrefix
+	NexusDefaultReposToCreateConfigMapPrefix = "repos-to-create"
+
+	//NexusDefaultReposToDeleteConfigMapPrefix
+	NexusDefaultReposToDeleteConfigMapPrefix = "repos-to-delete"
+
 	//NexusPort - default Nexus port
 	NexusPort = 8081
 

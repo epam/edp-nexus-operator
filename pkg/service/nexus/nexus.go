@@ -212,16 +212,15 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	// Creating repositoriesToCreate from config map
-	reposToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-repos", instance.Name))
+	reposToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix))
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR]  Failed to get data from ConfigMap %v-repos", instance.Name)
+		return &instance, false, errors.Wrapf(err, "[ERROR]  Failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix)
 	}
 
 	var parsedReposToCreate []map[string]interface{}
-
-	err = json.Unmarshal([]byte(reposToCreate["repos"]), &parsedReposToCreate)
+	err = json.Unmarshal([]byte(reposToCreate[nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix]), &parsedReposToCreate)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to unmarshal %v-repos ConfigMap!", instance.Name)
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to unmarshal %v-%v ConfigMap!", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix)
 	}
 
 	for _, repositoryToCreate := range parsedReposToCreate {
@@ -231,7 +230,24 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create repository %v!", repositoryName)
 		}
+	}
 
+	reposToDelete, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix))
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR]  Failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix)
+	}
+
+	var parsedReposToDelete []map[string]interface{}
+	err = json.Unmarshal([]byte(reposToDelete[nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix]), &parsedReposToDelete)
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to unmarshal %v-%v ConfigMap!", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix)
+	}
+
+	for _, repositoryToDelete := range parsedReposToDelete {
+		_, err := n.nexusClient.RunScript("delete-repo", repositoryToDelete)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to delete repository %v", repositoryToDelete)
+		}
 	}
 
 	return &instance, true, nil

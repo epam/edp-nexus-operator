@@ -16,4 +16,8 @@ import groovy.json.JsonSlurper
 
 parsed_args = new JsonSlurper().parseText(args)
 
-repository.getRepositoryManager().delete(parsed_args.name)
+def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+if (existingRepository != null) {
+    repository.getRepositoryManager().delete(parsed_args.name)
+}
