@@ -19,6 +19,9 @@ const (
 	//NexusDefaultReposToDeleteConfigMapPrefix
 	NexusDefaultReposToDeleteConfigMapPrefix = "repos-to-delete"
 
+	//NexusDefaultUsersConfigMapPrefix key for ConfigMap entry with default users list
+	NexusDefaultUsersConfigMapPrefix string = "default-users"
+
 	//NexusPort - default Nexus port
 	NexusPort = 8081
 
@@ -36,4 +39,10 @@ const (
 
 	//NexusRestApiUrlPath - Nexus relative REST API path
 	NexusRestApiUrlPath = "service/rest/v1"
+
+	//EdpAnnotationsPrefix general prefix for all annotation made by EDP team
+	EdpAnnotationsPrefix string = "edp.epam.com"
+
+	//EdpCiUserSuffix entity prefix for integration functionality
+	EdpCiUserSuffix string = "ci-credentials"
 )

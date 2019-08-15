@@ -6,3 +6,4 @@ func GenerateLabels(name string) map[string]string {
 		"app": name,
 	}
 }
+

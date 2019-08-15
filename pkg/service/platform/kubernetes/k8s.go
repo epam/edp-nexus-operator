@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	coreV1Api "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
@@ -11,7 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	coreV1Client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
-	"log"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
 	"nexus-operator/pkg/helper"
 	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
@@ -19,7 +19,10 @@ import (
 	"os"
 	"path/filepath"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
+
+var log = logf.Log.WithName("platform")
 
 // K8SService struct for K8S platform service
 type K8SService struct {
@@ -35,40 +38,6 @@ func (service *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme) err
 	}
 	service.CoreClient = *CoreClient
 	service.Scheme = Scheme
-	return nil
-}
-
-// CreateSecret performs creating Secret in K8S
-func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error {
-	labels := platformHelper.GenerateLabels(instance.Name)
-
-	secretObject := &coreV1Api.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: instance.Namespace,
-			Labels:    labels,
-		},
-		Data: data,
-		Type: "Opaque",
-	}
-
-	if err := controllerutil.SetControllerReference(&instance, secretObject, service.Scheme); err != nil {
-		return err
-	}
-
-	secret, err := service.CoreClient.Secrets(secretObject.Namespace).Get(secretObject.Name, metav1.GetOptions{})
-
-	if err != nil && k8serr.IsNotFound(err) {
-		secret, err = service.CoreClient.Secrets(secretObject.Namespace).Create(secretObject)
-		if err != nil {
-			return err
-		}
-		log.Printf("[INFO] Secret %s/%s has been created", secret.Namespace, secret.Name)
-
-	} else if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -107,11 +76,49 @@ func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 			if err != nil {
 				return helper.LogErrorAndReturn(err)
 			}
-			log.Printf("[INFO] PersistantVolumeClaim %s/%s has been created", volume.Namespace, volume.Name)
+			log.Info(fmt.Sprintf(" PersistantVolumeClaim %s/%s has been created", volume.Namespace, volume.Name))
 		} else if err != nil {
 			return helper.LogErrorAndReturn(err)
 		}
 	}
+	return nil
+}
+
+//CreateSecret creates secret object in K8s cluster
+func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error {
+
+	labels := platformHelper.GenerateLabels(instance.Name)
+
+	nexusSecretObject := &coreV1Api.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: instance.Namespace,
+			Labels:    labels,
+		},
+		Data: data,
+		Type: "Opaque",
+	}
+
+	if err := controllerutil.SetControllerReference(&instance, nexusSecretObject, service.Scheme); err != nil {
+		return err
+	}
+
+	nexusSecret, err := service.CoreClient.Secrets(nexusSecretObject.Namespace).Get(nexusSecretObject.Name, metav1.GetOptions{})
+
+	if err != nil && k8serr.IsNotFound(err) {
+		log.Info(fmt.Sprintf("Creating a new Secret %s/%s for Nexus %s", nexusSecretObject.Namespace, nexusSecretObject.Name, instance.Name))
+
+		nexusSecret, err = service.CoreClient.Secrets(nexusSecretObject.Namespace).Create(nexusSecretObject)
+
+		if err != nil {
+			return err
+		}
+		log.Info(fmt.Sprintf("Secret %s/%s has been created", nexusSecret.Namespace, nexusSecret.Name))
+
+	} else if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -137,7 +144,7 @@ func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1
 		if err != nil {
 			return nil, helper.LogErrorAndReturn(err)
 		}
-		log.Printf("[INFO] ServiceAccount %s/%s has been created", serviceAccount.Namespace, serviceAccount.Name)
+		log.Info(fmt.Sprintf("ServiceAccount %s/%s has been created", serviceAccount.Namespace, serviceAccount.Name))
 	} else if err != nil {
 		return nil, helper.LogErrorAndReturn(err)
 	}
@@ -177,7 +184,7 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 		if err != nil {
 			return helper.LogErrorAndReturn(err)
 		}
-		log.Printf("[INFO] Service %s/%s has been created", svc.Namespace, svc.Name)
+		log.Info("Service %s/%s has been created", svc.Namespace, svc.Name)
 	} else if err != nil {
 		return helper.LogErrorAndReturn(err)
 	}
@@ -190,24 +197,24 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 	configMapData := make(map[string]string)
 	pathInfo, err := os.Stat(path)
 	if err != nil {
-		return helper.LogErrorAndReturn(fmt.Errorf("Couldn't open path %v. Err - %v.", path, err))
+		return errors.Wrapf(err, fmt.Sprintf("Couldn't open path %v.", path))
 	}
 	if pathInfo.Mode().IsDir() {
 		directory, err := ioutil.ReadDir(path)
 		if err != nil {
-			return helper.LogErrorAndReturn(fmt.Errorf("Couldn't read directory %v. Err - %v.", path, err))
+			return errors.Wrapf(err, fmt.Sprintf("Couldn't open path %v.", path))
 		}
 		for _, file := range directory {
 			content, err := ioutil.ReadFile(fmt.Sprintf("%v/%v", path, file.Name()))
 			if err != nil {
-				return helper.LogErrorAndReturn(fmt.Errorf("Couldn't read file %v. Err - %v.", path, err))
+				return errors.Wrapf(err, fmt.Sprintf("Couldn't open path %v.", path))
 			}
 			configMapData[file.Name()] = string(content)
 		}
 	} else {
 		content, err := ioutil.ReadFile(path)
 		if err != nil {
-			return helper.LogErrorAndReturn(fmt.Errorf("Couldn't read file %v. Err - %v.", path, err))
+			return errors.Wrapf(err, fmt.Sprintf("Couldn't read file %v.", path))
 		}
 		configMapData = map[string]string{
 			filepath.Base(path): string(content),
@@ -228,14 +235,14 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 		return helper.LogErrorAndReturn(err)
 	}
 
-	configMap, err := service.CoreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
+	_, err = service.CoreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
 
 	if err != nil && k8serr.IsNotFound(err) {
-		configMap, err = service.CoreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
+		_, err := service.CoreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
 		if err != nil {
 			return helper.LogErrorAndReturn(err)
 		}
-		log.Printf("[INFO] ConfigMap %s/%s has been created", configMap.Namespace, configMapName)
+		log.Info("ConfigMap has been created", configMapName, "ConfigMapName" )
 	} else if err != nil {
 		return helper.LogErrorAndReturn(err)
 	}
@@ -247,14 +254,14 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error {
 	directory, err := ioutil.ReadDir(directoryPath)
 	if err != nil {
-		return helper.LogErrorAndReturn(fmt.Errorf("Couldn't read directory %v with scripts for %v/%v. Err - %v.", directoryPath, instance.Namespace, instance.Name, err))
+		return errors.Wrapf(err, fmt.Sprintf("Couldn't read directory %v with scripts for %v/%v.", directoryPath, instance.Namespace, instance.Name))
 	}
 
 	if !createDedicatedConfigMaps {
 		configMapName := fmt.Sprintf("%v-%v", instance.Name, filepath.Base(directoryPath))
 		service.CreateConfigMapFromFile(instance, configMapName, directoryPath)
 		if err != nil {
-			return helper.LogErrorAndReturn(fmt.Errorf("Couldn't create config-map %v in namespace %v. Err - %v.", configMapName, instance.Namespace, err))
+			return errors.Wrapf(err, fmt.Sprintf("Couldn't create config-map %v in namespace %v.", configMapName, instance.Namespace))
 		}
 		return nil
 	}
@@ -263,7 +270,7 @@ func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus,
 		configMapName := fmt.Sprintf("%v-%v", instance.Name, file.Name())
 		service.CreateConfigMapFromFile(instance, configMapName, fmt.Sprintf("%v/%v", directoryPath, file.Name()))
 		if err != nil {
-			return helper.LogErrorAndReturn(fmt.Errorf("Couldn't create config-map %v in namespace %v. Err - %v.", configMapName, instance.Namespace, err))
+			return errors.Wrapf(err, fmt.Sprintf("Couldn't create config-map %v in namespace %v.", configMapName, instance.Namespace))
 		}
 	}
 	return nil
@@ -274,7 +281,7 @@ func (service K8SService) GetConfigMapData(namespace string, name string) (map[s
 	configMap, err := service.CoreClient.ConfigMaps(namespace).Get(name, metav1.GetOptions{})
 
 	if err != nil && k8serr.IsNotFound(err) {
-		log.Printf("Config map %v in namespace %v not found", name, namespace)
+		log.Error(err, fmt.Sprintf("Config map %v in namespace %v not found", name, namespace))
 		return nil, nil
 	} else if err != nil {
 		return nil, helper.LogErrorAndReturn(err)
@@ -286,10 +293,10 @@ func (service K8SService) GetConfigMapData(namespace string, name string) (map[s
 func (service K8SService) GetSecretData(namespace string, name string) (map[string][]byte, error) {
 	secret, err := service.CoreClient.Secrets(namespace).Get(name, metav1.GetOptions{})
 	if err != nil && k8serr.IsNotFound(err) {
-		log.Printf("Secret %v in namespace %v not found", name, namespace)
+		log.Error(err, fmt.Sprintf("Secret %v in namespace %v not found", name, namespace))
 		return nil, nil
 	} else if err != nil {
-		return nil, helper.LogErrorAndReturn(err)
+		return nil, err
 	}
 	return secret.Data, nil
 }

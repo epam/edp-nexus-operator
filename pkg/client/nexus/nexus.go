@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
-
 	"nexus-operator/pkg/apis/edp/v1alpha1"
 	nexusClientHelper "nexus-operator/pkg/client/helper"
 	"nexus-operator/pkg/helper"
@@ -135,7 +134,7 @@ func (nc NexusClient) RunScript(scriptName string, parameters map[string]interfa
 		SetHeader("Content-type", "text/plain").
 		Post(fmt.Sprintf("/script/%v/run", scriptName))
 	if err != nil || resp.IsError() {
-		return nil, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Running script %v failed. Err - %v. Response - %s", scriptName, err, resp.Status())))
+		return nil, errors.Wrapf(err, fmt.Sprintf("Running script %v failed. Response - %s", scriptName, resp.Status()))
 	}
 	return resp.Body(), nil
 }

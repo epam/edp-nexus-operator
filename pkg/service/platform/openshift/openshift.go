@@ -13,14 +13,15 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/rest"
-	"log"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
 	"nexus-operator/pkg/helper"
 	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
 	platformHelper "nexus-operator/pkg/service/platform/helper"
 	"nexus-operator/pkg/service/platform/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
+var log = logf.Log.WithName("platform")
 
 // OpenshiftService struct for Openshift platform service
 type OpenshiftService struct {
@@ -169,7 +170,7 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 			return helper.LogErrorAndReturn(err)
 		}
 
-		log.Printf("[INFO] DeploymentConfig %s/%s has been created", deploymentConfig.Namespace, deploymentConfig.Name)
+		log.Info(fmt.Sprintf("DeploymentConfig %v/%v has been created", deploymentConfig.Namespace, deploymentConfig.Name))
 	} else if err != nil {
 		return helper.LogErrorAndReturn(err)
 	}
@@ -211,7 +212,7 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 		if err != nil {
 			return helper.LogErrorAndReturn(err)
 		}
-		log.Printf("[INFO] Route %s/%s has been created", route.Namespace, route.Name)
+		log.Info(fmt.Sprintf("Route %s/%s has been created", route.Namespace, route.Name))
 	} else if err != nil {
 		return helper.LogErrorAndReturn(err)
 	}
@@ -223,7 +224,7 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 func (service OpenshiftService) GetRoute(namespace string, name string) (*routeV1Api.Route, string, error) {
 	route, err := service.routeClient.Routes(namespace).Get(name, metav1.GetOptions{})
 	if err != nil && k8serrors.IsNotFound(err) {
-		log.Printf("Route %v in namespace %v not found", name, namespace)
+		log.Info(fmt.Sprintf("Route %v in namespace %v not found", name, namespace))
 		return nil, "", nil
 	} else if err != nil {
 		return nil, "", helper.LogErrorAndReturn(err)

@@ -1,19 +1,22 @@
 package nexus
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/dchest/uniuri"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
-	"log"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
 	"nexus-operator/pkg/client/nexus"
 	"nexus-operator/pkg/helper"
 	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
 	"nexus-operator/pkg/service/platform"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
+
+var log = logf.Log.WithName("nexus_service")
 
 const (
 	//NexusDefaultConfigurationDirectoryPath
@@ -87,6 +90,57 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 
 // ExposeConfiguration performs exposing Nexus configuration for other EDP components
 func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
+
+	nexusApiUrl, err := n.getNexusRestApiUrl(instance)
+	if err != nil {
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
+	}
+
+	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusDefaultSpec.NexusDefaultAdminPassword)
+	if err != nil {
+		return &instance, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	nexusDefaultUsersToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix))
+	if err != nil {
+		return &instance, errors.Wrapf(err, "Failed to get default tasks from Config Map for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	var newUserSecretName string
+	var parsedUsers []map[string]interface{}
+	err = json.Unmarshal([]byte(nexusDefaultUsersToCreate[nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix]), &parsedUsers)
+	newUser := map[string][]byte{
+		"username": []byte(""),
+		"password": []byte(""),
+	}
+
+	for _, user := range parsedUsers {
+		newUserSecretName = fmt.Sprintf("%v-%v", instance.Name, user["type"].(string))
+		newUser["username"] = []byte(user["username"].(string))
+		newUser["password"] = []byte(uniuri.New())
+		ciUserAnnotationKey := helper.GenerateAnnotationKey(user["type"].(string))
+		instance.Annotations[ciUserAnnotationKey] = newUserSecretName
+
+		err = n.platformService.CreateSecret(instance, newUserSecretName, newUser)
+		if err != nil {
+			return &instance, errors.Wrap(err, "Failed to create CI User credentials!")
+		}
+
+		data, err := n.platformService.GetSecretData(instance.Namespace, newUserSecretName)
+		if err != nil {
+			return &instance, errors.Wrap(err, "Failed to get CI user credentials!")
+		}
+
+		user["password"] = data["password"]
+
+		_, err = n.nexusClient.RunScript("setup-user", user)
+		if err != nil {
+			return &instance, errors.Wrapf(err, "Failed to create user %v for %v/%v", user["username"], instance.Namespace, instance.Name)
+		}
+	}
+
+	err = n.k8sClient.Update(context.TODO(), &instance)
+
 	return &instance, nil
 }
 
@@ -119,7 +173,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	if nexusApiIsReady, _, err := n.nexusClient.IsNexusRestApiReady(); err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Checking if Nexus REST API for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
 	} else if !nexusApiIsReady {
-		log.Printf("[WARNING] Nexus REST API for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name)
+		log.Info(fmt.Sprintf("Nexus REST API for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name))
 		return &instance, false, nil
 	}
 

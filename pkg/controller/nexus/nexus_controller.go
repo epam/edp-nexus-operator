@@ -113,62 +113,78 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	}
 
 	if instance.Status.Status == "" || instance.Status.Status == StatusFailed {
-		logPrint.Printf("[INFO] Installation of %v/%v object with name has been started", instance.Namespace, instance.Name)
+		reqLogger.Info("Nexus installation has started")
 		err = r.updateStatus(instance, StatusInstall)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
 	instance, err = r.service.Install(*instance)
 	if err != nil {
-		logPrint.Printf("[ERROR] Installation of %v/%v object has been failed", instance.Namespace, instance.Name)
+		reqLogger.Error(err, fmt.Sprintf("Installation of %v/%v object has been failed", instance.Namespace, instance.Name))
 		r.updateStatus(instance, StatusFailed)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 	}
 
 	if instance.Status.Status == StatusInstall {
-		logPrint.Printf("[INFO] Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
+		reqLogger.Info("Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
 		r.updateStatus(instance, StatusCreated)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 	}
 
 	if dcIsReady, err := r.service.IsDeploymentConfigReady(*instance); err != nil {
 		logPrint.Printf("[ERROR] Checking if Deployment config for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 	} else if !dcIsReady {
 		logPrint.Printf("[WARNING] Deployment config for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name)
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
 	}
 
 	if instance.Status.Status == StatusCreated || instance.Status.Status == "" {
 		logPrint.Printf("[INFO] Configuration of %v/%v object has been started", instance.Namespace, instance.Name)
 		err := r.updateStatus(instance, StatusConfiguring)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
 	instance, isFinished, err := r.service.Configure(*instance)
 	if err != nil {
-		logPrint.Printf("[ERROR] Configuration of %v/%v object has been failed. Err: %v", instance.Namespace, instance.Name, err)
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
 	} else if !isFinished {
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
 	}
 
 	if instance.Status.Status == StatusConfiguring {
-		logPrint.Printf("[INFO] Configuration of %v/%v object has been finished", instance.Namespace, instance.Name)
-		err = r.updateStatus(instance, StatusReady)
+		log.Info(fmt.Sprintf("Configuration of %v/%v object has been finished", instance.Namespace, instance.Name))
+		err = r.updateStatus(instance, StatusConfigured)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
+	}
+
+	if instance.Status.Status == StatusConfigured {
+		reqLogger.Info("Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
+		r.updateStatus(instance, StatusExposeStart)
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+	}
+
+	instance, err = r.service.ExposeConfiguration(*instance)
+	if err != nil {
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
+	}
+
+	if instance.Status.Status == StatusExposeStart {
+		reqLogger.Info("Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
+		r.updateStatus(instance, StatusReady)
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 	}
 
 	err = r.updateAvailableStatus(instance, true)
 	if err != nil {
-		logPrint.Printf("[WARNING] Failed update avalability status for Nexus object with name %s. Error - %v", instance.Name, err)
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+		reqLogger.Error(err,"Failed to update availability status!")
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
 	}
 
 	reqLogger.Info(fmt.Sprintf("Reconciling Nexus component %v/%v has been finished", request.Namespace, request.Name))
@@ -186,7 +202,7 @@ func (r *ReconcileNexus) updateStatus(instance *edpv1alpha1.Nexus, status string
 		}
 	}
 
-	logPrint.Printf("[INFO] Status for Nexus component %v has been updated to '%v'", instance.Name, status)
+	log.Info(fmt.Sprintf("Status for Nexus component %v has been updated to '%v'", instance.Name, status))
 	return nil
 }
 
@@ -201,7 +217,7 @@ func (r ReconcileNexus) updateAvailableStatus(instance *edpv1alpha1.Nexus, value
 				return err
 			}
 		}
-		logPrint.Printf("[INFO] Availability status for Nexus component %v has been updated to '%v'", instance.Name, value)
+		log.Info(fmt.Sprintf("Availability status for Nexus component %v has been updated to '%v'", instance.Name, value))
 	}
 
 	return nil
