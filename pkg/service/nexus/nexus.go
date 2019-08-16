@@ -90,7 +90,6 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 
 // ExposeConfiguration performs exposing Nexus configuration for other EDP components
 func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
-
 	nexusApiUrl, err := n.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, errors.Wrapf(err, "[ERROR] Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
@@ -140,6 +139,23 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 	}
 
 	err = n.k8sClient.Update(context.TODO(), &instance)
+
+	identityServiceClientCredenrials := map[string][]byte{
+		"client_id":     []byte(instance.Name),
+		"client_secret": []byte(uniuri.New()),
+	}
+
+	identityServiceSecretName := fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
+	err = n.platformService.CreateSecret(instance, identityServiceSecretName, identityServiceClientCredenrials)
+	if err != nil {
+		return &instance, errors.Wrapf(err, fmt.Sprintf("Failed to create secret %v", identityServiceSecretName))
+	}
+
+	annotationKey := helper.GenerateAnnotationKey(nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
+	instance.ObjectMeta.Annotations[annotationKey] = fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
+	if err = n.k8sClient.Update(context.TODO(), &instance); err != nil {
+		return &instance, errors.Wrapf(err, fmt.Sprintf("Couldn't set annotation %v", annotationKey))
+	}
 
 	return &instance, nil
 }

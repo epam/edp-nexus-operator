@@ -76,7 +76,7 @@ func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 			if err != nil {
 				return helper.LogErrorAndReturn(err)
 			}
-			log.Info(fmt.Sprintf(" PersistantVolumeClaim %s/%s has been created", volume.Namespace, volume.Name))
+			log.Info(fmt.Sprintf("PersistantVolumeClaim %s/%s has been created", volume.Namespace, volume.Name))
 		} else if err != nil {
 			return helper.LogErrorAndReturn(err)
 		}
@@ -106,15 +106,11 @@ func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, dat
 	nexusSecret, err := service.CoreClient.Secrets(nexusSecretObject.Namespace).Get(nexusSecretObject.Name, metav1.GetOptions{})
 
 	if err != nil && k8serr.IsNotFound(err) {
-		log.Info(fmt.Sprintf("Creating a new Secret %s/%s for Nexus %s", nexusSecretObject.Namespace, nexusSecretObject.Name, instance.Name))
-
 		nexusSecret, err = service.CoreClient.Secrets(nexusSecretObject.Namespace).Create(nexusSecretObject)
-
 		if err != nil {
 			return err
 		}
 		log.Info(fmt.Sprintf("Secret %s/%s has been created", nexusSecret.Namespace, nexusSecret.Name))
-
 	} else if err != nil {
 		return err
 	}
@@ -184,7 +180,7 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 		if err != nil {
 			return helper.LogErrorAndReturn(err)
 		}
-		log.Info("Service %s/%s has been created", svc.Namespace, svc.Name)
+		log.Info(fmt.Sprintf("Service %s/%s has been created", svc.Namespace, svc.Name))
 	} else if err != nil {
 		return helper.LogErrorAndReturn(err)
 	}
@@ -235,14 +231,13 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 		return helper.LogErrorAndReturn(err)
 	}
 
-	_, err = service.CoreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
-
+	cm, err := service.CoreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
 	if err != nil && k8serr.IsNotFound(err) {
-		_, err := service.CoreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
+		cm, err = service.CoreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
 		if err != nil {
 			return helper.LogErrorAndReturn(err)
 		}
-		log.Info("ConfigMap has been created", configMapName, "ConfigMapName" )
+		log.Info(fmt.Sprintf("ConfigMap %s/%s has been created", cm.Namespace, cm.Name))
 	} else if err != nil {
 		return helper.LogErrorAndReturn(err)
 	}

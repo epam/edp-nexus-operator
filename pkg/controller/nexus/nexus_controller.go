@@ -3,12 +3,14 @@ package nexus
 import (
 	"context"
 	"fmt"
-	logPrint "log"
 	edpv1alpha1 "nexus-operator/pkg/apis/edp/v1alpha1"
 	"nexus-operator/pkg/service/nexus"
 	"nexus-operator/pkg/service/platform"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"time"
 
+	errorsf "github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -16,6 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
@@ -67,8 +70,19 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	p := predicate.Funcs{
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			oldObject := e.ObjectOld.(*edpv1alpha1.Nexus)
+			newObject := e.ObjectNew.(*edpv1alpha1.Nexus)
+			if oldObject.Status != newObject.Status {
+				return false
+			}
+			return true
+		},
+	}
+
 	// Watch for changes to primary resource Nexus
-	err = c.Watch(&source.Kind{Type: &edpv1alpha1.Nexus{}}, &handler.EnqueueRequestForObject{})
+	err = c.Watch(&source.Kind{Type: &edpv1alpha1.Nexus{}}, &handler.EnqueueRequestForObject{}, p)
 	if err != nil {
 		return err
 	}
@@ -96,8 +110,7 @@ type ReconcileNexus struct {
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
 func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
-	reqLogger.Info("Reconciling Nexus")
-
+	reqLogger.Info("Reconciling has been started")
 	// Fetch the Nexus instance
 	instance := &edpv1alpha1.Nexus{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
@@ -113,7 +126,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	}
 
 	if instance.Status.Status == "" || instance.Status.Status == StatusFailed {
-		reqLogger.Info("Nexus installation has started")
+		reqLogger.Info("Installation has been started")
 		err = r.updateStatus(instance, StatusInstall)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
@@ -122,27 +135,25 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, err = r.service.Install(*instance)
 	if err != nil {
-		reqLogger.Error(err, fmt.Sprintf("Installation of %v/%v object has been failed", instance.Namespace, instance.Name))
 		r.updateStatus(instance, StatusFailed)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Installation has been failed")
 	}
 
 	if instance.Status.Status == StatusInstall {
-		reqLogger.Info("Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
+		reqLogger.Info("Installation has been finished")
 		r.updateStatus(instance, StatusCreated)
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 	}
 
 	if dcIsReady, err := r.service.IsDeploymentConfigReady(*instance); err != nil {
-		logPrint.Printf("[ERROR] Checking if Deployment config for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Checking if Deployment config is ready has been failed")
 	} else if !dcIsReady {
-		logPrint.Printf("[WARNING] Deployment config for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name)
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
+		reqLogger.Info("Deployment config is not ready for configuration yet")
+		return reconcile.Result{RequeueAfter: 60 * time.Second}, nil
 	}
 
 	if instance.Status.Status == StatusCreated || instance.Status.Status == "" {
-		logPrint.Printf("[INFO] Configuration of %v/%v object has been started", instance.Namespace, instance.Name)
+		reqLogger.Info("Configuration has been started")
 		err := r.updateStatus(instance, StatusConfiguring)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
@@ -151,62 +162,69 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, isFinished, err := r.service.Configure(*instance)
 	if err != nil {
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
+		reqLogger.Error(err, "Configuration has been failed")
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, errorsf.Wrapf(err, "Configuration has been failed")
 	} else if !isFinished {
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
 	}
 
 	if instance.Status.Status == StatusConfiguring {
-		log.Info(fmt.Sprintf("Configuration of %v/%v object has been finished", instance.Namespace, instance.Name))
+		reqLogger.Info("Configuration has been finished")
 		err = r.updateStatus(instance, StatusConfigured)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
 		}
 	}
 
 	if instance.Status.Status == StatusConfigured {
-		reqLogger.Info("Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
-		r.updateStatus(instance, StatusExposeStart)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+		reqLogger.Info("Exposing configuration has been started")
+		err = r.updateStatus(instance, StatusExposeStart)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
 	}
 
 	instance, err = r.service.ExposeConfiguration(*instance)
 	if err != nil {
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Exposing configuration has been failed")
 	}
 
 	if instance.Status.Status == StatusExposeStart {
-		reqLogger.Info("Installation of %v/%v object with name has been finished", instance.Namespace, instance.Name)
-		r.updateStatus(instance, StatusReady)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+		reqLogger.Info("Exposing configuration has been finished")
+		err = r.updateStatus(instance, StatusReady)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
 	}
 
 	err = r.updateAvailableStatus(instance, true)
 	if err != nil {
-		reqLogger.Error(err,"Failed to update availability status!")
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
+		reqLogger.Info("Failed to update availability status")
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
 	}
 
-	reqLogger.Info(fmt.Sprintf("Reconciling Nexus component %v/%v has been finished", request.Namespace, request.Name))
+	reqLogger.Info("Reconciling has been finished")
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileNexus) updateStatus(instance *edpv1alpha1.Nexus, status string) error {
-	instance.Status.Status = status
+func (r *ReconcileNexus) updateStatus(instance *edpv1alpha1.Nexus, newStatus string) error {
+	reqLogger := log.WithValues("Request.Namespace", instance.Namespace, "Request.Name", instance.Name).WithName("status_update")
+	currentStatus := instance.Status.Status
+	instance.Status.Status = newStatus
 	instance.Status.LastTimeUpdated = time.Now()
 	err := r.client.Status().Update(context.TODO(), instance)
 	if err != nil {
 		err := r.client.Update(context.TODO(), instance)
 		if err != nil {
-			return err
+			return errorsf.Wrapf(err, "Couldn't update status from '%v' to '%v'", currentStatus, newStatus)
 		}
 	}
-
-	log.Info(fmt.Sprintf("Status for Nexus component %v has been updated to '%v'", instance.Name, status))
+	reqLogger.Info(fmt.Sprintf("Status has been updated to '%v'", newStatus))
 	return nil
 }
 
 func (r ReconcileNexus) updateAvailableStatus(instance *edpv1alpha1.Nexus, value bool) error {
+	reqLogger := log.WithValues("Request.Namespace", instance.Namespace, "Request.Name", instance.Name).WithName("status_update")
 	if instance.Status.Available != value {
 		instance.Status.Available = value
 		instance.Status.LastTimeUpdated = time.Now()
@@ -214,11 +232,10 @@ func (r ReconcileNexus) updateAvailableStatus(instance *edpv1alpha1.Nexus, value
 		if err != nil {
 			err := r.client.Update(context.TODO(), instance)
 			if err != nil {
-				return err
+				return errorsf.Wrapf(err, "Couldn't update avalability status to %v", value)
 			}
 		}
-		log.Info(fmt.Sprintf("Availability status for Nexus component %v has been updated to '%v'", instance.Name, value))
+		reqLogger.Info(fmt.Sprintf("Availability status has been updated to '%v'", value))
 	}
-
 	return nil
 }
