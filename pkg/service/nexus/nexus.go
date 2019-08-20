@@ -83,6 +83,16 @@ func (n NexusServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string
 	return string(nexusAdminCredentials["password"]), nil
 }
 
+func (n NexusServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, value string) {
+	if len(instance.Annotations) == 0 {
+		instance.ObjectMeta.Annotations = map[string]string{
+			key: value,
+		}
+	} else {
+		instance.ObjectMeta.Annotations[key] = value
+	}
+}
+
 // Integration performs integration Nexus with other EDP components
 func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 	return &instance, nil
@@ -118,7 +128,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 		newUser["username"] = []byte(user["username"].(string))
 		newUser["password"] = []byte(uniuri.New())
 		ciUserAnnotationKey := helper.GenerateAnnotationKey(user["type"].(string))
-		instance.Annotations[ciUserAnnotationKey] = newUserSecretName
+		n.setAnnotation(&instance, ciUserAnnotationKey, newUserSecretName)
 
 		err = n.platformService.CreateSecret(instance, newUserSecretName, newUser)
 		if err != nil {
@@ -138,7 +148,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 		}
 	}
 
-	err = n.k8sClient.Update(context.TODO(), &instance)
+	_ = n.k8sClient.Update(context.TODO(), &instance)
 
 	identityServiceClientCredenrials := map[string][]byte{
 		"client_id":     []byte(instance.Name),
@@ -152,10 +162,8 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 	}
 
 	annotationKey := helper.GenerateAnnotationKey(nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
-	instance.ObjectMeta.Annotations[annotationKey] = fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
-	if err = n.k8sClient.Update(context.TODO(), &instance); err != nil {
-		return &instance, errors.Wrapf(err, fmt.Sprintf("Couldn't set annotation %v", annotationKey))
-	}
+	n.setAnnotation(&instance, annotationKey, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix))
+	_ = n.k8sClient.Update(context.TODO(), &instance)
 
 	return &instance, nil
 }
