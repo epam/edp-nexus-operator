@@ -13,6 +13,7 @@ import (
 
 // PlatformService interface
 type PlatformService interface {
+	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf map[string][]byte) error
 	GetRoute(namespace string, name string) (*routeV1Api.Route, string, error)
 	GetConfigMapData(namespace string, name string) (map[string]string, error)
 	GetDeploymentConfig(instance v1alpha1.Nexus) (*appsV1Api.DeploymentConfig, error)

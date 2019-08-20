@@ -1,5 +1,10 @@
 package helper
 
+import (
+	coreV1Api "k8s.io/api/core/v1"
+	"reflect"
+)
+
 // GenerateLabels returns map with labels for k8s objects
 func GenerateLabels(name string) map[string]string {
 	return map[string]string{
@@ -7,3 +12,11 @@ func GenerateLabels(name string) map[string]string {
 	}
 }
 
+func ContainerInDeployConf(containers []coreV1Api.Container, newContainer coreV1Api.Container) bool {
+	for _, container := range containers {
+		if reflect.DeepEqual(container, newContainer) {
+			return true
+		}
+	}
+	return false
+}

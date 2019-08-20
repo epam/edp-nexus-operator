@@ -95,6 +95,23 @@ func (n NexusServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, va
 
 // Integration performs integration Nexus with other EDP components
 func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
+
+	if instance.Spec.KeycloakSpec.Enabled {
+		keycloakSecretName := fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
+
+		keycloakSecretData, err := n.platformService.GetSecretData(instance.Namespace, keycloakSecretName)
+		if err != nil {
+			return &instance, errors.Wrap(err, "Failed to get Keycloak client data!")
+		}
+
+		err = n.platformService.AddKeycloakProxyToDeployConf(instance, keycloakSecretData)
+		if err != nil {
+			return &instance, errors.Wrap(err, "Failed to add Keycloak proxy!")
+		}
+	} else {
+		log.V(1).Info("Keycloak integration not enabled.")
+	}
+
 	return &instance, nil
 }
 

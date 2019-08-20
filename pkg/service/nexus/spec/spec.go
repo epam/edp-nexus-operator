@@ -45,4 +45,11 @@ const (
 
 	//NexusRestApiUrlPath - Nexus relative REST API path
 	NexusRestApiUrlPath = "service/rest/v1"
+
+	//EdpCiUserSuffix entity prefix for integration functionality
+	EdpCiUserSuffix string = "ci-credentials"
+
+	NexusKeycloakProxyPort int32 = 3000
+
+	NexusKeycloakProxyImage string = "keycloak/keycloak-gatekeeper:6.0.1"
 )

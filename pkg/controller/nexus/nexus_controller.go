@@ -163,13 +163,13 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	instance, isFinished, err := r.service.Configure(*instance)
 	if err != nil {
 		reqLogger.Error(err, "Configuration has been failed")
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, errorsf.Wrapf(err, "Configuration has been failed")
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, errorsf.Wrapf(err, "Configuration failed")
 	} else if !isFinished {
 		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
 	}
 
 	if instance.Status.Status == StatusConfiguring {
-		reqLogger.Info("Configuration has been finished")
+		reqLogger.Info("Configuration has finished")
 		err = r.updateStatus(instance, StatusConfigured)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
@@ -177,7 +177,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	}
 
 	if instance.Status.Status == StatusConfigured {
-		reqLogger.Info("Exposing configuration has been started")
+		reqLogger.Info("Exposing configuration has started")
 		err = r.updateStatus(instance, StatusExposeStart)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
@@ -186,11 +186,32 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, err = r.service.ExposeConfiguration(*instance)
 	if err != nil {
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Exposing configuration has been failed")
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Exposing configuration failed")
 	}
 
 	if instance.Status.Status == StatusExposeStart {
-		reqLogger.Info("Exposing configuration has been finished")
+		reqLogger.Info("Exposing configuration has finished")
+		err = r.updateStatus(instance, StatusExposeFinish)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
+	}
+
+	if instance.Status.Status == StatusExposeFinish {
+		reqLogger.Info("Exposing configuration has started")
+		err = r.updateStatus(instance, StatusIntegrationStart)
+		if err != nil {
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
+	}
+
+	instance, err = r.service.Integration(*instance)
+	if err != nil {
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Integration failed")
+	}
+
+	if instance.Status.Status == StatusIntegrationStart {
+		reqLogger.Info("Exposing configuration has started")
 		err = r.updateStatus(instance, StatusReady)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil

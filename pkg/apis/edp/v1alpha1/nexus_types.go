@@ -11,8 +11,9 @@ import (
 // NexusSpec defines the desired state of Nexus
 // +k8s:openapi-gen=true
 type NexusSpec struct {
-	Version string         `json:"version"`
-	Volumes []NexusVolumes `json:"volumes,omitempty"`
+	KeycloakSpec KeycloakSpec   `json:"keycloakSpec, omitempty"`
+	Version      string         `json:"version"`
+	Volumes      []NexusVolumes `json:"volumes, omitempty"`
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 }
@@ -31,6 +32,11 @@ type NexusStatus struct {
 	Status          string    `json:"status, omitempty"`
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+}
+
+type KeycloakSpec struct {
+	Enabled bool   `json:"enabled, omitempty"`
+	Url     string `json:"url, omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

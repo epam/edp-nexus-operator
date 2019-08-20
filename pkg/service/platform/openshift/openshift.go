@@ -21,6 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
+
 var log = logf.Log.WithName("platform")
 
 // OpenshiftService struct for Openshift platform service
@@ -53,6 +54,67 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 	return nil
 }
 
+func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf map[string][]byte) error {
+
+	var args []string
+	nexusRoute, routeScheme, err := service.GetRoute(instance.Namespace, instance.Name)
+	if err != nil {
+		return err
+	}
+
+	redirectUrl := fmt.Sprintf("--redirection-url=%v://%v", routeScheme, nexusRoute.Spec.Host)
+	clientId := fmt.Sprintf("--client-id=%v", keycloakClientConf["client_id"])
+	clientSecret := fmt.Sprintf("--client-secret=%v", keycloakClientConf["client_secret"])
+	discoveryUrl := fmt.Sprintf("--discovery-url=%v", instance.Spec.KeycloakSpec.Url)
+	upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
+
+	args = append(
+		args,
+		"--skip-openid-provider-tls-verify=true",
+		discoveryUrl,
+		clientId,
+		clientSecret,
+		"--listen=0.0.0.0:3000",
+		redirectUrl,
+		upstreamUrl,
+		"--resources=uri=/*|roles=developers,administrators|require-any-role=true")
+
+	containerSpec := coreV1Api.Container{
+		Name:            "keycloak-proxy",
+		Image:           nexusDefaultSpec.NexusKeycloakProxyImage,
+		ImagePullPolicy: coreV1Api.PullIfNotPresent,
+		Ports: []coreV1Api.ContainerPort{
+			{
+				ContainerPort: nexusDefaultSpec.NexusKeycloakProxyPort,
+				Protocol:      coreV1Api.ProtocolTCP,
+			},
+		},
+		TerminationMessagePath:   "/dev/termination-log",
+		TerminationMessagePolicy: coreV1Api.TerminationMessageReadFile,
+		Args:                     args,
+	}
+
+	oldNexusDeploymentConfig, err := service.GetDeploymentConfig(instance)
+	if err != nil {
+		return err
+	}
+
+	if platformHelper.ContainerInDeployConf(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec) {
+		log.V(1).Info("Keycloak proxy already added!")
+		return nil
+	}
+	oldNexusDeploymentConfig.Spec.Template.Spec.Containers = append(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec)
+
+	_, err = service.appClient.DeploymentConfigs(instance.Namespace).Update(oldNexusDeploymentConfig)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Keycloak proxy added.")
+	return nil
+
+}
+
 // CreateDeployConf performs creating DeploymentConfig in Openshift
 func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error {
 
@@ -71,7 +133,7 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 				},
 			},
 			Strategy: appsV1Api.DeploymentStrategy{
-				Type: appsV1Api.DeploymentStrategyTypeRolling,
+				Type: appsV1Api.DeploymentStrategyTypeRecreate,
 			},
 			Selector: labels,
 			Template: &coreV1Api.PodTemplateSpec{
