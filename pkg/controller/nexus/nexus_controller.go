@@ -153,7 +153,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	}
 
 	if instance.Status.Status == StatusCreated || instance.Status.Status == "" {
-		reqLogger.Info("Configuration has been started")
+		reqLogger.Info("Configuration has started")
 		err := r.updateStatus(instance, StatusConfiguring)
 		if err != nil {
 			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
@@ -162,7 +162,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, isFinished, err := r.service.Configure(*instance)
 	if err != nil {
-		reqLogger.Error(err, "Configuration has been failed")
+		reqLogger.Error(err, "Configuration has failed")
 		return reconcile.Result{RequeueAfter: 30 * time.Second}, errorsf.Wrapf(err, "Configuration failed")
 	} else if !isFinished {
 		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil

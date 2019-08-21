@@ -119,12 +119,17 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 	nexusApiUrl, err := n.getNexusRestApiUrl(instance)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusDefaultSpec.NexusDefaultAdminPassword)
+	nexusPassword, err := n.getNexusAdminPassword(instance)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to get Nexus admin password from secret for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
+	if err != nil {
+		return &instance, errors.Wrapf(err, "Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	nexusDefaultUsersToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix))
@@ -157,7 +162,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 			return &instance, errors.Wrap(err, "Failed to get CI user credentials!")
 		}
 
-		user["password"] = data["password"]
+		user["password"] = string(data["password"])
 
 		_, err = n.nexusClient.RunScript("setup-user", user)
 		if err != nil {
@@ -192,23 +197,14 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
 	}
 
-	nexusGeneratedPassword, err := n.getNexusAdminPassword(instance)
+	nexusPassword, err := n.getNexusAdminPassword(instance)
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get Nexus admin password from secret for %v/%v", instance.Namespace, instance.Name)
 	}
 
-	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusDefaultSpec.NexusDefaultAdminPassword)
+	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
-	}
-
-	if _, responseStatus, err := n.nexusClient.IsNexusRestApiReady(); err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Checking if Nexus REST API for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
-	} else if responseStatus == 401 {
-		err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusGeneratedPassword)
-		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
-		}
 	}
 
 	if nexusApiIsReady, _, err := n.nexusClient.IsNexusRestApiReady(); err != nil {
@@ -233,16 +229,32 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		return &instance, false, errors.Wrapf(err, "[ERROR] Default scripts for %v/%v are not uploaded yet", instance.Namespace, instance.Name)
 	}
 
-	updatePasswordParameters := map[string]interface{}{"new_password": nexusGeneratedPassword}
-	_, err = n.nexusClient.RunScript("update-admin-password", updatePasswordParameters)
-	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed update admin password for %v/%v", instance.Namespace, instance.Name)
-	}
-	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusGeneratedPassword)
-	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
-	}
+	if nexusPassword == nexusDefaultSpec.NexusDefaultAdminPassword {
+		updatePasswordParameters := map[string]interface{}{"new_password": uniuri.New()}
 
+		nexusAdminPassword, err := n.platformService.GetSecret(instance.Namespace, instance.Name+"-admin-password")
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "Failed to get Nexus admin secret to update!")
+		}
+
+		nexusAdminPassword.Data["password"] = []byte(updatePasswordParameters["new_password"].(string))
+		err = n.platformService.UpdateSecret(nexusAdminPassword)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "Failed to update Nexus admin secret with new pasword!")
+		}
+
+		_, err = n.nexusClient.RunScript("update-admin-password", updatePasswordParameters)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed update admin password for %v/%v", instance.Namespace, instance.Name)
+		}
+
+		passwordString := string(nexusAdminPassword.Data["password"])
+
+		err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
+		}
+	}
 	nexusDefaultTasksToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get default tasks from Config Map for %v/%v", instance.Namespace, instance.Name)
@@ -366,9 +378,10 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 // Install performs installation of Nexus
 func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
+
 	adminSecret := map[string][]byte{
 		"user":     []byte(nexusDefaultSpec.NexusDefaultAdminUser),
-		"password": []byte(uniuri.New()),
+		"password": []byte(nexusDefaultSpec.NexusDefaultAdminPassword),
 	}
 
 	err := n.platformService.CreateSecret(instance, instance.Name+"-admin-password", adminSecret)

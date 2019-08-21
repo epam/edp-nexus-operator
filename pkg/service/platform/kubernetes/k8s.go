@@ -295,3 +295,23 @@ func (service K8SService) GetSecretData(namespace string, name string) (map[stri
 	}
 	return secret.Data, nil
 }
+
+func (service K8SService) GetSecret(namespace string, name string) (*coreV1Api.Secret, error) {
+	secret, err := service.CoreClient.Secrets(namespace).Get(name, metav1.GetOptions{})
+	if err != nil && k8serr.IsNotFound(err) {
+		return nil, err
+	} else if err != nil {
+		return nil, err
+	}
+	return secret, nil
+}
+
+func (service K8SService) UpdateSecret(secret *coreV1Api.Secret) error {
+
+	_, err := service.CoreClient.Secrets(secret.Namespace).Update(secret)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

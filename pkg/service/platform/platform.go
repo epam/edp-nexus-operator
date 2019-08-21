@@ -26,6 +26,8 @@ type PlatformService interface {
 	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error
 	CreateDeployConf(instance v1alpha1.Nexus) error
 	CreateExternalEndpoint(instance v1alpha1.Nexus) error
+	GetSecret(namespace string, name string) (*coreV1Api.Secret, error)
+	UpdateSecret(secret *coreV1Api.Secret) error
 }
 
 // NewPlatformService returns platform service interface implementation

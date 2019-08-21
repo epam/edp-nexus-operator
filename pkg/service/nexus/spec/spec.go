@@ -38,10 +38,10 @@ const (
 	NexusMemoryRequest = "500Mi"
 
 	//NexusDefaultAdminUser - default admin username in Nexus
-	NexusDefaultAdminUser = "admin"
+	NexusDefaultAdminUser string = "admin"
 
 	//NexusDefaultAdminPassword - default admin password in Nexus
-	NexusDefaultAdminPassword = "admin123"
+	NexusDefaultAdminPassword string = "admin123"
 
 	//NexusRestApiUrlPath - Nexus relative REST API path
 	NexusRestApiUrlPath = "service/rest/v1"
