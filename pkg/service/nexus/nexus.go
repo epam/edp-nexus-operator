@@ -345,6 +345,22 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		}
 	}
 
+	for _, user := range instance.Spec.Users {
+		setupUserParameters := map[string]interface{}{
+			"username":   user.Username,
+			"first_name": user.FirstName,
+			"last_name":  user.LastName,
+			"email":      user.Email,
+			"password":   uniuri.New(),
+			"roles":      user.Roles,
+		}
+
+		_, err = n.nexusClient.RunScript("setup-user", setupUserParameters)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "Failed to create user %v", user.Username, instance.Namespace, instance.Name)
+		}
+	}
+
 	return &instance, true, nil
 }
 

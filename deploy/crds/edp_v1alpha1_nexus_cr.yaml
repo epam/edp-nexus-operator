@@ -8,6 +8,13 @@ spec:
     enabled: false
     url: ""
   volumes:
-  - name: "data"
-    storage_class: "efs"
-    capacity: "1Gi"
+    - name: "data"
+      storage_class: "efs"
+      capacity: "1Gi"
+  users:
+    - username: test@edp.com
+      first_name: ""
+      last_name: ""
+      email: ""
+      roles:
+        - edp-admin

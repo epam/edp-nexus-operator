@@ -14,6 +14,8 @@ type NexusSpec struct {
 	KeycloakSpec KeycloakSpec   `json:"keycloakSpec, omitempty"`
 	Version      string         `json:"version"`
 	Volumes      []NexusVolumes `json:"volumes, omitempty"`
+	Users        []NexusUsers   `json:"users, omitempty"`
+
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 }
@@ -22,6 +24,14 @@ type NexusVolumes struct {
 	Name         string `json:"name"`
 	StorageClass string `json:"storage_class"`
 	Capacity     string `json:"capacity"`
+}
+
+type NexusUsers struct {
+	Username  string   `json:"username"`
+	FirstName string   `json:"first_name, omitempty"`
+	LastName  string   `json:"last_name, omitempty"`
+	Email     string   `json:"email, omitempty"`
+	Roles     []string `json:"roles, omitempty"`
 }
 
 // NexusStatus defines the observed state of Nexus
