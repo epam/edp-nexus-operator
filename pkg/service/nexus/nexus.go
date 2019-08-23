@@ -69,7 +69,7 @@ func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, e
 	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
 		nexusRoute, nexusRouteScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
 		if err != nil {
-			return "", errors.Wrapf(err, "[ERROR] Failed to get Route for %v/%v", instance.Namespace, instance.Name)
+			return "", errors.Wrapf(err, "Failed to get Route for %v/%v", instance.Namespace, instance.Name)
 		}
 		nexusApiUrl = fmt.Sprintf("%v://%v/%v", nexusRouteScheme, nexusRoute.Spec.Host, nexusDefaultSpec.NexusRestApiUrlPath)
 	}
@@ -80,7 +80,7 @@ func (n NexusServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	nexusAdminCredentials, err := n.platformService.GetSecretData(instance.Namespace, secretName)
 	if err != nil {
-		return "", errors.Wrapf(err, "[ERROR] Failed to get Secret %v for %v/%v", secretName, instance.Namespace, instance.Name)
+		return "", errors.Wrapf(err, "Failed to get Secret %v for %v/%v", secretName, instance.Namespace, instance.Name)
 	}
 	return string(nexusAdminCredentials["password"]), nil
 }
@@ -210,21 +210,21 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
 	nexusApiUrl, err := n.getNexusRestApiUrl(instance)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to get Nexus REST API URL %v/%v", instance.Namespace, instance.Name)
 	}
 
 	nexusPassword, err := n.getNexusAdminPassword(instance)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get Nexus admin password from secret for %v/%v", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to get Nexus admin password from secret for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	if nexusApiIsReady, _, err := n.nexusClient.IsNexusRestApiReady(); err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Checking if Nexus REST API for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Checking if Nexus REST API for %v/%v object is ready has been failed", instance.Namespace, instance.Name)
 	} else if !nexusApiIsReady {
 		log.Info(fmt.Sprintf("Nexus REST API for %v/%v object is not ready for configuration yet", instance.Namespace, instance.Name))
 		return &instance, false, nil
@@ -232,17 +232,17 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 	nexusDefaultScriptsToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultScriptsConfigMapPrefix))
 	if err != nil {
-		return &instance, false, errors.Wrap(err, "[ERROR] Failed to get default tasks from Config Map")
+		return &instance, false, errors.Wrap(err, "Failed to get default tasks from Config Map")
 	}
 
 	err = n.nexusClient.DeclareDefaultScripts(nexusDefaultScriptsToCreate)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to upload default scripts for %v/%v", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to upload default scripts for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	defaultScriptsAreDeclared, err := n.nexusClient.AreDefaultScriptsDeclared(nexusDefaultScriptsToCreate)
 	if !defaultScriptsAreDeclared || err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Default scripts for %v/%v are not uploaded yet", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Default scripts for %v/%v are not uploaded yet", instance.Namespace, instance.Name)
 	}
 
 	if nexusPassword == nexusDefaultSpec.NexusDefaultAdminPassword {
@@ -261,19 +261,19 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 		_, err = n.nexusClient.RunScript("update-admin-password", updatePasswordParameters)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed update admin password for %v/%v", instance.Namespace, instance.Name)
+			return &instance, false, errors.Wrapf(err, "Failed update admin password for %v/%v", instance.Namespace, instance.Name)
 		}
 
 		passwordString := string(nexusAdminPassword.Data["password"])
 
 		err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
+			return &instance, false, errors.Wrapf(err, "Failed to initialize Nexus client for %v/%v", instance.Namespace, instance.Name)
 		}
 	}
 	nexusDefaultTasksToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get default tasks from Config Map for %v/%v", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to get default tasks from Config Map for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	var parsedTasks []map[string]interface{}
@@ -281,14 +281,29 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	for _, taskParameters := range parsedTasks {
 		_, err = n.nexusClient.RunScript("create-task", taskParameters)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create task %v for %v/%v", taskParameters["name"], instance.Namespace, instance.Name)
+			return &instance, false, errors.Wrapf(err, "Failed to create task %v for %v/%v", taskParameters["name"], instance.Namespace, instance.Name)
 		}
 	}
 
 	var emptyParameter map[string]interface{}
 	_, err = n.nexusClient.RunScript("disable-outreach-capability", emptyParameter)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to run disable-outreach-capability scripts for %v/%v", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to run disable-outreach-capability scripts for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	nexusCapabilities, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, "default-capabilities"))
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "Failed to get default tasks from Config Map for %v/%v", instance.Namespace, instance.Name)
+	}
+
+	var nexusParsedCapabilities []map[string]interface{}
+	err = json.Unmarshal([]byte(nexusCapabilities["default-capabilities"]), &nexusParsedCapabilities)
+
+	for _, capability := range nexusParsedCapabilities {
+		_, err = n.nexusClient.RunScript("setup-capability", capability)
+		if err != nil {
+			return &instance, false, errors.Wrapf(err, "Failed to install default capabilities for %v/%v", instance.Namespace, instance.Name)
+		}
 	}
 
 	enabledRealms := []map[string]interface{}{
@@ -297,13 +312,13 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	for _, realmName := range enabledRealms {
 		_, err = n.nexusClient.RunScript("enable-realm", realmName)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed enable %v for %v/%v", enabledRealms, instance.Namespace, instance.Name)
+			return &instance, false, errors.Wrapf(err, "Failed enable %v for %v/%v", enabledRealms, instance.Namespace, instance.Name)
 		}
 	}
 
 	nexusDefaultRolesToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix))
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get default roles from Config Map for %v/%v", instance.Namespace, instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to get default roles from Config Map for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	var parsedRoles []map[string]interface{}
@@ -311,39 +326,39 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	for _, roleParameters := range parsedRoles {
 		_, err := n.nexusClient.RunScript("setup-role", roleParameters)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create role %v for %v/%v", roleParameters["name"], instance.Namespace, instance.Name)
+			return &instance, false, errors.Wrapf(err, "Failed to create role %v for %v/%v", roleParameters["name"], instance.Namespace, instance.Name)
 		}
 	}
 
 	// Creating blob storage configuration from config map
 	blobsConfig, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-blobs", instance.Name))
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to get data from ConfigMap %v-blobs", instance.Name)
+		return &instance, false, errors.Wrapf(err, "Failed to get data from ConfigMap %v-blobs", instance.Name)
 	}
 
 	var parsedBlobsConfig []map[string]interface{}
 	err = json.Unmarshal([]byte(blobsConfig["blobs"]), &parsedBlobsConfig)
 	if err != nil {
-		return &instance, false, errors.Wrap(err, "[ERROR] Failed to unmarshal blob ConfigMap")
+		return &instance, false, errors.Wrap(err, "Failed to unmarshal blob ConfigMap")
 	}
 
 	for _, blob := range parsedBlobsConfig {
 		_, err := n.nexusClient.RunScript("create-blobstore", blob)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create blob store %v!", blob["name"])
+			return &instance, false, errors.Wrapf(err, "Failed to create blob store %v!", blob["name"])
 		}
 	}
 
 	// Creating repositoriesToCreate from config map
 	reposToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix))
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR]  Failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix)
+		return &instance, false, errors.Wrapf(err, "Failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix)
 	}
 
 	var parsedReposToCreate []map[string]interface{}
 	err = json.Unmarshal([]byte(reposToCreate[nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix]), &parsedReposToCreate)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to unmarshal %v-%v ConfigMap!", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix)
+		return &instance, false, errors.Wrapf(err, "Failed to unmarshal %v-%v ConfigMap!", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix)
 	}
 
 	for _, repositoryToCreate := range parsedReposToCreate {
@@ -351,25 +366,25 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		repositoryType := repositoryToCreate["repositoryType"].(string)
 		_, err := n.nexusClient.RunScript(fmt.Sprintf("create-repo-%v", repositoryType), repositoryToCreate)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to create repository %v!", repositoryName)
+			return &instance, false, errors.Wrapf(err, "Failed to create repository %v!", repositoryName)
 		}
 	}
 
 	reposToDelete, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix))
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR]  Failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix)
+		return &instance, false, errors.Wrapf(err, " Failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix)
 	}
 
 	var parsedReposToDelete []map[string]interface{}
 	err = json.Unmarshal([]byte(reposToDelete[nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix]), &parsedReposToDelete)
 	if err != nil {
-		return &instance, false, errors.Wrapf(err, "[ERROR] Failed to unmarshal %v-%v ConfigMap!", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix)
+		return &instance, false, errors.Wrapf(err, "Failed to unmarshal %v-%v ConfigMap!", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix)
 	}
 
 	for _, repositoryToDelete := range parsedReposToDelete {
 		_, err := n.nexusClient.RunScript("delete-repo", repositoryToDelete)
 		if err != nil {
-			return &instance, false, errors.Wrapf(err, "[ERROR] Failed to delete repository %v", repositoryToDelete)
+			return &instance, false, errors.Wrapf(err, "Failed to delete repository %v", repositoryToDelete)
 		}
 	}
 
@@ -402,22 +417,22 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 
 	err := n.platformService.CreateSecret(instance, instance.Name+"-admin-password", adminSecret)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to Secret for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to Secret for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateVolume(instance)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Volume for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to create Volume for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	_, err = n.platformService.CreateServiceAccount(instance)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Service Account for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to create Service Account for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateService(instance)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Service for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to create Service for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	executableFilePath := helper.GetExecutableFilePath()
@@ -427,7 +442,7 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 	}
 	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusConfigurationDirectoryPath, true)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for configuration %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to create default Config Maps for configuration %v/%v", instance.Namespace, instance.Name)
 	}
 
 	NexusScriptsPath := NexusDefaultScriptsPath
@@ -436,17 +451,17 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 	}
 	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusScriptsPath, false)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create default Config Maps for scripts for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to create default Config Maps for scripts for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateDeployConf(instance)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create Deployment Config for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to create Deployment Config for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	err = n.platformService.CreateExternalEndpoint(instance)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "[ERROR] Failed to create External Route for %v/%v", instance.Namespace, instance.Name)
+		return &instance, errors.Wrapf(err, "Failed to create External Route for %v/%v", instance.Namespace, instance.Name)
 	}
 
 	return &instance, nil

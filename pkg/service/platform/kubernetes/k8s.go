@@ -291,18 +291,18 @@ func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus,
 
 	if !createDedicatedConfigMaps {
 		configMapName := fmt.Sprintf("%v-%v", instance.Name, filepath.Base(directoryPath))
-		service.CreateConfigMapFromFile(instance, configMapName, directoryPath)
+		err = service.CreateConfigMapFromFile(instance, configMapName, directoryPath)
 		if err != nil {
-			return errors.Wrapf(err, fmt.Sprintf("Couldn't create config-map %v in namespace %v.", configMapName, instance.Namespace))
+			return errors.Wrapf(err, "Couldn't create config-map %v in namespace %v.", configMapName, instance.Namespace)
 		}
 		return nil
 	}
 
 	for _, file := range directory {
 		configMapName := fmt.Sprintf("%v-%v", instance.Name, file.Name())
-		service.CreateConfigMapFromFile(instance, configMapName, fmt.Sprintf("%v/%v", directoryPath, file.Name()))
+		err = service.CreateConfigMapFromFile(instance, configMapName, fmt.Sprintf("%v/%v", directoryPath, file.Name()))
 		if err != nil {
-			return errors.Wrapf(err, fmt.Sprintf("Couldn't create config-map %v in namespace %v.", configMapName, instance.Namespace))
+			return errors.Wrapf(err, "Couldn't create config-map %v in namespace %v.", configMapName, instance.Namespace)
 		}
 	}
 	return nil

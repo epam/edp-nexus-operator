@@ -191,9 +191,9 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 									Name:      "data",
 								},
 								{
-									MountPath: "/opt/sonatype/nexus/etc/default-properties",
+									MountPath: "/opt/sonatype/nexus/etc/nexus-default.properties",
 									Name:      "config",
-									SubPath:   "default-properties",
+									SubPath:   "nexus-default.properties",
 								},
 							},
 						},

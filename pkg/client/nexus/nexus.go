@@ -165,7 +165,7 @@ func (nc NexusClient) CheckRoleExist(roleName interface{}) (bool, error) {
 func (nc NexusClient) CheckRepositoryExist(repositoryName string) (bool, error) {
 	serverRepoList, err := nc.GetRepositoryList()
 	if err != nil {
-		return false, errors.Wrap(err, "[ERROR] Failed to get repository list from Nexus!")
+		return false, errors.Wrap(err, "Failed to get repository list from Nexus!")
 	}
 
 	for _, repository := range serverRepoList {
@@ -182,7 +182,7 @@ func (nc NexusClient) GetRepositoryList() ([]map[string]interface{}, error) {
 
 	resp, err := nc.resty.R().Get("/repositories")
 	if err != nil {
-		return nil, errors.Wrap(err, "[ERROR] Failed to get repository list from Nexus!")
+		return nil, errors.Wrap(err, "Failed to get repository list from Nexus!")
 	}
 
 	err = json.Unmarshal(resp.Body(), &out)

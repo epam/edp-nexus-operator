@@ -49,7 +49,7 @@
     "write_policy": "allow"
   },
   {
-    "name": "edp-maven-hosted-releases",
+    "name": "edp-maven-releases",
     "repositoryType": "maven-hosted",
     "blob_store": "edp-maven",
     "version_policy": "release",
@@ -58,7 +58,7 @@
     "write_policy": "allow"
   },
   {
-    "name": "edp-maven-hosted-snapshots",
+    "name": "edp-maven-snapshots",
     "repositoryType": "maven-hosted",
     "blob_store": "edp-maven",
     "version_policy": "snapshot",

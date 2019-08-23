@@ -2,7 +2,7 @@ package spec
 
 const (
 	//NexusDefaultPropertiesConfigMapPrefix
-	NexusDefaultPropertiesConfigMapPrefix = "default-properties"
+	NexusDefaultPropertiesConfigMapPrefix = "nexus-default.properties"
 
 	//NexusDefaultTasksConfigMapPrefix
 	NexusDefaultTasksConfigMapPrefix = "default-tasks"

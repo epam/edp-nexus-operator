@@ -172,7 +172,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		reqLogger.Info("Configuration has finished")
 		err = r.updateStatus(instance, StatusConfigured)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
@@ -180,7 +180,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		reqLogger.Info("Exposing configuration has started")
 		err = r.updateStatus(instance, StatusExposeStart)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
@@ -193,7 +193,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		reqLogger.Info("Exposing configuration has finished")
 		err = r.updateStatus(instance, StatusExposeFinish)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
@@ -201,7 +201,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		reqLogger.Info("Exposing configuration has started")
 		err = r.updateStatus(instance, StatusIntegrationStart)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
@@ -214,14 +214,14 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		reqLogger.Info("Exposing configuration has started")
 		err = r.updateStatus(instance, StatusReady)
 		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
 	err = r.updateAvailableStatus(instance, true)
 	if err != nil {
 		reqLogger.Info("Failed to update availability status")
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
 	}
 
 	reqLogger.Info("Reconciling has been finished")
