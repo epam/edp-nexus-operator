@@ -148,6 +148,42 @@ func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1
 	return serviceAccount, nil
 }
 
+// GetServiceByCr return Service object with instance as a reference owner
+func (service K8SService) GetServiceByCr(instance v1alpha1.Nexus) (*coreV1Api.Service, error) {
+	serviceList, err := service.CoreClient.Services(instance.Namespace).List(metav1.ListOptions{})
+	if err != nil {
+		return nil, errors.Wrap(err, "Couldn't retrieve services list from the cluster")
+	}
+	for _, service := range serviceList.Items {
+		for _, owner := range service.OwnerReferences {
+			if owner.UID == instance.UID {
+				return &service, nil
+			}
+		}
+	}
+	return nil, nil
+}
+
+// AddPortToService performs adding new port in Service in K8S
+func (service K8SService) AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error {
+	instanceService, err := service.GetServiceByCr(instance)
+	if err != nil || instanceService == nil {
+		return errors.Wrapf(err, "Couldn't get service for instance %v", instance.Name)
+	}
+
+	if platformHelper.PortInService(instanceService.Spec.Ports, newPortSpec) {
+		log.V(1).Info(fmt.Sprintf("Port %v is already in service %v", newPortSpec.Name, instanceService.Name))
+		return nil
+	}
+
+	instanceService.Spec.Ports = append(instanceService.Spec.Ports, newPortSpec)
+
+	if _, err = service.CoreClient.Services(instance.Namespace).Update(instanceService); err != nil {
+		return err
+	}
+	return nil
+}
+
 // CreateService performs creating Service in K8S
 func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
@@ -164,6 +200,7 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 				{
 					TargetPort: intstr.IntOrString{StrVal: instance.Name},
 					Port:       nexusDefaultSpec.NexusPort,
+					Name:       "nexus-http",
 				},
 			},
 		},

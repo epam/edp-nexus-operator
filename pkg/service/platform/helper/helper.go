@@ -20,3 +20,12 @@ func ContainerInDeployConf(containers []coreV1Api.Container, newContainer coreV1
 	}
 	return false
 }
+
+func PortInService(ports []coreV1Api.ServicePort, newPort coreV1Api.ServicePort) bool {
+	for _, port := range ports {
+		if reflect.DeepEqual(port, newPort) {
+			return true
+		}
+	}
+	return false
+}

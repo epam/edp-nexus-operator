@@ -6,6 +6,7 @@ import (
 	routeV1Api "github.com/openshift/api/route/v1"
 	appsV1client "github.com/openshift/client-go/apps/clientset/versioned/typed/apps/v1"
 	routeV1Client "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
+	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -55,7 +56,6 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 }
 
 func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf map[string][]byte) error {
-
 	var args []string
 	nexusRoute, routeScheme, err := service.GetRoute(instance.Namespace, instance.Name)
 	if err != nil {
@@ -63,8 +63,8 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 	}
 
 	redirectUrl := fmt.Sprintf("--redirection-url=%v://%v", routeScheme, nexusRoute.Spec.Host)
-	clientId := fmt.Sprintf("--client-id=%v", keycloakClientConf["client_id"])
-	clientSecret := fmt.Sprintf("--client-secret=%v", keycloakClientConf["client_secret"])
+	clientId := fmt.Sprintf("--client-id=%v", string(keycloakClientConf["client_id"]))
+	clientSecret := fmt.Sprintf("--client-secret=%v", string(keycloakClientConf["client_secret"]))
 	discoveryUrl := fmt.Sprintf("--discovery-url=%v", instance.Spec.KeycloakSpec.Url)
 	upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
 
@@ -77,7 +77,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 		"--listen=0.0.0.0:3000",
 		redirectUrl,
 		upstreamUrl,
-		"--resources=uri=/*|roles=developers,administrators|require-any-role=true")
+		"--resources=uri=/*|roles=developer,administrator|require-any-role=true")
 
 	containerSpec := coreV1Api.Container{
 		Name:            "keycloak-proxy",
@@ -307,4 +307,38 @@ func (service OpenshiftService) GetDeploymentConfig(instance v1alpha1.Nexus) (*a
 	}
 
 	return deploymentConfig, nil
+}
+
+// GetRouteByCr return Route object with instance as a reference owner
+func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error) {
+	routeList, err := service.routeClient.Routes(instance.Namespace).List(metav1.ListOptions{})
+	if err != nil {
+		return nil, errors.Wrap(err, "Couldn't retrieve services list from the cluster")
+	}
+	for _, route := range routeList.Items {
+		for _, owner := range route.OwnerReferences {
+			if owner.UID == instance.UID {
+				return &route, nil
+			}
+		}
+	}
+	return nil, nil
+}
+
+// UpdateRouteTarget performs updating route target port
+func (service OpenshiftService) UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
+	instanceRoute, err := service.GetRouteByCr(instance)
+	if err != nil || instanceRoute == nil {
+		return errors.Wrapf(err, "Couldn't get route for instance %v", instance.Name)
+	}
+	if instanceRoute.Spec.Port != nil && instanceRoute.Spec.Port.TargetPort == targetPort {
+		log.V(1).Info("Target Port %v for route route %v is already set", targetPort.StrVal, instanceRoute.Name)
+		return nil
+	}
+	instanceRoute.Spec.Port = &routeV1Api.RoutePort{TargetPort: targetPort}
+
+	if _, err = service.routeClient.Routes(instance.Namespace).Update(instanceRoute); err != nil {
+		return err
+	}
+	return nil
 }

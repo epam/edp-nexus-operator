@@ -7,6 +7,8 @@ import (
 	"github.com/dchest/uniuri"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
+	coreV1Api "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"nexus-operator/pkg/apis/edp/v1alpha1"
 	"nexus-operator/pkg/client/nexus"
 	"nexus-operator/pkg/helper"
@@ -107,6 +109,20 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 		err = n.platformService.AddKeycloakProxyToDeployConf(instance, keycloakSecretData)
 		if err != nil {
 			return &instance, errors.Wrap(err, "Failed to add Keycloak proxy!")
+		}
+
+		keyCloakProxyPort := coreV1Api.ServicePort{
+			Name:       "keycloak-proxy",
+			Port:       nexusDefaultSpec.NexusKeycloakProxyPort,
+			Protocol:   coreV1Api.ProtocolTCP,
+			TargetPort: intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort},
+		}
+		if err = n.platformService.AddPortToService(instance, keyCloakProxyPort); err != nil {
+			return &instance, errors.Wrap(err, "Failed to add Keycloak proxy port to service")
+		}
+
+		if err = n.platformService.UpdateRouteTarget(instance, intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort}); err != nil {
+			return &instance, errors.Wrap(err, "Failed to update target port in Route")
 		}
 	} else {
 		log.V(1).Info("Keycloak integration not enabled.")
