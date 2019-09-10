@@ -3,9 +3,9 @@ package nexus
 import (
 	"context"
 	"fmt"
-	edpv1alpha1 "nexus-operator/pkg/apis/edp/v1alpha1"
-	"nexus-operator/pkg/service/nexus"
-	"nexus-operator/pkg/service/platform"
+	edpv1alpha1 "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"time"

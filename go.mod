@@ -1,4 +1,4 @@
-module nexus-operator
+module github.com/epmd-edp/nexus-operator/v2
 
 go 1.12
 

@@ -2,6 +2,11 @@ package openshift
 
 import (
 	"fmt"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
+	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
+	platformHelper "github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/helper"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/kubernetes"
 	appsV1Api "github.com/openshift/api/apps/v1"
 	routeV1Api "github.com/openshift/api/route/v1"
 	appsV1client "github.com/openshift/client-go/apps/clientset/versioned/typed/apps/v1"
@@ -14,11 +19,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/rest"
-	"nexus-operator/pkg/apis/edp/v1alpha1"
-	"nexus-operator/pkg/helper"
-	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
-	platformHelper "nexus-operator/pkg/service/platform/helper"
-	"nexus-operator/pkg/service/platform/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )

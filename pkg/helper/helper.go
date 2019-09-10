@@ -2,8 +2,8 @@ package helper
 
 import (
 	"fmt"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
 	"log"
-	"nexus-operator/pkg/service/nexus/spec"
 	"os"
 	"path/filepath"
 )

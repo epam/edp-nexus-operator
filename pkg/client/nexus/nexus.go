@@ -3,11 +3,11 @@ package nexus
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusClientHelper "github.com/epmd-edp/nexus-operator/v2/pkg/client/helper"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
-	"nexus-operator/pkg/apis/edp/v1alpha1"
-	nexusClientHelper "nexus-operator/pkg/client/helper"
-	"nexus-operator/pkg/helper"
 	"strings"
 )
 

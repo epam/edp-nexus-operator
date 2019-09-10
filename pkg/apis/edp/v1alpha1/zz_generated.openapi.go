@@ -13,9 +13,9 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"nexus-operator/pkg/apis/edp/v1alpha1.Nexus":       schema_pkg_apis_edp_v1alpha1_Nexus(ref),
-		"nexus-operator/pkg/apis/edp/v1alpha1.NexusSpec":   schema_pkg_apis_edp_v1alpha1_NexusSpec(ref),
-		"nexus-operator/pkg/apis/edp/v1alpha1.NexusStatus": schema_pkg_apis_edp_v1alpha1_NexusStatus(ref),
+		"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.Nexus":       schema_pkg_apis_edp_v1alpha1_Nexus(ref),
+		"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusSpec":   schema_pkg_apis_edp_v1alpha1_NexusSpec(ref),
+		"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusStatus": schema_pkg_apis_edp_v1alpha1_NexusStatus(ref),
 	}
 }
 
@@ -46,19 +46,19 @@ func schema_pkg_apis_edp_v1alpha1_Nexus(ref common.ReferenceCallback) common.Ope
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.NexusSpec"),
+							Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.NexusStatus"),
+							Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "nexus-operator/pkg/apis/edp/v1alpha1.NexusSpec", "nexus-operator/pkg/apis/edp/v1alpha1.NexusStatus"},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusSpec", "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusStatus"},
 	}
 }
 
@@ -70,7 +70,7 @@ func schema_pkg_apis_edp_v1alpha1_NexusSpec(ref common.ReferenceCallback) common
 				Properties: map[string]spec.Schema{
 					"keycloakSpec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.KeycloakSpec"),
+							Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.KeycloakSpec"),
 						},
 					},
 					"version": {
@@ -85,7 +85,7 @@ func schema_pkg_apis_edp_v1alpha1_NexusSpec(ref common.ReferenceCallback) common
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.NexusVolumes"),
+										Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusVolumes"),
 									},
 								},
 							},
@@ -96,7 +96,7 @@ func schema_pkg_apis_edp_v1alpha1_NexusSpec(ref common.ReferenceCallback) common
 			},
 		},
 		Dependencies: []string{
-			"nexus-operator/pkg/apis/edp/v1alpha1.KeycloakSpec", "nexus-operator/pkg/apis/edp/v1alpha1.NexusVolumes"},
+			"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.KeycloakSpec", "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusVolumes"},
 	}
 }
 

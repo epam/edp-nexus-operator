@@ -1,15 +1,15 @@
 package platform
 
 import (
+	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/openshift"
 	appsV1Api "github.com/openshift/api/apps/v1"
 	routeV1Api "github.com/openshift/api/route/v1"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/clientcmd"
-	"nexus-operator/pkg/apis/edp/v1alpha1"
-	"nexus-operator/pkg/helper"
-	"nexus-operator/pkg/service/platform/openshift"
 )
 
 // PlatformService interface

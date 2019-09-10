@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"nexus-operator/pkg/controller/nexus"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/controller/nexus"
 )
 
 func init() {

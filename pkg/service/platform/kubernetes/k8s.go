@@ -2,6 +2,10 @@ package kubernetes
 
 import (
 	"fmt"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
+	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
+	platformHelper "github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	coreV1Api "k8s.io/api/core/v1"
@@ -12,10 +16,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	coreV1Client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
-	"nexus-operator/pkg/apis/edp/v1alpha1"
-	"nexus-operator/pkg/helper"
-	nexusDefaultSpec "nexus-operator/pkg/service/nexus/spec"
-	platformHelper "nexus-operator/pkg/service/platform/helper"
 	"os"
 	"path/filepath"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
