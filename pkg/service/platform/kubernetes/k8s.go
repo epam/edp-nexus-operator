@@ -2,6 +2,8 @@ package kubernetes
 
 import (
 	"fmt"
+	jenkinsV1Api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis/v2/v1alpha1"
+	jenkinsV1Client "github.com/epmd-edp/jenkins-operator/v2/pkg/controller/jenkinsserviceaccount/client"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
@@ -26,17 +28,25 @@ var log = logf.Log.WithName("platform")
 
 // K8SService struct for K8S platform service
 type K8SService struct {
-	Scheme     *runtime.Scheme
-	CoreClient coreV1Client.CoreV1Client
+	Scheme                      *runtime.Scheme
+	CoreClient                  coreV1Client.CoreV1Client
+	JenkinsServiceAccountClient jenkinsV1Client.EdpV1Client
 }
 
 // Init initializes K8SService
 func (service *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme) error {
 	CoreClient, err := coreV1Client.NewForConfig(config)
 	if err != nil {
-		return helper.LogErrorAndReturn(err)
+		return errors.Wrap(err, "Failed to initialize Core V1 Client")
 	}
+
+	JenkinsServiceAccountClient, err := jenkinsV1Client.NewForConfig(config)
+	if err != nil {
+		return errors.Wrap(err, "Failed to initialize Jenkins Service Account Client")
+	}
+
 	service.CoreClient = *CoreClient
+	service.JenkinsServiceAccountClient = *JenkinsServiceAccountClient
 	service.Scheme = Scheme
 	return nil
 }
@@ -347,6 +357,34 @@ func (service K8SService) UpdateSecret(secret *coreV1Api.Secret) error {
 
 	_, err := service.CoreClient.Secrets(secret.Namespace).Update(secret)
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service K8SService) CreateJenkinsServiceAccount(namespace string, secretName string) error {
+
+	jsa := &jenkinsV1Api.JenkinsServiceAccount{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: namespace,
+		},
+		Spec: jenkinsV1Api.JenkinsServiceAccountSpec{
+			Type:        "password",
+			Credentials: secretName,
+		},
+	}
+
+	_, err := service.JenkinsServiceAccountClient.Get(secretName, namespace, metav1.GetOptions{})
+	if err != nil {
+		if k8serr.IsNotFound(err) {
+			_, err = service.JenkinsServiceAccountClient.Create(jsa, namespace)
+			if err != nil {
+				return err
+			}
+		}
 		return err
 	}
 

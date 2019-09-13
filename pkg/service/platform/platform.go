@@ -33,6 +33,7 @@ type PlatformService interface {
 	CreateExternalEndpoint(instance v1alpha1.Nexus) error
 	GetSecret(namespace string, name string) (*coreV1Api.Secret, error)
 	UpdateSecret(secret *coreV1Api.Secret) error
+	CreateJenkinsServiceAccount(namespace string, secretName string) error
 }
 
 // NewPlatformService returns platform service interface implementation

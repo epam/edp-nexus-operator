@@ -1,6 +1,5 @@
 [
   {
-    "type": "ci-credentials",
     "username": "ci.user",
     "first_name": "ci.user",
     "last_name": "CI",

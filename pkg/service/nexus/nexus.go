@@ -156,21 +156,24 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 	var newUserSecretName string
 	var parsedUsers []map[string]interface{}
 	err = json.Unmarshal([]byte(nexusDefaultUsersToCreate[nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix]), &parsedUsers)
-	newUser := map[string][]byte{
-		"username": []byte(""),
-		"password": []byte(""),
-	}
 
-	for _, user := range parsedUsers {
-		newUserSecretName = fmt.Sprintf("%v-%v", instance.Name, user["type"].(string))
-		newUser["username"] = []byte(user["username"].(string))
+	newUser := map[string][]byte{}
+
+	for _, userProperties := range parsedUsers {
+		newUser["username"] = []byte(userProperties["username"].(string))
+		newUser["first_name"] = []byte(userProperties["first_name"].(string))
+		newUser["last_name"] = []byte(userProperties["last_name"].(string))
 		newUser["password"] = []byte(uniuri.New())
-		ciUserAnnotationKey := helper.GenerateAnnotationKey(user["type"].(string))
-		n.setAnnotation(&instance, ciUserAnnotationKey, newUserSecretName)
+		newUserSecretName = fmt.Sprintf("%s-%s", instance.Name, newUser["username"])
 
 		err = n.platformService.CreateSecret(instance, newUserSecretName, newUser)
 		if err != nil {
-			return &instance, errors.Wrap(err, "Failed to create CI User credentials!")
+			return &instance, errors.Wrapf(err, "Failed to create %s secret!", newUserSecretName)
+		}
+
+		err := n.platformService.CreateJenkinsServiceAccount(instance.Namespace, newUserSecretName)
+		if err != nil {
+			return &instance, errors.Wrapf(err, "Failed to create Jenkins service account %s", newUserSecretName)
 		}
 
 		data, err := n.platformService.GetSecretData(instance.Namespace, newUserSecretName)
@@ -178,11 +181,11 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 			return &instance, errors.Wrap(err, "Failed to get CI user credentials!")
 		}
 
-		user["password"] = string(data["password"])
+		userProperties["password"] = string(data["password"])
 
-		_, err = n.nexusClient.RunScript("setup-user", user)
+		_, err = n.nexusClient.RunScript("setup-user", userProperties)
 		if err != nil {
-			return &instance, errors.Wrapf(err, "Failed to create user %v for %v/%v", user["username"], instance.Namespace, instance.Name)
+			return &instance, errors.Wrapf(err, "Failed to create user %v for %v/%v", userProperties["username"], instance.Namespace, instance.Name)
 		}
 	}
 
