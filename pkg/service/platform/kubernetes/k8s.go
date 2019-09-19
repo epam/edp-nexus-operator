@@ -6,6 +6,7 @@ import (
 	jenkinsV1Api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis/v2/v1alpha1"
 	jenkinsV1Client "github.com/epmd-edp/jenkins-operator/v2/pkg/controller/jenkinsserviceaccount/client"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
+	//_ "github.com/epmd-edp/keycloak-operator/pkg/controller/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
@@ -417,3 +418,19 @@ func (service K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient)
 
 	return nil
 }
+
+func (service K8SService) GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient,error) {
+	out := keycloakV1Api.KeycloakClient{}
+	nsn := types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}
+
+	err := service.k8sUnstructuredClient.Get(context.TODO(),nsn, &out)
+	if err != nil {
+		return out, err
+	}
+
+	return out, nil
+}
+

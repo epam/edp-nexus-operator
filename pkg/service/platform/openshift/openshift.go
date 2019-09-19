@@ -56,29 +56,7 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 	return nil
 }
 
-func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf map[string][]byte) error {
-	var args []string
-	nexusRoute, routeScheme, err := service.GetRoute(instance.Namespace, instance.Name)
-	if err != nil {
-		return err
-	}
-
-	redirectUrl := fmt.Sprintf("--redirection-url=%v://%v", routeScheme, nexusRoute.Spec.Host)
-	clientId := fmt.Sprintf("--client-id=%v", string(keycloakClientConf["client_id"]))
-	clientSecret := fmt.Sprintf("--client-secret=%v", string(keycloakClientConf["client_secret"]))
-	discoveryUrl := fmt.Sprintf("--discovery-url=%v", instance.Spec.KeycloakSpec.Url)
-	upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
-
-	args = append(
-		args,
-		"--skip-openid-provider-tls-verify=true",
-		discoveryUrl,
-		clientId,
-		clientSecret,
-		"--listen=0.0.0.0:3000",
-		redirectUrl,
-		upstreamUrl,
-		"--resources=uri=/*|roles=developer,administrator|require-any-role=true")
+func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
 
 	containerSpec := coreV1Api.Container{
 		Name:            "keycloak-proxy",

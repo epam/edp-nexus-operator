@@ -26,7 +26,9 @@ func (nc *NexusClient) InitNewRestClient(instance *v1alpha1.Nexus, url string, u
 // WaitForStatusIsUp waits for Nexus to be up
 func (nc NexusClient) IsNexusRestApiReady() (bool, int, error) {
 	nexusIsReady := true
-	resp, err := nc.resty.R().
+	resp, err := nc.resty.
+		SetRedirectPolicy(resty.FlexibleRedirectPolicy(10)).
+		R().
 		Get("/status")
 	if err != nil {
 		return nexusIsReady, resp.StatusCode(), helper.LogErrorAndReturn(err)

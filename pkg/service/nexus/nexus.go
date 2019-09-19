@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dchest/uniuri"
+	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
+	keycloakControllerHelper "github.com/epmd-edp/keycloak-operator/pkg/controller/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/client/nexus"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
-	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
@@ -100,14 +101,49 @@ func (n NexusServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, va
 func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 
 	if instance.Spec.KeycloakSpec.Enabled {
-		keycloakSecretName := fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
+		//keycloakSecretName := fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
 
-		keycloakSecretData, err := n.platformService.GetSecretData(instance.Namespace, keycloakSecretName)
+		keycloakClient, err := n.platformService.GetKeycloakClient(instance.Name,instance.Namespace)
 		if err != nil {
 			return &instance, errors.Wrap(err, "Failed to get Keycloak client data!")
 		}
 
-		err = n.platformService.AddKeycloakProxyToDeployConf(instance, keycloakSecretData)
+		keycloakRealm, err := keycloakControllerHelper.GetOwnerKeycloakRealm(n.k8sClient, keycloakClient.ObjectMeta)
+		if err != nil {
+			return &instance, nil
+		}
+
+		keycloak, err := keycloakControllerHelper.GetOwnerKeycloak(n.k8sClient, keycloakRealm.ObjectMeta)
+		if err != nil {
+			errMsg := fmt.Sprintf("Failed to get owner for %s/%s", keycloakClient.Namespace, keycloakClient.Name)
+			return &instance, errors.Wrap(err, errMsg)
+		}
+
+		nexusRoute, routeScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
+		if err != nil {
+			return &instance, errors.Wrap(err, "Failed to get route!")
+		}
+
+		redirectUrl := fmt.Sprintf("--redirection-url=%v://%v", routeScheme, nexusRoute.Spec.Host)
+		clientId := fmt.Sprintf("--client-id=%v", keycloakClient.Spec.ClientId)
+		clientSecret := fmt.Sprintf("--client-secret=42")
+		discoveryUrl := fmt.Sprintf("--discovery-url=%s/auth/realms/%s", keycloak.Spec.Url, keycloakRealm.Spec.RealmName)
+		upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
+
+		var keycloakProxyConfig []string
+		keycloakProxyConfig = append(
+			keycloakProxyConfig,
+			"--skip-openid-provider-tls-verify=true",
+			discoveryUrl,
+			clientId,
+			clientSecret,
+			"--listen=0.0.0.0:3000",
+			redirectUrl,
+			upstreamUrl,
+			"--resources=uri=/*|roles=developer,administrator|require-any-role=true",
+			)
+
+		err = n.platformService.AddKeycloakProxyToDeployConf(instance, keycloakProxyConfig)
 		if err != nil {
 			return &instance, errors.Wrap(err, "Failed to add Keycloak proxy!")
 		}

@@ -16,7 +16,7 @@ import (
 
 // PlatformService interface
 type PlatformService interface {
-	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf map[string][]byte) error
+	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf []string) error
 	GetRoute(namespace string, name string) (*routeV1Api.Route, string, error)
 	UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error
 	GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error)
@@ -37,6 +37,7 @@ type PlatformService interface {
 	UpdateSecret(secret *coreV1Api.Secret) error
 	CreateJenkinsServiceAccount(namespace string, secretName string) error
 	CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error
+	GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient,error)
 }
 
 // NewPlatformService returns platform service interface implementation
