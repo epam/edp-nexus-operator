@@ -13,6 +13,8 @@ import (
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/controller"
 
+	jenkinsV2api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis"
+	keycloakApi "github.com/epmd-edp/keycloak-operator/pkg/apis"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
@@ -23,7 +25,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
-	jenkinsV2api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -104,6 +105,12 @@ func main() {
 
 	// Setup Jenkins api
 	if err := jenkinsV2api.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	// Setup Keycloak API.
+	if err := keycloakApi.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Error(err, "")
 		os.Exit(1)
 	}

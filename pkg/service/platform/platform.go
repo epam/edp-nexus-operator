@@ -1,6 +1,7 @@
 package platform
 
 import (
+	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/openshift"
@@ -10,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/clientcmd"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // PlatformService interface
@@ -34,10 +36,11 @@ type PlatformService interface {
 	GetSecret(namespace string, name string) (*coreV1Api.Secret, error)
 	UpdateSecret(secret *coreV1Api.Secret) error
 	CreateJenkinsServiceAccount(namespace string, secretName string) error
+	CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error
 }
 
 // NewPlatformService returns platform service interface implementation
-func NewPlatformService(scheme *runtime.Scheme) (PlatformService, error) {
+func NewPlatformService(scheme *runtime.Scheme, k8sClient *client.Client) (PlatformService, error) {
 	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
@@ -50,7 +53,7 @@ func NewPlatformService(scheme *runtime.Scheme) (PlatformService, error) {
 
 	platform := openshift.OpenshiftService{}
 
-	err = platform.Init(restConfig, scheme)
+	err = platform.Init(restConfig, scheme, k8sClient)
 	if err != nil {
 		return nil, helper.LogErrorAndReturn(err)
 	}

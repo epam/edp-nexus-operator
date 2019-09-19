@@ -9,6 +9,7 @@ import (
 	"github.com/epmd-edp/nexus-operator/v2/pkg/client/nexus"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
+	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
@@ -191,21 +192,25 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 
 	_ = n.k8sClient.Update(context.TODO(), &instance)
 
-	identityServiceClientCredenrials := map[string][]byte{
-		"client_id":     []byte(instance.Name),
-		"client_secret": []byte(uniuri.New()),
+	if instance.Spec.KeycloakSpec.Enabled {
+		routeObject, scheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
+		if err != nil {
+			return &instance, errors.Wrap(err, "Failed to get route from cluster!")
+		}
+
+		webUrl := fmt.Sprintf("%s://%s", scheme, routeObject.Spec.Host)
+		keycloakClient := keycloakV1Api.KeycloakClient{}
+		keycloakClient.Name = instance.Name
+		keycloakClient.Namespace = instance.Namespace
+		keycloakClient.Spec.ClientId = instance.Name
+		keycloakClient.Spec.Public = true
+		keycloakClient.Spec.WebUrl = webUrl
+
+		err = n.platformService.CreateKeycloakClient(&keycloakClient)
+		if err != nil {
+			return &instance, nil
+		}
 	}
-
-	identityServiceSecretName := fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
-	err = n.platformService.CreateSecret(instance, identityServiceSecretName, identityServiceClientCredenrials)
-	if err != nil {
-		return &instance, errors.Wrapf(err, fmt.Sprintf("Failed to create secret %v", identityServiceSecretName))
-	}
-
-	annotationKey := helper.GenerateAnnotationKey(nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
-	n.setAnnotation(&instance, annotationKey, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix))
-	_ = n.k8sClient.Update(context.TODO(), &instance)
-
 	return &instance, nil
 }
 
