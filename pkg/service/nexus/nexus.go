@@ -113,10 +113,19 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, nil
 		}
 
+		if keycloakRealm == nil {
+			return &instance, errors.New("Keycloak Realm CR in not created yet!")
+		}
+
+
 		keycloak, err := keycloakControllerHelper.GetOwnerKeycloak(n.k8sClient, keycloakRealm.ObjectMeta)
 		if err != nil {
 			errMsg := fmt.Sprintf("Failed to get owner for %s/%s", keycloakClient.Namespace, keycloakClient.Name)
 			return &instance, errors.Wrap(err, errMsg)
+		}
+
+		if keycloak == nil {
+			return &instance, errors.New("Keycloak CR is not created yet!")
 		}
 
 		nexusRoute, routeScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
