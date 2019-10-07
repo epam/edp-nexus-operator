@@ -3,7 +3,6 @@ package openshift
 import (
 	"fmt"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/kubernetes"
@@ -38,18 +37,18 @@ type OpenshiftService struct {
 func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Scheme, k8sClient *client.Client) error {
 	err := service.K8SService.Init(config, scheme, k8sClient)
 	if err != nil {
-		return helper.LogErrorAndReturn(err)
+		return errors.Wrap(err, "failed to initialize Kubernetes service!")
 	}
 
 	appClient, err := appsV1client.NewForConfig(config)
 	if err != nil {
-		return helper.LogErrorAndReturn(err)
+		return errors.Wrap(err, "failed to initialize Apps V1 Client")
 	}
 	service.appClient = *appClient
 
 	routeClient, err := routeV1Client.NewForConfig(config)
 	if err != nil {
-		return helper.LogErrorAndReturn(err)
+		return errors.Wrap(err, "failed to initialize Route V1 Client")
 	}
 	service.routeClient = *routeClient
 
@@ -79,7 +78,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 	}
 
 	if platformHelper.ContainerInDeployConf(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec) {
-		log.V(1).Info("Keycloak proxy already added!")
+		log.V(1).Info("Keycloak proxy is present!", "Namespace", instance.Namespace, "Name", instance.Name)
 		return nil
 	}
 	oldNexusDeploymentConfig.Spec.Template.Spec.Containers = append(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec)
@@ -89,7 +88,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 		return err
 	}
 
-	log.Info("Keycloak proxy added.")
+	log.Info("Keycloak proxy added.", "Namespace", instance.Namespace, "Name", instance.Name)
 	return nil
 
 }
@@ -201,20 +200,24 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 		},
 	}
 	if err := controllerutil.SetControllerReference(&instance, deploymentConfigObject, service.Scheme); err != nil {
-		return helper.LogErrorAndReturn(err)
+		return err
 	}
 
 	deploymentConfig, err := service.appClient.DeploymentConfigs(deploymentConfigObject.Namespace).Get(deploymentConfigObject.Name, metav1.GetOptions{})
-	if err != nil && k8serrors.IsNotFound(err) {
-		deploymentConfig, err = service.appClient.DeploymentConfigs(deploymentConfigObject.Namespace).Create(deploymentConfigObject)
-		if err != nil {
-			return helper.LogErrorAndReturn(err)
-		}
-
-		log.Info(fmt.Sprintf("DeploymentConfig %v/%v has been created", deploymentConfig.Namespace, deploymentConfig.Name))
-	} else if err != nil {
-		return helper.LogErrorAndReturn(err)
+	if err == nil {
+		return err
 	}
+
+	if !k8serrors.IsNotFound(err) {
+		return err
+	}
+
+	deploymentConfig, err = service.appClient.DeploymentConfigs(deploymentConfigObject.Namespace).Create(deploymentConfigObject)
+	if err != nil {
+		return err
+	}
+
+	log.Info("DeploymentConfig has been created", "Namespace", instance.Namespace, "Name", instance.Name, "DeploymentName", deploymentConfig.Name)
 
 	return nil
 }
@@ -243,20 +246,24 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 	}
 
 	if err := controllerutil.SetControllerReference(&instance, routeObject, service.Scheme); err != nil {
-		return helper.LogErrorAndReturn(err)
+		return err
 	}
 
 	route, err := service.routeClient.Routes(routeObject.Namespace).Get(routeObject.Name, metav1.GetOptions{})
-
-	if err != nil && k8serrors.IsNotFound(err) {
-		route, err = service.routeClient.Routes(routeObject.Namespace).Create(routeObject)
-		if err != nil {
-			return helper.LogErrorAndReturn(err)
-		}
-		log.Info(fmt.Sprintf("Route %s/%s has been created", route.Namespace, route.Name))
-	} else if err != nil {
-		return helper.LogErrorAndReturn(err)
+	if err == nil {
+		return err
 	}
+
+	if !k8serrors.IsNotFound(err) {
+		return err
+	}
+
+	route, err = service.routeClient.Routes(routeObject.Namespace).Create(routeObject)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Route has been created", "Namespace", instance.Namespace, "Name", instance.Name, "RouteName", route.Name)
 
 	return nil
 }
@@ -264,35 +271,29 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 // GetRoute returns Route object from Openshift
 func (service OpenshiftService) GetRoute(namespace string, name string) (*routeV1Api.Route, string, error) {
 	route, err := service.routeClient.Routes(namespace).Get(name, metav1.GetOptions{})
-	if err != nil && k8serrors.IsNotFound(err) {
-		log.Info(fmt.Sprintf("Route %v in namespace %v not found", name, namespace))
+	if k8serrors.IsNotFound(err) {
+		log.Info("Route not found", "Namespace", namespace, "Name", name, "RouteName", name)
 		return nil, "", nil
-	} else if err != nil {
-		return nil, "", helper.LogErrorAndReturn(err)
 	}
 
-	var routeScheme = "http"
+	routeScheme := "http"
 	if route.Spec.TLS.Termination != "" {
 		routeScheme = "https"
 	}
-	return route, routeScheme, nil
+	return route, routeScheme, err
 }
 
 // GetDeploymentConfig returns DeploymentConfig object from Openshift
 func (service OpenshiftService) GetDeploymentConfig(instance v1alpha1.Nexus) (*appsV1Api.DeploymentConfig, error) {
 	deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil, helper.LogErrorAndReturn(err)
-	}
-
-	return deploymentConfig, nil
+	return deploymentConfig, err
 }
 
 // GetRouteByCr return Route object with instance as a reference owner
 func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error) {
 	routeList, err := service.routeClient.Routes(instance.Namespace).List(metav1.ListOptions{})
 	if err != nil {
-		return nil, errors.Wrap(err, "Couldn't retrieve services list from the cluster")
+		return nil, errors.Wrap(err, "couldn't retrieve services list from the cluster")
 	}
 	for _, route := range routeList.Items {
 		for _, owner := range route.OwnerReferences {
@@ -308,16 +309,14 @@ func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1A
 func (service OpenshiftService) UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
 	instanceRoute, err := service.GetRouteByCr(instance)
 	if err != nil || instanceRoute == nil {
-		return errors.Wrapf(err, "Couldn't get route for instance %v", instance.Name)
+		return errors.Wrap(err, "couldn't get route")
 	}
 	if instanceRoute.Spec.Port != nil && instanceRoute.Spec.Port.TargetPort == targetPort {
-		log.V(1).Info("Target Port %v for route route %v is already set", targetPort.StrVal, instanceRoute.Name)
+		log.V(1).Info("Target Port is already set", "Namespace", instance.Namespace, "Name", instance.Name, "TargetPort", targetPort.StrVal, "Route", instanceRoute.Name)
 		return nil
 	}
 	instanceRoute.Spec.Port = &routeV1Api.RoutePort{TargetPort: targetPort}
 
-	if _, err = service.routeClient.Routes(instance.Namespace).Update(instanceRoute); err != nil {
-		return err
-	}
-	return nil
+	_, err = service.routeClient.Routes(instance.Namespace).Update(instanceRoute)
+	return err
 }

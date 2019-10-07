@@ -136,7 +136,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	instance, err = r.service.Install(*instance)
 	if err != nil {
 		r.updateStatus(instance, StatusFailed)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Installation has been failed")
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrap(err, "Installation has been failed")
 	}
 
 	if instance.Status.Status == StatusInstall {
@@ -146,7 +146,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	}
 
 	if dcIsReady, err := r.service.IsDeploymentConfigReady(*instance); err != nil {
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Checking if Deployment config is ready has been failed")
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrap(err, "Checking if Deployment config is ready has been failed")
 	} else if !dcIsReady {
 		reqLogger.Info("Deployment config is not ready for configuration yet")
 		return reconcile.Result{RequeueAfter: 60 * time.Second}, nil
@@ -163,7 +163,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 	instance, isFinished, err := r.service.Configure(*instance)
 	if err != nil {
 		reqLogger.Error(err, "Configuration has failed")
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, errorsf.Wrapf(err, "Configuration failed")
+		return reconcile.Result{RequeueAfter: 30 * time.Second}, errorsf.Wrap(err, "Configuration failed")
 	} else if !isFinished {
 		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
 	}
@@ -186,7 +186,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, err = r.service.ExposeConfiguration(*instance)
 	if err != nil {
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Exposing configuration failed")
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrap(err, "Exposing configuration failed")
 	}
 
 	if instance.Status.Status == StatusExposeStart {
@@ -207,7 +207,7 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 
 	instance, err = r.service.Integration(*instance)
 	if err != nil {
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrapf(err, "Integration failed")
+		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrap(err, "Integration failed")
 	}
 
 	if instance.Status.Status == StatusIntegrationStart {
@@ -237,7 +237,7 @@ func (r *ReconcileNexus) updateStatus(instance *edpv1alpha1.Nexus, newStatus str
 	if err != nil {
 		err := r.client.Update(context.TODO(), instance)
 		if err != nil {
-			return errorsf.Wrapf(err, "Couldn't update status from '%v' to '%v'", currentStatus, newStatus)
+			return errorsf.Wrapf(err, "couldn't update status from '%v' to '%v'", currentStatus, newStatus)
 		}
 	}
 	reqLogger.Info(fmt.Sprintf("Status has been updated to '%v'", newStatus))
@@ -253,7 +253,7 @@ func (r ReconcileNexus) updateAvailableStatus(instance *edpv1alpha1.Nexus, value
 		if err != nil {
 			err := r.client.Update(context.TODO(), instance)
 			if err != nil {
-				return errorsf.Wrapf(err, "Couldn't update avalability status to %v", value)
+				return errorsf.Wrapf(err, "couldn't update availability status to %v", value)
 			}
 		}
 		reqLogger.Info(fmt.Sprintf("Availability status has been updated to '%v'", value))
