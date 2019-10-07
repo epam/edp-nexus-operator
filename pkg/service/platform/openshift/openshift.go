@@ -78,7 +78,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 	}
 
 	if platformHelper.ContainerInDeployConf(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec) {
-		log.V(1).Info("Keycloak proxy is present!", "Namespace", instance.Namespace, "Name", instance.Name)
+		log.V(1).Info("Keycloak proxy is present", "Namespace", instance.Namespace, "Name", instance.Name)
 		return nil
 	}
 	oldNexusDeploymentConfig.Spec.Template.Spec.Containers = append(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec)
@@ -268,19 +268,19 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 	return nil
 }
 
-// GetRoute returns Route object from Openshift
-func (service OpenshiftService) GetRoute(namespace string, name string) (*routeV1Api.Route, string, error) {
+// GetExternalUrl returns Web URL for object and scheme from Openshift Route
+func (service OpenshiftService) GetExternalUrl(namespace string, name string) (webURL, scheme string, err error) {
 	route, err := service.routeClient.Routes(namespace).Get(name, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		log.Info("Route not found", "Namespace", namespace, "Name", name, "RouteName", name)
-		return nil, "", nil
+		return "", "", nil
 	}
 
 	routeScheme := "http"
 	if route.Spec.TLS.Termination != "" {
 		routeScheme = "https"
 	}
-	return route, routeScheme, err
+	return fmt.Sprintf("%s://%s", routeScheme, route.Spec.Host), routeScheme, nil
 }
 
 // GetDeploymentConfig returns DeploymentConfig object from Openshift

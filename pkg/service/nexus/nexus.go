@@ -67,15 +67,15 @@ func (n NexusServiceImpl) IsDeploymentConfigReady(instance v1alpha1.Nexus) (bool
 }
 
 func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
-	nexusApiUrl := fmt.Sprintf("http://%v.%v:%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, nexusDefaultSpec.NexusRestApiUrlPath)
+	u := fmt.Sprintf("http://%v.%v:%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, nexusDefaultSpec.NexusRestApiUrlPath)
 	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
-		nexusRoute, nexusRouteScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
+		eu, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return "", errors.Wrapf(err, "failed to get Route for %v/%v", instance.Namespace, instance.Name)
 		}
-		nexusApiUrl = fmt.Sprintf("%v://%v/%v", nexusRouteScheme, nexusRoute.Spec.Host, nexusDefaultSpec.NexusRestApiUrlPath)
+		u = fmt.Sprintf("%v/%v", eu, nexusDefaultSpec.NexusRestApiUrlPath)
 	}
-	return nexusApiUrl, nil
+	return u, nil
 }
 
 func (n NexusServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string, error) {
@@ -101,8 +101,6 @@ func (n NexusServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, va
 func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 
 	if instance.Spec.KeycloakSpec.Enabled {
-		//keycloakSecretName := fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.IdentityServiceCredentialsSecretPostfix)
-
 		keycloakClient, err := n.platformService.GetKeycloakClient(instance.Name,instance.Namespace)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get Keycloak client data!")
@@ -128,31 +126,31 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, errors.New("Keycloak CR is not created yet")
 		}
 
-		nexusRoute, routeScheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
+		webURL, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get route")
 		}
 
-		redirectUrl := fmt.Sprintf("--redirection-url=%v://%v", routeScheme, nexusRoute.Spec.Host)
-		clientId := fmt.Sprintf("--client-id=%v", keycloakClient.Spec.ClientId)
-		clientSecret := fmt.Sprintf("--client-secret=42")
-		discoveryUrl := fmt.Sprintf("--discovery-url=%s/auth/realms/%s", keycloak.Spec.Url, keycloakRealm.Spec.RealmName)
-		upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
+		ru := fmt.Sprintf("--redirection-url=%v", webURL)
+		id := fmt.Sprintf("--client-id=%v", keycloakClient.Spec.ClientId)
+		secret := fmt.Sprintf("--client-secret=42")
+		du := fmt.Sprintf("--discovery-url=%s/auth/realms/%s", keycloak.Spec.Url, keycloakRealm.Spec.RealmName)
+		uu := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
 
-		var keycloakProxyConfig []string
-		keycloakProxyConfig = append(
-			keycloakProxyConfig,
+		var proxyConfig []string
+		proxyConfig = append(
+			proxyConfig,
 			"--skip-openid-provider-tls-verify=true",
-			discoveryUrl,
-			clientId,
-			clientSecret,
+			du,
+			id,
+			secret,
 			"--listen=0.0.0.0:3000",
-			redirectUrl,
-			upstreamUrl,
+			ru,
+			uu,
 			"--resources=uri=/*|roles=developer,administrator|require-any-role=true",
 			)
 
-		err = n.platformService.AddKeycloakProxyToDeployConf(instance, keycloakProxyConfig)
+		err = n.platformService.AddKeycloakProxyToDeployConf(instance, proxyConfig)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to add Keycloak proxy")
 		}
@@ -179,7 +177,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 
 // ExposeConfiguration performs exposing Nexus configuration for other EDP components
 func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
-	nexusApiUrl, err := n.getNexusRestApiUrl(instance)
+	u, err := n.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to get Nexus REST API URL")
 	}
@@ -189,7 +187,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 		return &instance, errors.Wrap(err, "failed to get Nexus admin password from secret")
 	}
 
-	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
+	err = n.nexusClient.InitNewRestClient(&instance, u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to initialize Nexus client")
 	}
@@ -238,18 +236,17 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 	_ = n.k8sClient.Update(context.TODO(), &instance)
 
 	if instance.Spec.KeycloakSpec.Enabled {
-		routeObject, scheme, err := n.platformService.GetRoute(instance.Namespace, instance.Name)
+		webURL, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get route from cluster")
 		}
 
-		webUrl := fmt.Sprintf("%s://%s", scheme, routeObject.Spec.Host)
 		keycloakClient := keycloakV1Api.KeycloakClient{}
 		keycloakClient.Name = instance.Name
 		keycloakClient.Namespace = instance.Namespace
 		keycloakClient.Spec.ClientId = instance.Name
 		keycloakClient.Spec.Public = true
-		keycloakClient.Spec.WebUrl = webUrl
+		keycloakClient.Spec.WebUrl = webURL
 
 		err = n.platformService.CreateKeycloakClient(&keycloakClient)
 		if err != nil {
@@ -261,7 +258,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 
 // Configure performs self-configuration of Nexus
 func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
-	nexusApiUrl, err := n.getNexusRestApiUrl(instance)
+	u, err := n.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get Nexus REST API URL")
 	}
@@ -271,7 +268,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		return &instance, false, errors.Wrap(err, "failed to get Nexus admin password from secret")
 	}
 
-	err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
+	err = n.nexusClient.InitNewRestClient(&instance, u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to initialize Nexus client")
 	}
@@ -320,7 +317,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 		passwordString := string(nexusAdminPassword.Data["password"])
 
-		err = n.nexusClient.InitNewRestClient(&instance, nexusApiUrl, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
+		err = n.nexusClient.InitNewRestClient(&instance, u, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
 		if err != nil {
 			return &instance, false, errors.Wrap(err, "failed to initialize Nexus client")
 		}
