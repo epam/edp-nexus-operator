@@ -271,9 +271,12 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 // GetExternalUrl returns Web URL for object and scheme from Openshift Route
 func (service OpenshiftService) GetExternalUrl(namespace string, name string) (webURL, scheme string, err error) {
 	route, err := service.routeClient.Routes(namespace).Get(name, metav1.GetOptions{})
-	if k8serrors.IsNotFound(err) {
-		log.Info("Route not found", "Namespace", namespace, "Name", name, "RouteName", name)
-		return "", "", nil
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			log.Info("Route not found", "Namespace", namespace, "Name", name, "RouteName", name)
+			return "", "", nil
+		}
+		return "", "", err
 	}
 
 	routeScheme := "http"
@@ -311,8 +314,8 @@ func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1A
 	return nil, nil
 }
 
-// UpdateRouteTarget performs updating route target port
-func (service OpenshiftService) UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
+// UpdateExternalTargetPath performs updating route target port
+func (service OpenshiftService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
 	instanceRoute, err := service.GetRouteByCr(instance)
 	if err != nil || instanceRoute == nil {
 		return errors.Wrap(err, "couldn't get route")

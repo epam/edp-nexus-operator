@@ -43,9 +43,15 @@ type K8SService struct {
 	extensionsV1Client          extensionsV1Client.ExtensionsV1beta1Client
 }
 
-func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
-	t := false
-	return &t, nil
+func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
+	dc, err := s.appClient.Deployments(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
+	if err != nil {
+		return
+	}
+
+	t := dc.Status.UpdatedReplicas == 1 && dc.Status.AvailableReplicas == 1
+	res = &t
+	return
 }
 
 func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
@@ -85,11 +91,37 @@ func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args [
 }
 
 func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string, scheme string, err error) {
-	return "", "", nil
+	i, err := s.extensionsV1Client.Ingresses(namespace).Get(name, metav1.GetOptions{})
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			log.Info("Ingress not found", "Namespace", namespace, "Name", name)
+			return "", "", nil
+		}
+		return "", "", err
+	}
+
+	h := i.Spec.Rules[0].Host
+	sc := "https"
+
+	return fmt.Sprintf("%s://%s", sc, h), sc, nil
 }
 
-func (s K8SService) UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
-	return nil
+func (s K8SService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
+	i, err := s.GetIngressByCr(instance)
+	if err != nil {
+		return errors.Wrap(err, "couldn't get route")
+	}
+
+	if i.Spec.Rules[0].HTTP.Paths[0].Backend.ServicePort == targetPort {
+		log.V(1).Info("Target Port is already set",
+			"Namespace", instance.Namespace, "Name", instance.Name, "TargetPort", targetPort.StrVal, "IngressName", i.Name)
+		return nil
+	}
+
+	i.Spec.Rules[0].HTTP.Paths[0].Backend.ServicePort = targetPort
+
+	_, err = s.extensionsV1Client.Ingresses(instance.Namespace).Update(i)
+	return err
 }
 
 func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
@@ -174,7 +206,7 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 						},
 					},
 					SecurityContext: &coreV1Api.PodSecurityContext{
-						FSGroup:    &fsg,
+						FSGroup: &fsg,
 					},
 					ServiceAccountName: instance.Name,
 					Volumes: []coreV1Api.Volume{
@@ -706,4 +738,19 @@ func (s K8SService) GetKeycloakClient(name string, namespace string) (keycloakV1
 	}
 
 	return out, nil
+}
+
+func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*extensionsV1Api.Ingress, error) {
+	i, err := s.extensionsV1Client.Ingresses(instance.Namespace).List(metav1.ListOptions{})
+	if err != nil {
+		return nil, errors.Wrap(err, "couldn't retrieve ingresses list from the cluster")
+	}
+	for _, e := range i.Items {
+		for _, owner := range e.OwnerReferences {
+			if owner.UID == instance.UID {
+				return &e, nil
+			}
+		}
+	}
+	return nil, nil
 }

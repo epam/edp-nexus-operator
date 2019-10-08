@@ -157,7 +157,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, errors.Wrap(err, "failed to add Keycloak proxy port to service")
 		}
 
-		if err = n.platformService.UpdateRouteTarget(instance, intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort}); err != nil {
+		if err = n.platformService.UpdateExternalTargetPath(instance, intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort}); err != nil {
 			return &instance, errors.Wrap(err, "failed to update target port in Route")
 		}
 	} else {
