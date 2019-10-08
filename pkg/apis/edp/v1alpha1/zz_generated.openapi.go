@@ -13,9 +13,9 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.Nexus":       schema_pkg_apis_edp_v1alpha1_Nexus(ref),
-		"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusSpec":   schema_pkg_apis_edp_v1alpha1_NexusSpec(ref),
-		"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusStatus": schema_pkg_apis_edp_v1alpha1_NexusStatus(ref),
+		"nexus-operator/pkg/apis/edp/v1alpha1.Nexus":       schema_pkg_apis_edp_v1alpha1_Nexus(ref),
+		"nexus-operator/pkg/apis/edp/v1alpha1.NexusSpec":   schema_pkg_apis_edp_v1alpha1_NexusSpec(ref),
+		"nexus-operator/pkg/apis/edp/v1alpha1.NexusStatus": schema_pkg_apis_edp_v1alpha1_NexusStatus(ref),
 	}
 }
 
@@ -24,6 +24,7 @@ func schema_pkg_apis_edp_v1alpha1_Nexus(ref common.ReferenceCallback) common.Ope
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "Nexus is the Schema for the nexus API",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"kind": {
 						SchemaProps: spec.SchemaProps{
@@ -46,19 +47,19 @@ func schema_pkg_apis_edp_v1alpha1_Nexus(ref common.ReferenceCallback) common.Ope
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusSpec"),
+							Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.NexusSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusStatus"),
+							Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.NexusStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusSpec", "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusStatus"},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "nexus-operator/pkg/apis/edp/v1alpha1.NexusSpec", "nexus-operator/pkg/apis/edp/v1alpha1.NexusStatus"},
 	}
 }
 
@@ -67,10 +68,11 @@ func schema_pkg_apis_edp_v1alpha1_NexusSpec(ref common.ReferenceCallback) common
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "NexusSpec defines the desired state of Nexus",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"keycloakSpec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.KeycloakSpec"),
+							Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.KeycloakSpec"),
 						},
 					},
 					"version": {
@@ -85,18 +87,35 @@ func schema_pkg_apis_edp_v1alpha1_NexusSpec(ref common.ReferenceCallback) common
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
-										Ref: ref("github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusVolumes"),
+										Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.NexusVolumes"),
 									},
 								},
 							},
 						},
 					},
+					"users": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.NexusUsers"),
+									},
+								},
+							},
+						},
+					},
+					"edpSpec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("nexus-operator/pkg/apis/edp/v1alpha1.EdpSpec"),
+						},
+					},
 				},
-				Required: []string{"version"},
+				Required: []string{"version", "edpSpec"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.KeycloakSpec", "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1.NexusVolumes"},
+			"nexus-operator/pkg/apis/edp/v1alpha1.EdpSpec", "nexus-operator/pkg/apis/edp/v1alpha1.KeycloakSpec", "nexus-operator/pkg/apis/edp/v1alpha1.NexusUsers", "nexus-operator/pkg/apis/edp/v1alpha1.NexusVolumes"},
 	}
 }
 
@@ -105,6 +124,7 @@ func schema_pkg_apis_edp_v1alpha1_NexusStatus(ref common.ReferenceCallback) comm
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "NexusStatus defines the observed state of Nexus",
+				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
 					"available": {
 						SchemaProps: spec.SchemaProps{
@@ -127,6 +147,5 @@ func schema_pkg_apis_edp_v1alpha1_NexusStatus(ref common.ReferenceCallback) comm
 				},
 			},
 		},
-		Dependencies: []string{},
 	}
 }

@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	appsV1Api "k8s.io/api/apps/v1"
 	coreV1Api "k8s.io/api/core/v1"
+	extensionsV1Api "k8s.io/api/extensions/v1beta1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	appsV1Client "k8s.io/client-go/kubernetes/typed/apps/v1"
 	coreV1Client "k8s.io/client-go/kubernetes/typed/core/v1"
+	extensionsV1Client "k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
 	"k8s.io/client-go/rest"
 	"os"
 	"path/filepath"
@@ -38,6 +40,7 @@ type K8SService struct {
 	JenkinsServiceAccountClient jenkinsV1Client.EdpV1Client
 	k8sUnstructuredClient       client.Client
 	appClient                   appsV1Client.AppsV1Client
+	extensionsV1Client          extensionsV1Client.ExtensionsV1beta1Client
 }
 
 func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
@@ -60,6 +63,7 @@ func (s K8SService) UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr
 func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 	l := platformHelper.GenerateLabels(instance.Name)
 	var rc int32 = 1
+	var fsg int64 = 200
 
 	do := &appsV1Api.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -137,6 +141,9 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 							},
 						},
 					},
+					SecurityContext: &coreV1Api.PodSecurityContext{
+						FSGroup:    &fsg,
+					},
 					ServiceAccountName: instance.Name,
 					Volumes: []coreV1Api.Volume{
 						{
@@ -186,31 +193,94 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 }
 
 func (s K8SService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
+	l := platformHelper.GenerateLabels(instance.Name)
+
+	cs, err := s.CoreClient.Services(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
+	if err != nil {
+		log.Info("Nexus Service has not been found")
+		return err
+	}
+
+	io := &extensionsV1Api.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+			Labels:    l,
+		},
+		Spec: extensionsV1Api.IngressSpec{
+			Rules: []extensionsV1Api.IngressRule{
+				{
+					Host: fmt.Sprintf("%s.%s", instance.Name, instance.Spec.EdpSpec.DnsWildcard),
+					IngressRuleValue: extensionsV1Api.IngressRuleValue{
+						HTTP: &extensionsV1Api.HTTPIngressRuleValue{
+							Paths: []extensionsV1Api.HTTPIngressPath{
+								{
+									Path: "/",
+									Backend: extensionsV1Api.IngressBackend{
+										ServiceName: instance.Name,
+										ServicePort: intstr.IntOrString{
+											IntVal: cs.Spec.Ports[0].TargetPort.IntVal,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if err := controllerutil.SetControllerReference(&instance, io, s.Scheme); err != nil {
+		return err
+	}
+
+	i, err := s.extensionsV1Client.Ingresses(io.Namespace).Get(io.Name, metav1.GetOptions{})
+	if err == nil {
+		return err
+	}
+
+	if !k8serrors.IsNotFound(err) {
+		return err
+	}
+
+	i, err = s.extensionsV1Client.Ingresses(io.Namespace).Create(io)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Ingress has been created",
+		"Namespace", i.Namespace, "Name", i.Name, "IngressName", i.Name)
+
 	return nil
 }
 
 // Init initializes K8SService
-func (s *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme, k8sClient *client.Client) error {
-	CoreClient, err := coreV1Client.NewForConfig(config)
+func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *client.Client) error {
+	CoreClient, err := coreV1Client.NewForConfig(c)
 	if err != nil {
 		return errors.Wrap(err, "coreV1 client initialization failed")
 	}
 
-	JenkinsServiceAccountClient, err := jenkinsV1Client.NewForConfig(config)
+	JenkinsServiceAccountClient, err := jenkinsV1Client.NewForConfig(c)
 	if err != nil {
 		return errors.Wrap(err, "jenkinsServiceAccountClientV1alpha client initialization failed")
 	}
 
-	ac, err := appsV1Client.NewForConfig(config)
+	ac, err := appsV1Client.NewForConfig(c)
 	if err != nil {
 		return errors.New("appsV1 client initialization failed")
 	}
 
+	ec, err := extensionsV1Client.NewForConfig(c)
+	if err != nil {
+		return errors.New("extensionsV1beta1 client initialization failed")
+	}
 	s.CoreClient = *CoreClient
 	s.JenkinsServiceAccountClient = *JenkinsServiceAccountClient
 	s.k8sUnstructuredClient = *k8sClient
 	s.Scheme = Scheme
 	s.appClient = *ac
+	s.extensionsV1Client = *ec
 	return nil
 }
 
