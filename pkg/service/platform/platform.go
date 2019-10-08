@@ -1,16 +1,24 @@
 package platform
 
 import (
+	"fmt"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/openshift"
-	routeV1Api "github.com/openshift/api/route/v1"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/kubernetes"
+	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strings"
+)
+
+const (
+	Openshift  = "openshift"
+	Kubernetes = "kubernetes"
 )
 
 // PlatformService interface
@@ -18,7 +26,6 @@ type PlatformService interface {
 	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf []string) error
 	GetExternalUrl(namespace string, name string) (webURL string, scheme string, err error)
 	UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error
-	GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error)
 	GetConfigMapData(namespace string, name string) (map[string]string, error)
 	IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error)
 	GetSecretData(namespace string, name string) (map[string][]byte, error)
@@ -36,11 +43,11 @@ type PlatformService interface {
 	UpdateSecret(secret *coreV1Api.Secret) error
 	CreateJenkinsServiceAccount(namespace string, secretName string) error
 	CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error
-	GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient,error)
+	GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient, error)
 }
 
 // NewPlatformService returns platform service interface implementation
-func NewPlatformService(scheme *runtime.Scheme, k8sClient *client.Client) (PlatformService, error) {
+func NewPlatformService(platformType string, scheme *runtime.Scheme, k8sClient *client.Client) (PlatformService, error) {
 	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
@@ -57,5 +64,26 @@ func NewPlatformService(scheme *runtime.Scheme, k8sClient *client.Client) (Platf
 	if err != nil {
 		return nil, helper.LogErrorAndReturn(err)
 	}
-	return platform, nil
+
+	switch strings.ToLower(platformType) {
+	case Kubernetes:
+		platformService := kubernetes.K8SService{}
+		err = platformService.Init(restConfig, scheme, k8sClient)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to initialize Kubernetes platform service!")
+		}
+
+		return platformService, nil
+	case Openshift:
+		platformService := openshift.OpenshiftService{}
+		err = platformService.Init(restConfig, scheme, k8sClient)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to initialize OpenShift platform service!")
+		}
+
+		return platformService, nil
+	default:
+		err := errors.New(fmt.Sprintf("Platform %s is not supported!", platformType))
+		return nil, err
+	}
 }

@@ -38,8 +38,34 @@ type K8SService struct {
 	k8sUnstructuredClient       client.Client
 }
 
+func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
+	t := false
+	return &t, nil
+}
+
+func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf []string) error {
+	return nil
+}
+
+func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string, scheme string, err error) {
+	return "","",nil
+}
+
+func (s K8SService) UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
+	return nil
+}
+
+
+func (s K8SService) CreateDeployConf(instance v1alpha1.Nexus) error {
+	return nil
+}
+
+func (s K8SService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
+	return nil
+}
+
 // Init initializes K8SService
-func (service *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme, k8sClient *client.Client) error {
+func (s *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme, k8sClient *client.Client) error {
 	CoreClient, err := coreV1Client.NewForConfig(config)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize Core V1 Client")
@@ -50,15 +76,15 @@ func (service *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme, k8s
 		return errors.Wrap(err, "failed to initialize Jenkins Service Account Client")
 	}
 
-	service.CoreClient = *CoreClient
-	service.JenkinsServiceAccountClient = *JenkinsServiceAccountClient
-	service.k8sUnstructuredClient = *k8sClient
-	service.Scheme = Scheme
+	s.CoreClient = *CoreClient
+	s.JenkinsServiceAccountClient = *JenkinsServiceAccountClient
+	s.k8sUnstructuredClient = *k8sClient
+	s.Scheme = Scheme
 	return nil
 }
 
 // CreateVolume performs creating PersistentVolumeClaim in K8S
-func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
+func (s K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	for _, volume := range instance.Spec.Volumes {
@@ -81,11 +107,11 @@ func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 			},
 		}
 
-		if err := controllerutil.SetControllerReference(&instance, volumeObject, service.Scheme); err != nil {
+		if err := controllerutil.SetControllerReference(&instance, volumeObject, s.Scheme); err != nil {
 			return err
 		}
 
-		volume, err := service.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Get(volumeObject.Name, metav1.GetOptions{})
+		volume, err := s.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Get(volumeObject.Name, metav1.GetOptions{})
 		if err == nil {
 			return err
 		}
@@ -93,7 +119,7 @@ func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 		if !k8serrors.IsNotFound(err) {
 			return err
 		}
-		volume, err = service.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Create(volumeObject)
+		volume, err = s.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Create(volumeObject)
 		if err != nil {
 			return err
 		}
@@ -104,7 +130,7 @@ func (service K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 }
 
 //CreateSecret creates secret object in K8s cluster
-func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error {
+func (s K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	secretObject := &coreV1Api.Secret{
@@ -117,11 +143,11 @@ func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, dat
 		Type: "Opaque",
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, secretObject, service.Scheme); err != nil {
+	if err := controllerutil.SetControllerReference(&instance, secretObject, s.Scheme); err != nil {
 		return err
 	}
 
-	secret, err := service.CoreClient.Secrets(secretObject.Namespace).Get(secretObject.Name, metav1.GetOptions{})
+	secret, err := s.CoreClient.Secrets(secretObject.Namespace).Get(secretObject.Name, metav1.GetOptions{})
 	if err == nil {
 		return err
 	}
@@ -130,7 +156,7 @@ func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, dat
 		return err
 	}
 
-	secret, err = service.CoreClient.Secrets(secretObject.Namespace).Create(secretObject)
+	secret, err = s.CoreClient.Secrets(secretObject.Namespace).Create(secretObject)
 	if err != nil {
 		return err
 	}
@@ -140,7 +166,7 @@ func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, dat
 }
 
 // CreateServiceAccount performs creating ServiceAccount in K8S
-func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
+func (s K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	svcAccObj := &coreV1Api.ServiceAccount{
@@ -151,11 +177,11 @@ func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
 		},
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, svcAccObj, service.Scheme); err != nil {
+	if err := controllerutil.SetControllerReference(&instance, svcAccObj, s.Scheme); err != nil {
 		return err
 	}
 
-	svcAcc, err := service.CoreClient.ServiceAccounts(svcAccObj.Namespace).Get(svcAccObj.Name, metav1.GetOptions{})
+	svcAcc, err := s.CoreClient.ServiceAccounts(svcAccObj.Namespace).Get(svcAccObj.Name, metav1.GetOptions{})
 	if err == nil {
 		return err
 	}
@@ -164,7 +190,7 @@ func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
 		return err
 	}
 
-	svcAcc, err = service.CoreClient.ServiceAccounts(svcAccObj.Namespace).Create(svcAccObj)
+	svcAcc, err = s.CoreClient.ServiceAccounts(svcAccObj.Namespace).Create(svcAccObj)
 	if err != nil {
 		return err
 	}
@@ -174,8 +200,8 @@ func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
 }
 
 // GetServiceByCr return Service object with instance as a reference owner
-func (service K8SService) GetServiceByCr(instance v1alpha1.Nexus) (*coreV1Api.Service, error) {
-	serviceList, err := service.CoreClient.Services(instance.Namespace).List(metav1.ListOptions{})
+func (s K8SService) GetServiceByCr(instance v1alpha1.Nexus) (*coreV1Api.Service, error) {
+	serviceList, err := s.CoreClient.Services(instance.Namespace).List(metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't retrieve services list from the cluster")
 	}
@@ -190,28 +216,28 @@ func (service K8SService) GetServiceByCr(instance v1alpha1.Nexus) (*coreV1Api.Se
 }
 
 // AddPortToService performs adding new port in Service in K8S
-func (service K8SService) AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error {
-	svc, err := service.GetServiceByCr(instance)
+func (s K8SService) AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error {
+	svc, err := s.GetServiceByCr(instance)
 	if err != nil || svc == nil {
-		return errors.Wrap(err, "couldn't get service")
+		return errors.Wrap(err, "couldn't get s")
 	}
 
 	if platformHelper.PortInService(svc.Spec.Ports, newPortSpec) {
-		log.V(1).Info("Port is already in service",
+		log.V(1).Info("Port is already in s",
 			"Namespace", instance.Namespace, "Name", instance.Name, "Port", newPortSpec.Name, "ServiceName", svc.Name)
 		return nil
 	}
 
 	svc.Spec.Ports = append(svc.Spec.Ports, newPortSpec)
 
-	if _, err = service.CoreClient.Services(instance.Namespace).Update(svc); err != nil {
+	if _, err = s.CoreClient.Services(instance.Namespace).Update(svc); err != nil {
 		return err
 	}
 	return nil
 }
 
 // CreateService performs creating Service in K8S
-func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
+func (s K8SService) CreateService(instance v1alpha1.Nexus) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	serviceObject := &coreV1Api.Service{
@@ -232,11 +258,11 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 		},
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, serviceObject, service.Scheme); err != nil {
+	if err := controllerutil.SetControllerReference(&instance, serviceObject, s.Scheme); err != nil {
 		return err
 	}
 
-	svc, err := service.CoreClient.Services(instance.Namespace).Get(serviceObject.Name, metav1.GetOptions{})
+	svc, err := s.CoreClient.Services(instance.Namespace).Get(serviceObject.Name, metav1.GetOptions{})
 	if err == nil {
 		return err
 	}
@@ -245,7 +271,7 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 		return err
 	}
 
-	svc, err = service.CoreClient.Services(serviceObject.Namespace).Create(serviceObject)
+	svc, err = s.CoreClient.Services(serviceObject.Namespace).Create(serviceObject)
 	if err != nil {
 		return err
 	}
@@ -256,7 +282,7 @@ func (service K8SService) CreateService(instance v1alpha1.Nexus) error {
 }
 
 // CreateConfigMapFromFile performs creating ConfigMap in K8S
-func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, path string) error {
+func (s K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, path string) error {
 	configMapData := make(map[string]string)
 	pathInfo, err := os.Stat(path)
 	if err != nil {
@@ -294,11 +320,11 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 		Data: configMapData,
 	}
 
-	if err := controllerutil.SetControllerReference(&instance, configMapObject, service.Scheme); err != nil {
+	if err := controllerutil.SetControllerReference(&instance, configMapObject, s.Scheme); err != nil {
 		return err
 	}
 
-	cm, err := service.CoreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
+	cm, err := s.CoreClient.ConfigMaps(instance.Namespace).Get(configMapObject.Name, metav1.GetOptions{})
 	if err == nil {
 		return err
 	}
@@ -307,7 +333,7 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 		return err
 	}
 
-	cm, err = service.CoreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
+	cm, err = s.CoreClient.ConfigMaps(configMapObject.Namespace).Create(configMapObject)
 	if err != nil {
 		return err
 	}
@@ -318,7 +344,7 @@ func (service K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, confi
 }
 
 // CreateConfigMapFromFile performs creating ConfigMap in K8S
-func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error {
+func (s K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error {
 	directory, err := ioutil.ReadDir(directoryPath)
 	if err != nil {
 		return errors.Wrapf(err, "couldn't read directory %v with scripts", directoryPath)
@@ -326,7 +352,7 @@ func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus,
 
 	if !createDedicatedConfigMaps {
 		configMapName := fmt.Sprintf("%v-%v", instance.Name, filepath.Base(directoryPath))
-		err = service.CreateConfigMapFromFile(instance, configMapName, directoryPath)
+		err = s.CreateConfigMapFromFile(instance, configMapName, directoryPath)
 		if err != nil {
 			return errors.Wrapf(err, "couldn't create config-map %v", configMapName)
 		}
@@ -335,7 +361,7 @@ func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus,
 
 	for _, file := range directory {
 		configMapName := fmt.Sprintf("%v-%v", instance.Name, file.Name())
-		err = service.CreateConfigMapFromFile(instance, configMapName, fmt.Sprintf("%v/%v", directoryPath, file.Name()))
+		err = s.CreateConfigMapFromFile(instance, configMapName, fmt.Sprintf("%v/%v", directoryPath, file.Name()))
 		if err != nil {
 			return errors.Wrapf(err, "couldn't create config-map %v", configMapName)
 		}
@@ -344,8 +370,8 @@ func (service K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus,
 }
 
 // GetConfigMapData return data field of ConfigMap
-func (service K8SService) GetConfigMapData(namespace string, name string) (map[string]string, error) {
-	configMap, err := service.CoreClient.ConfigMaps(namespace).Get(name, metav1.GetOptions{})
+func (s K8SService) GetConfigMapData(namespace string, name string) (map[string]string, error) {
+	configMap, err := s.CoreClient.ConfigMaps(namespace).Get(name, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		log.Error(err, "config map not found",
 			"Namespace", namespace, "Name", name, "ConfigMapName", name)
@@ -356,8 +382,8 @@ func (service K8SService) GetConfigMapData(namespace string, name string) (map[s
 }
 
 // GetSecret return data field of Secret
-func (service K8SService) GetSecretData(namespace string, name string) (map[string][]byte, error) {
-	secret, err := service.CoreClient.Secrets(namespace).Get(name, metav1.GetOptions{})
+func (s K8SService) GetSecretData(namespace string, name string) (map[string][]byte, error) {
+	secret, err := s.CoreClient.Secrets(namespace).Get(name, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		log.Error(err, "secret not found",
 			"Namespace", namespace, "Name", name, "SecretName", name)
@@ -367,16 +393,16 @@ func (service K8SService) GetSecretData(namespace string, name string) (map[stri
 	return secret.Data, err
 }
 
-func (service K8SService) GetSecret(namespace string, name string) (*coreV1Api.Secret, error) {
-	return service.CoreClient.Secrets(namespace).Get(name, metav1.GetOptions{})
+func (s K8SService) GetSecret(namespace string, name string) (*coreV1Api.Secret, error) {
+	return s.CoreClient.Secrets(namespace).Get(name, metav1.GetOptions{})
 }
 
-func (service K8SService) UpdateSecret(secret *coreV1Api.Secret) error {
-	_, err := service.CoreClient.Secrets(secret.Namespace).Update(secret)
+func (s K8SService) UpdateSecret(secret *coreV1Api.Secret) error {
+	_, err := s.CoreClient.Secrets(secret.Namespace).Update(secret)
 	return err
 }
 
-func (service K8SService) CreateJenkinsServiceAccount(namespace string, secretName string) error {
+func (s K8SService) CreateJenkinsServiceAccount(namespace string, secretName string) error {
 
 	jsa := &jenkinsV1Api.JenkinsServiceAccount{
 		TypeMeta: metav1.TypeMeta{},
@@ -390,7 +416,7 @@ func (service K8SService) CreateJenkinsServiceAccount(namespace string, secretNa
 		},
 	}
 
-	_, err := service.JenkinsServiceAccountClient.Get(secretName, namespace, metav1.GetOptions{})
+	_, err := s.JenkinsServiceAccountClient.Get(secretName, namespace, metav1.GetOptions{})
 	if err == nil {
 		return err
 	}
@@ -399,7 +425,7 @@ func (service K8SService) CreateJenkinsServiceAccount(namespace string, secretNa
 		return err
 	}
 
-	_, err = service.JenkinsServiceAccountClient.Create(jsa, namespace)
+	_, err = s.JenkinsServiceAccountClient.Create(jsa, namespace)
 	if err != nil {
 		return err
 	}
@@ -409,13 +435,13 @@ func (service K8SService) CreateJenkinsServiceAccount(namespace string, secretNa
 	return nil
 }
 
-func (service K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error {
+func (s K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error {
 	nsn := types.NamespacedName{
 		Namespace: kc.Namespace,
 		Name:      kc.Name,
 	}
 
-	err := service.k8sUnstructuredClient.Get(context.TODO(), nsn, kc)
+	err := s.k8sUnstructuredClient.Get(context.TODO(), nsn, kc)
 	if err == nil {
 		return err
 	}
@@ -424,7 +450,7 @@ func (service K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient)
 		return err
 	}
 
-	err = service.k8sUnstructuredClient.Create(context.TODO(), kc)
+	err = s.k8sUnstructuredClient.Create(context.TODO(), kc)
 	if err != nil {
 		return errors.Wrapf(err, "failed to create Keycloak client %s", kc.Name)
 	}
@@ -434,14 +460,14 @@ func (service K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient)
 	return nil
 }
 
-func (service K8SService) GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient, error) {
+func (s K8SService) GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient, error) {
 	out := keycloakV1Api.KeycloakClient{}
 	nsn := types.NamespacedName{
 		Namespace: namespace,
 		Name:      name,
 	}
 
-	err := service.k8sUnstructuredClient.Get(context.TODO(), nsn, &out)
+	err := s.k8sUnstructuredClient.Get(context.TODO(), nsn, &out)
 	if err != nil {
 		return out, err
 	}
