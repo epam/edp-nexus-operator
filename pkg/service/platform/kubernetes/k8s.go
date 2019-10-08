@@ -6,12 +6,12 @@ import (
 	jenkinsV1Api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis/v2/v1alpha1"
 	jenkinsV1Client "github.com/epmd-edp/jenkins-operator/v2/pkg/controller/jenkinsserviceaccount/client"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
-	//_ "github.com/epmd-edp/keycloak-operator/pkg/controller/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	appsV1Api "k8s.io/api/apps/v1"
 	coreV1Api "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	appsV1Client "k8s.io/client-go/kubernetes/typed/apps/v1"
 	coreV1Client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	"os"
@@ -36,6 +37,7 @@ type K8SService struct {
 	CoreClient                  coreV1Client.CoreV1Client
 	JenkinsServiceAccountClient jenkinsV1Client.EdpV1Client
 	k8sUnstructuredClient       client.Client
+	appClient                   appsV1Client.AppsV1Client
 }
 
 func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
@@ -48,15 +50,138 @@ func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keyclo
 }
 
 func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string, scheme string, err error) {
-	return "","",nil
+	return "", "", nil
 }
 
 func (s K8SService) UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
 	return nil
 }
 
+func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
+	l := platformHelper.GenerateLabels(instance.Name)
+	var rc int32 = 1
 
-func (s K8SService) CreateDeployConf(instance v1alpha1.Nexus) error {
+	do := &appsV1Api.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+			Labels:    l,
+		},
+		Spec: appsV1Api.DeploymentSpec{
+			Replicas: &rc,
+			Strategy: appsV1Api.DeploymentStrategy{
+				Type: appsV1Api.RecreateDeploymentStrategyType,
+			},
+			Selector: &metav1.LabelSelector{
+				MatchLabels: l,
+			},
+			Template: coreV1Api.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: l,
+				},
+				Spec: coreV1Api.PodSpec{
+					Containers: []coreV1Api.Container{
+						{
+							Name:            instance.Name,
+							Image:           nexusDefaultSpec.NexusDockerImage + ":" + instance.Spec.Version,
+							ImagePullPolicy: coreV1Api.PullAlways,
+							Env: []coreV1Api.EnvVar{
+								{
+									Name:  "CONTEXT_PATH",
+									Value: "/",
+								},
+							},
+							Ports: []coreV1Api.ContainerPort{
+								{
+									ContainerPort: nexusDefaultSpec.NexusPort,
+								},
+							},
+							LivenessProbe: &coreV1Api.Probe{
+								FailureThreshold:    5,
+								InitialDelaySeconds: 180,
+								PeriodSeconds:       20,
+								SuccessThreshold:    1,
+								Handler: coreV1Api.Handler{
+									TCPSocket: &coreV1Api.TCPSocketAction{
+										Port: intstr.FromInt(nexusDefaultSpec.NexusPort),
+									},
+								},
+							},
+							ReadinessProbe: &coreV1Api.Probe{
+								FailureThreshold:    3,
+								InitialDelaySeconds: 30,
+								PeriodSeconds:       10,
+								SuccessThreshold:    1,
+								Handler: coreV1Api.Handler{
+									TCPSocket: &coreV1Api.TCPSocketAction{
+										Port: intstr.FromInt(nexusDefaultSpec.NexusPort),
+									},
+								},
+							},
+							TerminationMessagePath: "/dev/termination-log",
+							Resources: coreV1Api.ResourceRequirements{
+								Requests: map[coreV1Api.ResourceName]resource.Quantity{
+									coreV1Api.ResourceMemory: resource.MustParse(nexusDefaultSpec.NexusMemoryRequest),
+								},
+							},
+							VolumeMounts: []coreV1Api.VolumeMount{
+								{
+									MountPath: "/nexus-data",
+									Name:      "data",
+								},
+								{
+									MountPath: "/opt/sonatype/nexus/etc/nexus-default.properties",
+									Name:      "config",
+									SubPath:   "nexus-default.properties",
+								},
+							},
+						},
+					},
+					ServiceAccountName: instance.Name,
+					Volumes: []coreV1Api.Volume{
+						{
+							Name: "data",
+							VolumeSource: coreV1Api.VolumeSource{
+								PersistentVolumeClaim: &coreV1Api.PersistentVolumeClaimVolumeSource{
+									ClaimName: fmt.Sprintf("%v-data", instance.Name),
+								},
+							},
+						},
+						{
+							Name: "config",
+							VolumeSource: coreV1Api.VolumeSource{
+								ConfigMap: &coreV1Api.ConfigMapVolumeSource{
+									LocalObjectReference: coreV1Api.LocalObjectReference{Name: fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultPropertiesConfigMapPrefix)},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	if err := controllerutil.SetControllerReference(&instance, do, s.Scheme); err != nil {
+		return err
+	}
+
+	d, err := s.appClient.Deployments(do.Namespace).Get(do.Name, metav1.GetOptions{})
+	if err == nil {
+		return err
+	}
+
+	if !k8serrors.IsNotFound(err) {
+		return err
+	}
+
+	d, err = s.appClient.Deployments(do.Namespace).Create(do)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Deployment has been created",
+		"Namespace", d.Name, "Name", d.Name, "DeploymentName", d.Name)
+
 	return nil
 }
 
@@ -68,18 +193,24 @@ func (s K8SService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
 func (s *K8SService) Init(config *rest.Config, Scheme *runtime.Scheme, k8sClient *client.Client) error {
 	CoreClient, err := coreV1Client.NewForConfig(config)
 	if err != nil {
-		return errors.Wrap(err, "failed to initialize Core V1 Client")
+		return errors.Wrap(err, "coreV1 client initialization failed")
 	}
 
 	JenkinsServiceAccountClient, err := jenkinsV1Client.NewForConfig(config)
 	if err != nil {
-		return errors.Wrap(err, "failed to initialize Jenkins Service Account Client")
+		return errors.Wrap(err, "jenkinsServiceAccountClientV1alpha client initialization failed")
+	}
+
+	ac, err := appsV1Client.NewForConfig(config)
+	if err != nil {
+		return errors.New("appsV1 client initialization failed")
 	}
 
 	s.CoreClient = *CoreClient
 	s.JenkinsServiceAccountClient = *JenkinsServiceAccountClient
 	s.k8sUnstructuredClient = *k8sClient
 	s.Scheme = Scheme
+	s.appClient = *ac
 	return nil
 }
 

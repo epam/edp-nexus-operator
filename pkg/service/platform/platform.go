@@ -37,7 +37,7 @@ type PlatformService interface {
 	CreateServiceAccount(instance v1alpha1.Nexus) error
 	CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error
 	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error
-	CreateDeployConf(instance v1alpha1.Nexus) error
+	CreateDeployment(instance v1alpha1.Nexus) error
 	CreateExternalEndpoint(instance v1alpha1.Nexus) error
 	GetSecret(namespace string, name string) (*coreV1Api.Secret, error)
 	UpdateSecret(secret *coreV1Api.Secret) error

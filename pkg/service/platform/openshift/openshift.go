@@ -93,8 +93,8 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 
 }
 
-// CreateDeployConf performs creating DeploymentConfig in Openshift
-func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error {
+// CreateDeployment performs creating DeploymentConfig in Openshift
+func (service OpenshiftService) CreateDeployment(instance v1alpha1.Nexus) error {
 
 	labels := platformHelper.GenerateLabels(instance.Name)
 	deploymentConfigObject := &appsV1Api.DeploymentConfig{

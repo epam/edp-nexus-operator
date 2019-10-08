@@ -497,7 +497,7 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 		return &instance, errors.Wrap(err, "failed to create default Config Maps")
 	}
 
-	err = n.platformService.CreateDeployConf(instance)
+	err = n.platformService.CreateDeployment(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to create Deployment Config")
 	}
