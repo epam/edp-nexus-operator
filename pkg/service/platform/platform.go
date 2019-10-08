@@ -23,7 +23,7 @@ const (
 
 // PlatformService interface
 type PlatformService interface {
-	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf []string) error
+	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error
 	GetExternalUrl(namespace string, name string) (webURL string, scheme string, err error)
 	UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error
 	GetConfigMapData(namespace string, name string) (map[string]string, error)

@@ -48,7 +48,39 @@ func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
 	return &t, nil
 }
 
-func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, keycloakClientConf []string) error {
+func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
+	c := coreV1Api.Container{
+		Name:            "keycloak-proxy",
+		Image:           nexusDefaultSpec.NexusKeycloakProxyImage,
+		ImagePullPolicy: coreV1Api.PullIfNotPresent,
+		Ports: []coreV1Api.ContainerPort{
+			{
+				ContainerPort: nexusDefaultSpec.NexusKeycloakProxyPort,
+				Protocol:      coreV1Api.ProtocolTCP,
+			},
+		},
+		TerminationMessagePath:   "/dev/termination-log",
+		TerminationMessagePolicy: coreV1Api.TerminationMessageReadFile,
+		Args:                     args,
+	}
+
+	old, err := s.appClient.Deployments(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if platformHelper.ContainerInDeployConf(old.Spec.Template.Spec.Containers, c) {
+		log.V(1).Info("Keycloak proxy is present", "Namespace", instance.Namespace, "Name", instance.Name)
+		return nil
+	}
+	old.Spec.Template.Spec.Containers = append(old.Spec.Template.Spec.Containers, c)
+
+	_, err = s.appClient.Deployments(instance.Namespace).Update(old)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Keycloak proxy added.", "Namespace", instance.Namespace, "Name", instance.Name)
 	return nil
 }
 
