@@ -72,7 +72,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 		Args:                     args,
 	}
 
-	oldNexusDeploymentConfig, err := service.GetDeploymentConfig(instance)
+	oldNexusDeploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -283,10 +283,16 @@ func (service OpenshiftService) GetExternalUrl(namespace string, name string) (w
 	return fmt.Sprintf("%s://%s", routeScheme, route.Spec.Host), routeScheme, nil
 }
 
-// GetDeploymentConfig returns DeploymentConfig object from Openshift
-func (service OpenshiftService) GetDeploymentConfig(instance v1alpha1.Nexus) (*appsV1Api.DeploymentConfig, error) {
+// IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
+func (service OpenshiftService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
 	deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
-	return deploymentConfig, err
+	if err != nil {
+		return
+	}
+
+	t := deploymentConfig.Status.UpdatedReplicas == 1 && deploymentConfig.Status.AvailableReplicas == 1
+	res = &t
+	return
 }
 
 // GetRouteByCr return Route object with instance as a reference owner

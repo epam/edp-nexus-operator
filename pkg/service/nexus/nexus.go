@@ -38,7 +38,7 @@ type NexusService interface {
 	Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error)
 	ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error)
 	Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error)
-	IsDeploymentConfigReady(instance v1alpha1.Nexus) (bool, error)
+	IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error)
 }
 
 // NewNexusService function that returns NexusService implementation
@@ -53,17 +53,9 @@ type NexusServiceImpl struct {
 	nexusClient     nexus.NexusClient
 }
 
-// IsDeploymentConfigReady check if DC for Nexus is ready
-func (n NexusServiceImpl) IsDeploymentConfigReady(instance v1alpha1.Nexus) (bool, error) {
-	nexusIsReady := false
-	nexusDc, err := n.platformService.GetDeploymentConfig(instance)
-	if err != nil {
-		return nexusIsReady, err
-	}
-	if nexusDc.Status.AvailableReplicas == 1 {
-		nexusIsReady = true
-	}
-	return nexusIsReady, nil
+// IsDeploymentReady check if deployment for Nexus is ready
+func (n NexusServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
+	return  n.platformService.IsDeploymentReady(instance)
 }
 
 func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {

@@ -5,7 +5,6 @@ import (
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/openshift"
-	appsV1Api "github.com/openshift/api/apps/v1"
 	routeV1Api "github.com/openshift/api/route/v1"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -21,7 +20,7 @@ type PlatformService interface {
 	UpdateRouteTarget(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error
 	GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error)
 	GetConfigMapData(namespace string, name string) (map[string]string, error)
-	GetDeploymentConfig(instance v1alpha1.Nexus) (*appsV1Api.DeploymentConfig, error)
+	IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error)
 	GetSecretData(namespace string, name string) (map[string][]byte, error)
 	CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error
 	CreateService(instance v1alpha1.Nexus) error

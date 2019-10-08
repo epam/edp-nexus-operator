@@ -145,9 +145,9 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, err
 	}
 
-	if dcIsReady, err := r.service.IsDeploymentConfigReady(*instance); err != nil {
+	if ready, err := r.service.IsDeploymentReady(*instance); err != nil {
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrap(err, "Checking if Deployment config is ready has been failed")
-	} else if !dcIsReady {
+	} else if !*ready {
 		reqLogger.Info("Deployment config is not ready for configuration yet")
 		return reconcile.Result{RequeueAfter: 60 * time.Second}, nil
 	}

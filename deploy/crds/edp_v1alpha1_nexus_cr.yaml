@@ -9,8 +9,8 @@ spec:
     url: ""
   volumes:
     - name: "data"
-      storage_class: "efs"
-      capacity: "1Gi"
+      storage_class: "gp2"
+      capacity: "5Gi"
   users:
     - username: test@edp.com
       first_name: ""
