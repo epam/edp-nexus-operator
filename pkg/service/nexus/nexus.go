@@ -476,7 +476,7 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 		return &instance, errors.Wrap(err, "failed to create Volume")
 	}
 
-	_, err = n.platformService.CreateServiceAccount(instance)
+	err = n.platformService.CreateServiceAccount(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to create Service Account")
 	}

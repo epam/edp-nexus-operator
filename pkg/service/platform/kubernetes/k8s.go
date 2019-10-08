@@ -140,7 +140,7 @@ func (service K8SService) CreateSecret(instance v1alpha1.Nexus, name string, dat
 }
 
 // CreateServiceAccount performs creating ServiceAccount in K8S
-func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1Api.ServiceAccount, error) {
+func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	svcAccObj := &coreV1Api.ServiceAccount{
@@ -152,25 +152,25 @@ func (service K8SService) CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1
 	}
 
 	if err := controllerutil.SetControllerReference(&instance, svcAccObj, service.Scheme); err != nil {
-		return nil, err
+		return err
 	}
 
 	svcAcc, err := service.CoreClient.ServiceAccounts(svcAccObj.Namespace).Get(svcAccObj.Name, metav1.GetOptions{})
 	if err == nil {
-		return nil, err
+		return err
 	}
 
 	if !k8serrors.IsNotFound(err) {
-		return nil, err
+		return err
 	}
 
 	svcAcc, err = service.CoreClient.ServiceAccounts(svcAccObj.Namespace).Create(svcAccObj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	log.Info("ServiceAccount has been created", "Namespace", instance.Namespace, "Name", instance.Name, "ServiceAccountName", svcAcc.Name)
 
-	return svcAcc, nil
+	return nil
 }
 
 // GetServiceByCr return Service object with instance as a reference owner

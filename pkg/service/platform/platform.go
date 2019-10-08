@@ -28,7 +28,7 @@ type PlatformService interface {
 	GetServiceByCr(instance v1alpha1.Nexus) (*coreV1Api.Service, error)
 	AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error
 	CreateVolume(instance v1alpha1.Nexus) error
-	CreateServiceAccount(instance v1alpha1.Nexus) (*coreV1Api.ServiceAccount, error)
+	CreateServiceAccount(instance v1alpha1.Nexus) error
 	CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error
 	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error
 	CreateDeployConf(instance v1alpha1.Nexus) error
