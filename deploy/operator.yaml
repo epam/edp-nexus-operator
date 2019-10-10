@@ -29,3 +29,5 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "nexus-operator-v2"
+            - name: PLATFORM_TYPE
+              value: "openshift"
