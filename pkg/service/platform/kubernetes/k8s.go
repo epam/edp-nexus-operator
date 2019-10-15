@@ -274,7 +274,7 @@ func (s K8SService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
 		Spec: extensionsV1Api.IngressSpec{
 			Rules: []extensionsV1Api.IngressRule{
 				{
-					Host: fmt.Sprintf("%s.%s", instance.Name, instance.Spec.EdpSpec.DnsWildcard),
+					Host: fmt.Sprintf("%s-%s.%s", instance.Name, instance.Namespace, instance.Spec.EdpSpec.DnsWildcard),
 					IngressRuleValue: extensionsV1Api.IngressRuleValue{
 						HTTP: &extensionsV1Api.HTTPIngressRuleValue{
 							Paths: []extensionsV1Api.HTTPIngressPath{
