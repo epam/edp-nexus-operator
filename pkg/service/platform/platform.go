@@ -5,8 +5,8 @@ import (
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/openshift"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/kubernetes"
+	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/openshift"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -39,6 +39,7 @@ type PlatformService interface {
 	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error
 	CreateDeployment(instance v1alpha1.Nexus) error
 	CreateExternalEndpoint(instance v1alpha1.Nexus) error
+	CreateSecurityContext(ac v1alpha1.Nexus, priority int32) error
 	GetSecret(namespace string, name string) (*coreV1Api.Secret, error)
 	UpdateSecret(secret *coreV1Api.Secret) error
 	CreateJenkinsServiceAccount(namespace string, secretName string) error

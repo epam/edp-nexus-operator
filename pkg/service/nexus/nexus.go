@@ -55,7 +55,7 @@ type NexusServiceImpl struct {
 
 // IsDeploymentReady check if deployment for Nexus is ready
 func (n NexusServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
-	return  n.platformService.IsDeploymentReady(instance)
+	return n.platformService.IsDeploymentReady(instance)
 }
 
 func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
@@ -93,7 +93,7 @@ func (n NexusServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, va
 func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 
 	if instance.Spec.KeycloakSpec.Enabled {
-		keycloakClient, err := n.platformService.GetKeycloakClient(instance.Name,instance.Namespace)
+		keycloakClient, err := n.platformService.GetKeycloakClient(instance.Name, instance.Namespace)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get Keycloak client data!")
 		}
@@ -106,7 +106,6 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 		if keycloakRealm == nil {
 			return &instance, errors.New("Keycloak Realm CR in not created yet!")
 		}
-
 
 		keycloak, err := keycloakControllerHelper.GetOwnerKeycloak(n.k8sClient, keycloakRealm.ObjectMeta)
 		if err != nil {
@@ -140,7 +139,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			ru,
 			uu,
 			"--resources=uri=/*|roles=developer,administrator|require-any-role=true",
-			)
+		)
 
 		err = n.platformService.AddKeycloakProxyToDeployConf(instance, proxyConfig)
 		if err != nil {
@@ -471,6 +470,11 @@ func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, err
 	err = n.platformService.CreateServiceAccount(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to create Service Account")
+	}
+
+	err = n.platformService.CreateSecurityContext(instance, 1)
+	if err != nil {
+		return &instance, err
 	}
 
 	err = n.platformService.CreateService(instance)

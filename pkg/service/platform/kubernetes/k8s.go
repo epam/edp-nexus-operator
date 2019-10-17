@@ -348,6 +348,10 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *cli
 	return nil
 }
 
+func (s K8SService) CreateSecurityContext(instance v1alpha1.Nexus, priority int32) error {
+	return nil
+}
+
 // CreateVolume performs creating PersistentVolumeClaim in K8S
 func (s K8SService) CreateVolume(instance v1alpha1.Nexus) error {
 	labels := platformHelper.GenerateLabels(instance.Name)

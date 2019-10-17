@@ -8,8 +8,10 @@ import (
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/kubernetes"
 	appsV1Api "github.com/openshift/api/apps/v1"
 	routeV1Api "github.com/openshift/api/route/v1"
+	securityV1Api "github.com/openshift/api/security/v1"
 	appsV1client "github.com/openshift/client-go/apps/clientset/versioned/typed/apps/v1"
 	routeV1Client "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
+	securityV1Client "github.com/openshift/client-go/security/clientset/versioned/typed/security/v1"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -18,6 +20,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/rest"
+	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
@@ -29,8 +32,9 @@ var log = logf.Log.WithName("platform")
 type OpenshiftService struct {
 	kubernetes.K8SService
 
-	appClient   appsV1client.AppsV1Client
-	routeClient routeV1Client.RouteV1Client
+	appClient      appsV1client.AppsV1Client
+	routeClient    routeV1Client.RouteV1Client
+	securityClient securityV1Client.SecurityV1Client
 }
 
 // Init initializes OpenshiftService
@@ -51,6 +55,85 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 		return errors.Wrap(err, "failed to initialize Route V1 Client")
 	}
 	service.routeClient = *routeClient
+
+	securityClient, err := securityV1Client.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+	service.securityClient = *securityClient
+
+	return nil
+}
+
+func (service OpenshiftService) CreateSecurityContext(instance v1alpha1.Nexus, p int32) error {
+	l := platformHelper.GenerateLabels(instance.Name)
+	uid := int64(200)
+
+	sccObject := &securityV1Api.SecurityContextConstraints{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      instance.Name,
+			Namespace: instance.Namespace,
+			Labels:    l,
+		},
+		Volumes: []securityV1Api.FSType{
+			securityV1Api.FSTypeSecret,
+			securityV1Api.FSTypeDownwardAPI,
+			securityV1Api.FSTypeEmptyDir,
+			securityV1Api.FSTypePersistentVolumeClaim,
+			securityV1Api.FSProjected,
+			securityV1Api.FSTypeConfigMap,
+		},
+		AllowHostDirVolumePlugin: false,
+		AllowHostIPC:             false,
+		AllowHostNetwork:         false,
+		AllowHostPID:             false,
+		AllowHostPorts:           false,
+		AllowPrivilegedContainer: false,
+		AllowedCapabilities:      []coreV1Api.Capability{},
+		AllowedFlexVolumes:       []securityV1Api.AllowedFlexVolume{},
+		DefaultAddCapabilities:   []coreV1Api.Capability{},
+		FSGroup: securityV1Api.FSGroupStrategyOptions{
+			Type: securityV1Api.FSGroupStrategyMustRunAs,
+		},
+		Groups:                 []string{},
+		Priority:               &p,
+		ReadOnlyRootFilesystem: false,
+		RunAsUser: securityV1Api.RunAsUserStrategyOptions{
+			Type: securityV1Api.RunAsUserStrategyMustRunAs,
+			UID:  &uid,
+		},
+		SELinuxContext: securityV1Api.SELinuxContextStrategyOptions{
+			Type:           securityV1Api.SELinuxStrategyMustRunAs,
+			SELinuxOptions: nil,
+		},
+		SupplementalGroups: securityV1Api.SupplementalGroupsStrategyOptions{
+			Type:   securityV1Api.SupplementalGroupsStrategyRunAsAny,
+			Ranges: nil,
+		},
+		Users: []string{
+			fmt.Sprintf("system:serviceaccount:%s:%s", instance.Namespace, instance.Name),
+		},
+	}
+
+	scc, err := service.securityClient.SecurityContextConstraints().Get(sccObject.Name, metav1.GetOptions{})
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			scc, err = service.securityClient.SecurityContextConstraints().Create(sccObject)
+			if err != nil {
+				return err
+			}
+			log.Info(fmt.Sprintf("Security Context Constraint %s has been created", scc.Name))
+			return nil
+		}
+		return err
+	}
+	if !reflect.DeepEqual(scc.Users, sccObject.Users) {
+		scc, err = service.securityClient.SecurityContextConstraints().Update(sccObject)
+		if err != nil {
+			return err
+		}
+		log.Info(fmt.Sprintf("Security Context Constraint %s has been updated", scc.Name))
+	}
 
 	return nil
 }
