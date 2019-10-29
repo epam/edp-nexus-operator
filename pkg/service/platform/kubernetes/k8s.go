@@ -3,6 +3,8 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	edpCompApi "github.com/epmd-edp/edp-component-operator/pkg/apis/v1/v1alpha1"
+	edpCompClient "github.com/epmd-edp/edp-component-operator/pkg/client"
 	jenkinsV1Api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis/v2/v1alpha1"
 	jenkinsV1Client "github.com/epmd-edp/jenkins-operator/v2/pkg/controller/jenkinsserviceaccount/client"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
@@ -41,6 +43,7 @@ type K8SService struct {
 	k8sUnstructuredClient       client.Client
 	appClient                   appsV1Client.AppsV1Client
 	extensionsV1Client          extensionsV1Client.ExtensionsV1beta1Client
+	edpCompClient               edpCompClient.EDPComponentV1Client
 }
 
 func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
@@ -339,12 +342,17 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *cli
 	if err != nil {
 		return errors.New("extensionsV1beta1 client initialization failed")
 	}
+	edpCl, err := edpCompClient.NewForConfig(c)
+	if err != nil {
+		return errors.Wrap(err, "failed to init edp component client")
+	}
 	s.CoreClient = *CoreClient
 	s.JenkinsServiceAccountClient = *JenkinsServiceAccountClient
 	s.k8sUnstructuredClient = *k8sClient
 	s.Scheme = Scheme
 	s.appClient = *ac
 	s.extensionsV1Client = *ec
+	s.edpCompClient = *edpCl
 	return nil
 }
 
@@ -757,4 +765,38 @@ func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*extensionsV1Api.In
 		}
 	}
 	return nil, nil
+}
+
+func (s K8SService) CreateEDPComponentIfNotExist(nexus v1alpha1.Nexus, url string, icon string) error {
+	comp, err := s.edpCompClient.
+		EDPComponents(nexus.Namespace).
+		Get(nexus.Name, metav1.GetOptions{})
+	if err == nil {
+		log.Info("edp component already exists", "name", comp.Name)
+		return nil
+	}
+	if k8serrors.IsNotFound(err) {
+		return s.createEDPComponent(nexus, url, icon)
+	}
+	return errors.Wrapf(err, "failed to get edp component: %v", nexus.Name)
+}
+
+func (s K8SService) createEDPComponent(nexus v1alpha1.Nexus, url string, icon string) error {
+	obj := &edpCompApi.EDPComponent{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: nexus.Name,
+		},
+		Spec: edpCompApi.EDPComponentSpec{
+			Type: "nexus",
+			Url:  url,
+			Icon: icon,
+		},
+	}
+	if err := controllerutil.SetControllerReference(&nexus, obj, s.Scheme); err != nil {
+		return err
+	}
+	_, err := s.edpCompClient.
+		EDPComponents(nexus.Namespace).
+		Create(obj)
+	return err
 }

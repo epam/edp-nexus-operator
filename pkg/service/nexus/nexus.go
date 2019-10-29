@@ -1,10 +1,13 @@
 package nexus
 
 import (
+	"bufio"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/dchest/uniuri"
+	platformHelper "github.com/epmd-edp/jenkins-operator/v2/pkg/service/platform/helper"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
 	keycloakControllerHelper "github.com/epmd-edp/keycloak-operator/pkg/controller/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
@@ -14,8 +17,10 @@ import (
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
+	"io/ioutil"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
@@ -30,6 +35,9 @@ const (
 	NexusDefaultScriptsPath = "/usr/local/configs/scripts"
 
 	LocalConfigsRelativePath = "configs"
+
+	imgFolder = "img"
+	nexusIcon = "nexus.svg"
 )
 
 // NexusService interface for Nexus EDP component
@@ -244,7 +252,49 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 			return &instance, nil
 		}
 	}
-	return &instance, nil
+
+	err = n.createEDPComponent(instance)
+
+	return &instance, err
+}
+
+func (n NexusServiceImpl) createEDPComponent(nexus v1alpha1.Nexus) error {
+	url, err := n.getUrl(nexus)
+	if err != nil {
+		return err
+	}
+	icon, err := n.getIcon()
+	if err != nil {
+		return err
+	}
+	return n.platformService.CreateEDPComponentIfNotExist(nexus, *url, *icon)
+}
+
+func (n NexusServiceImpl) getUrl(nexus v1alpha1.Nexus) (*string, error) {
+	url, _, err := n.platformService.GetExternalUrl(nexus.Namespace, nexus.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &url, nil
+}
+
+func (n NexusServiceImpl) getIcon() (*string, error) {
+	p, err := platformHelper.CreatePathToTemplateDirectory(imgFolder)
+	if err != nil {
+		return nil, err
+	}
+	fp := fmt.Sprintf("%v/%v", p, nexusIcon)
+	f, err := os.Open(fp)
+	if err != nil {
+		return nil, err
+	}
+	reader := bufio.NewReader(f)
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	encoded := base64.StdEncoding.EncodeToString(content)
+	return &encoded, nil
 }
 
 // Configure performs self-configuration of Nexus

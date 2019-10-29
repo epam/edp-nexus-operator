@@ -45,6 +45,7 @@ type PlatformService interface {
 	CreateJenkinsServiceAccount(namespace string, secretName string) error
 	CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error
 	GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient, error)
+	CreateEDPComponentIfNotExist(instance v1alpha1.Nexus, url string, icon string) error
 }
 
 // NewPlatformService returns platform service interface implementation

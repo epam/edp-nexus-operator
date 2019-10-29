@@ -7,9 +7,10 @@ replace git.apache.org/thrift.git => github.com/apache/thrift v0.12.0
 require (
 	github.com/coreos/prometheus-operator v0.29.0 // indirect
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
-	github.com/epmd-edp/jenkins-operator/v2 v2.1.0-33
-	github.com/epmd-edp/keycloak-operator v1.0.26-alpha-51
-	github.com/go-openapi/spec v0.19.2
+	github.com/epmd-edp/edp-component-operator v0.0.1-2
+	github.com/epmd-edp/jenkins-operator/v2 v2.2.0-92
+	github.com/epmd-edp/keycloak-operator v1.0.31-alpha-56
+	github.com/go-openapi/spec v0.19.3
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openshift/client-go v3.9.0+incompatible
 	github.com/operator-framework/operator-sdk v0.0.0-20190530173525-d6f9cdf2f52e
