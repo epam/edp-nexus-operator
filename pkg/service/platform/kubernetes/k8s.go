@@ -131,7 +131,8 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 	l := platformHelper.GenerateLabels(instance.Name)
 	var rc int32 = 1
 	var fsg int64 = 200
-
+	t := true
+	f := false
 	do := &appsV1Api.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
@@ -195,6 +196,9 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 									coreV1Api.ResourceMemory: resource.MustParse(nexusDefaultSpec.NexusMemoryRequest),
 								},
 							},
+							SecurityContext: &coreV1Api.SecurityContext{
+								AllowPrivilegeEscalation: &f,
+							},
 							VolumeMounts: []coreV1Api.VolumeMount{
 								{
 									MountPath: "/nexus-data",
@@ -210,6 +214,7 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 					},
 					SecurityContext: &coreV1Api.PodSecurityContext{
 						FSGroup: &fsg,
+						RunAsNonRoot: &t,
 					},
 					ServiceAccountName: instance.Name,
 					Volumes: []coreV1Api.Volume{
