@@ -12,6 +12,11 @@ spec:
       labels:
         name: nexus-operator-v2
     spec:
+      securityContext:
+        runAsUser: 1001 
+        runAsNonRoot: true
+        runAsGroup: 1001
+        fsGroup: 1001
       serviceAccountName: edp
       containers:
         - name: nexus-operator-v2
@@ -20,6 +25,8 @@ spec:
           command:
           - nexus-operator
           imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
           env:
             - name: WATCH_NAMESPACE
               value: REPLACE_VALUE
