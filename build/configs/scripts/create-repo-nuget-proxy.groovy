@@ -56,6 +56,7 @@ def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
 if (existingRepository != null) {
     existingRepository.stop()
     configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+    configuration.entityMetadata=existingRepository.configuration.entityMetadata
     existingRepository.update(configuration)
     existingRepository.start()
 } else {
