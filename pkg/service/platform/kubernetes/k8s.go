@@ -215,6 +215,8 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 					SecurityContext: &coreV1Api.PodSecurityContext{
 						FSGroup: &fsg,
 						RunAsNonRoot: &t,
+						RunAsUser: &fsg,
+						RunAsGroup: &fsg,
 					},
 					ServiceAccountName: instance.Name,
 					Volumes: []coreV1Api.Volume{
