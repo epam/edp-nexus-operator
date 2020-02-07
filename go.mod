@@ -4,6 +4,8 @@ go 1.12
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.12.0
 
+replace github.com/openshift/api => github.com/openshift/api v0.0.0-20180801171038-322a19404e37
+
 require (
 	github.com/coreos/prometheus-operator v0.29.0 // indirect
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
