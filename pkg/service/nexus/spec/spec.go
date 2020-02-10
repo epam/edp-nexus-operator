@@ -31,9 +31,6 @@ const (
 	//NexusPort - default Nexus port
 	NexusPort = 8081
 
-	//NexusDockerImage - default Nexus Docker image
-	NexusDockerImage = "sonatype/nexus3"
-
 	//NexusMemoryRequest - default request value for memory request for deployment config
 	NexusMemoryRequest = "500Mi"
 

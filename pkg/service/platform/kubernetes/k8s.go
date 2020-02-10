@@ -155,7 +155,7 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 					Containers: []coreV1Api.Container{
 						{
 							Name:            instance.Name,
-							Image:           nexusDefaultSpec.NexusDockerImage + ":" + instance.Spec.Version,
+							Image:           instance.Spec.Image + ":" + instance.Spec.Version,
 							ImagePullPolicy: coreV1Api.PullAlways,
 							Env: []coreV1Api.EnvVar{
 								{

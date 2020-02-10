@@ -12,6 +12,7 @@ import (
 // +k8s:openapi-gen=true
 type NexusSpec struct {
 	KeycloakSpec KeycloakSpec   `json:"keycloakSpec, omitempty"`
+	Image        string         `json:"image"`
 	Version      string         `json:"version"`
 	Volumes      []NexusVolumes `json:"volumes, omitempty"`
 	Users        []NexusUsers   `json:"users, omitempty"`

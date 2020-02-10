@@ -28,6 +28,48 @@ spec:
         metadata:
           type: object
         spec:
+          properties:
+            image:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              type: string
+            keycloakSpec:
+              properties:
+                enabled:
+                  type: boolean
+              required:
+              - enabled
+              type: object
+            edpSpec:
+              properties:
+                dnsWildcard:
+                  type: string
+              required:
+                - dnsWildcard
+              type: object
+            version:
+              type: string
+            volumes:
+              items:
+                properties:
+                  capacity:
+                    type: string
+                  name:
+                    type: string
+                  storage_class:
+                    type: string
+                required:
+                  - name
+                  - capacity
+                  - storage_class
+                type: object
+              type: array
+          required:
+            - image
+            - version
+            - edpSpec
           type: object
         status:
           type: object

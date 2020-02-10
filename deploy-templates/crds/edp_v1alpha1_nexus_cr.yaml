@@ -3,6 +3,7 @@ kind: Nexus
 metadata:
   name: example-nexus
 spec:
+  image: "sonatype/nexus3"
   version: "3.15.1"
   keycloakSpec:
     enabled: false
