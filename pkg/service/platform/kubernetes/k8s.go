@@ -93,20 +93,21 @@ func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args [
 	return nil
 }
 
-func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string, scheme string, err error) {
+func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string, host string, scheme string, err error) {
 	i, err := s.extensionsV1Client.Ingresses(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			log.Info("Ingress not found", "Namespace", namespace, "Name", name)
-			return "", "", nil
+			return "", "", "", nil
 		}
-		return "", "", err
+		return "", "", "", err
 	}
 
 	h := i.Spec.Rules[0].Host
 	sc := "https"
+	p := i.Spec.Rules[0].HTTP.Paths[0].Path
 
-	return fmt.Sprintf("%s://%s", sc, h), sc, nil
+	return fmt.Sprintf("%s://%s%s", sc, h, p), h, sc, nil
 }
 
 func (s K8SService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
@@ -133,6 +134,12 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 	var fsg int64 = 200
 	t := true
 	f := false
+
+	nexusContextEnv := "/"
+	if len(instance.Spec.BasePath) != 0 {
+		nexusContextEnv = instance.Spec.BasePath
+	}
+
 	do := &appsV1Api.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
@@ -159,8 +166,8 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 							ImagePullPolicy: coreV1Api.PullAlways,
 							Env: []coreV1Api.EnvVar{
 								{
-									Name:  "CONTEXT_PATH",
-									Value: "/",
+									Name:  "NEXUS_CONTEXT",
+									Value: nexusContextEnv,
 								},
 							},
 							Ports: []coreV1Api.ContainerPort{
@@ -213,10 +220,10 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 						},
 					},
 					SecurityContext: &coreV1Api.PodSecurityContext{
-						FSGroup: &fsg,
+						FSGroup:      &fsg,
 						RunAsNonRoot: &t,
-						RunAsUser: &fsg,
-						RunAsGroup: &fsg,
+						RunAsUser:    &fsg,
+						RunAsGroup:   &fsg,
 					},
 					ServiceAccountName: instance.Name,
 					Volumes: []coreV1Api.Volume{
@@ -275,6 +282,13 @@ func (s K8SService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
 		return err
 	}
 
+	hostname := fmt.Sprintf("%v-%v.%v", instance.Name, instance.Namespace, instance.Spec.EdpSpec.DnsWildcard)
+	path := "/"
+	if len(instance.Spec.BasePath) != 0 {
+		hostname = instance.Spec.EdpSpec.DnsWildcard
+		path = fmt.Sprintf("/%v", instance.Spec.BasePath)
+	}
+
 	io := &extensionsV1Api.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
@@ -284,12 +298,12 @@ func (s K8SService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
 		Spec: extensionsV1Api.IngressSpec{
 			Rules: []extensionsV1Api.IngressRule{
 				{
-					Host: fmt.Sprintf("%s-%s.%s", instance.Name, instance.Namespace, instance.Spec.EdpSpec.DnsWildcard),
+					Host: hostname,
 					IngressRuleValue: extensionsV1Api.IngressRuleValue{
 						HTTP: &extensionsV1Api.HTTPIngressRuleValue{
 							Paths: []extensionsV1Api.HTTPIngressPath{
 								{
-									Path: "/",
+									Path: path,
 									Backend: extensionsV1Api.IngressBackend{
 										ServiceName: instance.Name,
 										ServicePort: intstr.IntOrString{
@@ -765,10 +779,8 @@ func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*extensionsV1Api.In
 		return nil, errors.Wrap(err, "couldn't retrieve ingresses list from the cluster")
 	}
 	for _, e := range i.Items {
-		for _, owner := range e.OwnerReferences {
-			if owner.UID == instance.UID {
-				return &e, nil
-			}
+		if e.Name == instance.Name {
+			return &e, nil
 		}
 	}
 	return nil, nil

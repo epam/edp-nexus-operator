@@ -28,6 +28,26 @@ spec:
         metadata:
           type: object
         spec:
+          properties:
+            users:
+              type: object
+            volumes:
+              type: object
+            basePath:
+              type: string
+            keycloakSpec:
+              properties:
+                enabled:
+                  type: boolean
+              required:
+                - enabled
+              type: object
+            version:
+              type: string
+          required:
+            - version
+            - keycloakSpec
+            - volumes
           type: object
         status:
           type: object

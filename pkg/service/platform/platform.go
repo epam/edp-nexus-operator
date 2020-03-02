@@ -24,7 +24,7 @@ const (
 // PlatformService interface
 type PlatformService interface {
 	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error
-	GetExternalUrl(namespace string, name string) (webURL string, scheme string, err error)
+	GetExternalUrl(namespace string, name string) (webURL string, host string, scheme string, err error)
 	UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error
 	GetConfigMapData(namespace string, name string) (map[string]string, error)
 	IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error)

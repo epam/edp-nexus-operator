@@ -67,9 +67,9 @@ func (n NexusServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, err
 }
 
 func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
-	u := fmt.Sprintf("http://%v.%v:%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, nexusDefaultSpec.NexusRestApiUrlPath)
+	u := fmt.Sprintf("http://%v.%v:%v%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, instance.Spec.BasePath, nexusDefaultSpec.NexusRestApiUrlPath)
 	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
-		eu, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
+		eu, _, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return "", errors.Wrapf(err, "failed to get Route for %v/%v", instance.Namespace, instance.Name)
 		}
@@ -125,16 +125,23 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, errors.New("Keycloak CR is not created yet")
 		}
 
-		webURL, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
+		_, host, scheme, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get route")
 		}
 
-		ru := fmt.Sprintf("--redirection-url=%v", webURL)
+		baseUrl := "--base-uri=/"
+		upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
+		if len(instance.Spec.BasePath) != 0 {
+			upstreamUrl = fmt.Sprintf("%v/%v", upstreamUrl, instance.Spec.BasePath)
+			baseUrl = fmt.Sprintf("%v%v", baseUrl, instance.Spec.BasePath)
+		}
+
+		ru := fmt.Sprintf("--redirection-url=%v", fmt.Sprintf("%v://%v", scheme, host))
 		id := fmt.Sprintf("--client-id=%v", keycloakClient.Spec.ClientId)
 		secret := fmt.Sprintf("--client-secret=42")
 		du := fmt.Sprintf("--discovery-url=%s/auth/realms/%s", keycloak.Spec.Url, keycloakRealm.Spec.RealmName)
-		uu := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
+		uu := upstreamUrl
 
 		var proxyConfig []string
 		proxyConfig = append(
@@ -144,6 +151,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			id,
 			secret,
 			"--listen=0.0.0.0:3000",
+			baseUrl,
 			ru,
 			uu,
 			"--resources=uri=/*|roles=developer,administrator|require-any-role=true",
@@ -235,7 +243,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 	_ = n.k8sClient.Update(context.TODO(), &instance)
 
 	if instance.Spec.KeycloakSpec.Enabled {
-		webURL, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
+		webURL, _, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get route from cluster")
 		}
@@ -271,7 +279,7 @@ func (n NexusServiceImpl) createEDPComponent(nexus v1alpha1.Nexus) error {
 }
 
 func (n NexusServiceImpl) getUrl(nexus v1alpha1.Nexus) (*string, error) {
-	url, _, err := n.platformService.GetExternalUrl(nexus.Namespace, nexus.Name)
+	url, _, _, err := n.platformService.GetExternalUrl(nexus.Namespace, nexus.Name)
 	if err != nil {
 		return nil, err
 	}

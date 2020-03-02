@@ -4,6 +4,7 @@ metadata:
   name: example-nexus
 spec:
   version: "3.15.1"
+  basePath: ""
   keycloakSpec:
     enabled: false
     url: ""

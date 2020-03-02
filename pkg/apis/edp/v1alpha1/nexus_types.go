@@ -13,6 +13,7 @@ import (
 type NexusSpec struct {
 	KeycloakSpec KeycloakSpec   `json:"keycloakSpec, omitempty"`
 	Version      string         `json:"version"`
+	BasePath     string         `json:"basePath"`
 	Volumes      []NexusVolumes `json:"volumes, omitempty"`
 	Users        []NexusUsers   `json:"users, omitempty"`
 	EdpSpec      EdpSpec        `json:"edpSpec"`
