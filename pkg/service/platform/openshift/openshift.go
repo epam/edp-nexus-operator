@@ -352,21 +352,21 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 }
 
 // GetExternalUrl returns Web URL for object and scheme from Openshift Route
-func (service OpenshiftService) GetExternalUrl(namespace string, name string) (webURL, scheme string, err error) {
+func (service OpenshiftService) GetExternalUrl(namespace string, name string) (webURL, host string, scheme string, err error) {
 	route, err := service.routeClient.Routes(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			log.Info("Route not found", "Namespace", namespace, "Name", name, "RouteName", name)
-			return "", "", nil
+			return "", "", "", nil
 		}
-		return "", "", err
+		return "", "", "", err
 	}
 
 	routeScheme := "http"
 	if route.Spec.TLS.Termination != "" {
 		routeScheme = "https"
 	}
-	return fmt.Sprintf("%s://%s", routeScheme, route.Spec.Host), routeScheme, nil
+	return fmt.Sprintf("%s://%s", routeScheme, route.Spec.Host), host, routeScheme, nil
 }
 
 // IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
@@ -383,15 +383,13 @@ func (service OpenshiftService) IsDeploymentReady(instance v1alpha1.Nexus) (res 
 
 // GetRouteByCr return Route object with instance as a reference owner
 func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error) {
-	routeList, err := service.routeClient.Routes(instance.Namespace).List(metav1.ListOptions{})
+	rl, err := service.routeClient.Routes(instance.Namespace).List(metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't retrieve services list from the cluster")
 	}
-	for _, route := range routeList.Items {
-		for _, owner := range route.OwnerReferences {
-			if owner.UID == instance.UID {
-				return &route, nil
-			}
+	for _, r := range rl.Items {
+		if r.Name == instance.Name {
+			return &r, nil
 		}
 	}
 	return nil, nil
