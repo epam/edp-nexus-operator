@@ -67,7 +67,11 @@ func (n NexusServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, err
 }
 
 func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
-	u := fmt.Sprintf("http://%v.%v:%v%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, instance.Spec.BasePath, nexusDefaultSpec.NexusRestApiUrlPath)
+	basePath := ""
+	if len(instance.Spec.BasePath) > 0 {
+		basePath = fmt.Sprintf("/%v", instance.Spec.BasePath)
+	}
+	u := fmt.Sprintf("http://%v.%v:%v%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, basePath, nexusDefaultSpec.NexusRestApiUrlPath)
 	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
 		eu, _, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
