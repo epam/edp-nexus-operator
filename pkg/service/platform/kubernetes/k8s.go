@@ -134,6 +134,10 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 	var fsg int64 = 200
 	t := true
 	f := false
+	i := instance.Spec.Image
+	if i == "" {
+		i = nexusDefaultSpec.NexusDockerImage
+	}
 
 	nexusContextEnv := "/"
 	if len(instance.Spec.BasePath) != 0 {
@@ -159,10 +163,11 @@ func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
 					Labels: l,
 				},
 				Spec: coreV1Api.PodSpec{
+					ImagePullSecrets: instance.Spec.ImagePullSecrets,
 					Containers: []coreV1Api.Container{
 						{
 							Name:            instance.Name,
-							Image:           nexusDefaultSpec.NexusDockerImage + ":" + instance.Spec.Version,
+							Image:           i + ":" + instance.Spec.Version,
 							ImagePullPolicy: coreV1Api.PullAlways,
 							Env: []coreV1Api.EnvVar{
 								{

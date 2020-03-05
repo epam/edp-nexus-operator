@@ -1,0 +1,70 @@
+@startuml
+
+skinparam class {
+    BackgroundColor #white
+	BackgroundColor<<wip>> LightGoldenRodYellow
+	BackgroundColor<<tbd>> Khaki
+}
+
+package nexus-operator {
+    class Nexus {
+        -- spec --
+        String image
+        String version
+        String basePath
+        []LocalObjectReference imagePullSecrets
+        []NexusVolumes volumes
+        []NexusUsers users
+        EdpSpec edpSpec
+        KeycloakSpec keycloakSpec
+        -- status --
+        Boolean available
+        Date lastTimeUpdated
+        String status
+    }
+
+    KeycloakSpec "1" *-- "1" Nexus
+    class KeycloakSpec <internal> {
+        Boolean enabled
+        String --url--
+    }
+
+    EdpSpec "1" *-- "1" Nexus
+    class EdpSpec <internal> {
+        String dnsWildcard
+    }
+
+    NexusUsers "0..*" *-- "1" Nexus
+    class NexusUsers <internal> {
+        String username
+        String firstName
+        String lastName
+        String email
+        []String roles
+    }
+
+    NexusVolumes "0..*" *-- "1" Nexus
+    class NexusVolumes <internal> {
+        String name
+        String storageClass
+        String capacity
+    }
+
+
+}
+
+class LocalObjectReference {
+    String name
+}
+Nexus -l-> LocalObjectReference : imagePullSecrets
+JenkinsServiceAccount <-d- Nexus : creates nexus-ci.user
+EDPComponent <-d- Nexus : creates
+KeycloakClient <-d- Nexus : creates
+
+legend
+|<back:LightGoldenRodYellow>    </back>| Work In Progress |
+|<back:White>    </back>| Implemented |
+|<back:Khaki>    </back>| TBD |
+endlegend
+
+@enduml
