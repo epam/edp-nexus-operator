@@ -1,0 +1,13 @@
+name: nexus-operator
+namespace: ""
+platform: "openshift"
+cdPipelineName: ""
+cdPipelineStageName: ""
+dnsWildcard: ""
+database:
+  required: false
+ingress:
+  required: false
+image:
+  name: nexus-operator
+  version: latest
