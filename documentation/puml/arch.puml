@@ -12,6 +12,7 @@ package nexus-operator {
         String image
         String version
         String basePath
+        []LocalObjectReference imagePullSecrets
         []NexusVolumes volumes
         []NexusUsers users
         EdpSpec edpSpec
@@ -52,7 +53,10 @@ package nexus-operator {
 
 }
 
-
+class LocalObjectReference {
+    String name
+}
+Nexus -l-> LocalObjectReference : imagePullSecrets
 JenkinsServiceAccount <-d- Nexus : creates nexus-ci.user
 EDPComponent <-d- Nexus : creates
 KeycloakClient <-d- Nexus : creates

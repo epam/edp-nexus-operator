@@ -202,6 +202,7 @@ func (service OpenshiftService) CreateDeployment(instance v1alpha1.Nexus) error 
 					Labels: labels,
 				},
 				Spec: coreV1Api.PodSpec{
+					ImagePullSecrets: instance.Spec.ImagePullSecrets,
 					Containers: []coreV1Api.Container{
 						{
 							Name:            instance.Name,
