@@ -96,8 +96,12 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 
 // CreateDeployConf performs creating DeploymentConfig in Openshift
 func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error {
-
 	labels := platformHelper.GenerateLabels(instance.Name)
+	img := instance.Spec.Image
+	if img == "" {
+		img = nexusDefaultSpec.NexusDockerImage
+	}
+
 	deploymentConfigObject := &appsV1Api.DeploymentConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
@@ -120,10 +124,11 @@ func (service OpenshiftService) CreateDeployConf(instance v1alpha1.Nexus) error 
 					Labels: labels,
 				},
 				Spec: coreV1Api.PodSpec{
+					ImagePullSecrets: instance.Spec.ImagePullSecrets,
 					Containers: []coreV1Api.Container{
 						{
 							Name:            instance.Name,
-							Image:           nexusDefaultSpec.NexusDockerImage + ":" + instance.Spec.Version,
+							Image:           img + ":" + instance.Spec.Version,
 							ImagePullPolicy: coreV1Api.PullAlways,
 							Env: []coreV1Api.EnvVar{
 								{
