@@ -372,7 +372,7 @@ func (service OpenshiftService) GetExternalUrl(namespace string, name string) (w
 	if route.Spec.TLS.Termination != "" {
 		routeScheme = "https"
 	}
-	return fmt.Sprintf("%s://%s", routeScheme, route.Spec.Host), host, routeScheme, nil
+	return fmt.Sprintf("%s://%s", routeScheme, route.Spec.Host), route.Spec.Host, routeScheme, nil
 }
 
 // IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
