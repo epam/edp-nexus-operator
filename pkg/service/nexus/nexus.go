@@ -134,11 +134,11 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, errors.Wrap(err, "failed to get route")
 		}
 
-		baseUrl := "--base-uri=/"
+		baseUrl := ""
 		upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
 		if len(instance.Spec.BasePath) != 0 {
 			upstreamUrl = fmt.Sprintf("%v/%v", upstreamUrl, instance.Spec.BasePath)
-			baseUrl = fmt.Sprintf("%v%v", baseUrl, instance.Spec.BasePath)
+			baseUrl = fmt.Sprintf("--base-uri=/%v", instance.Spec.BasePath)
 		}
 
 		ru := fmt.Sprintf("--redirection-url=%v", fmt.Sprintf("%v://%v", scheme, host))
