@@ -134,11 +134,11 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, errors.Wrap(err, "failed to get route")
 		}
 
-		baseUrl := ""
+		var proxyConfig []string
 		upstreamUrl := fmt.Sprintf("--upstream-url=http://127.0.0.1:%v", nexusDefaultSpec.NexusPort)
 		if len(instance.Spec.BasePath) != 0 {
 			upstreamUrl = fmt.Sprintf("%v/%v", upstreamUrl, instance.Spec.BasePath)
-			baseUrl = fmt.Sprintf("--base-uri=/%v", instance.Spec.BasePath)
+			proxyConfig = append(proxyConfig, fmt.Sprintf("--base-uri=/%v", instance.Spec.BasePath))
 		}
 
 		ru := fmt.Sprintf("--redirection-url=%v", fmt.Sprintf("%v://%v", scheme, host))
@@ -147,7 +147,6 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 		du := fmt.Sprintf("--discovery-url=%s/auth/realms/%s", keycloak.Spec.Url, keycloakRealm.Spec.RealmName)
 		uu := upstreamUrl
 
-		var proxyConfig []string
 		proxyConfig = append(
 			proxyConfig,
 			"--skip-openid-provider-tls-verify=true",
@@ -155,7 +154,6 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			id,
 			secret,
 			"--listen=0.0.0.0:3000",
-			baseUrl,
 			ru,
 			uu,
 			"--resources=uri=/*|roles=developer,administrator|require-any-role=true",
