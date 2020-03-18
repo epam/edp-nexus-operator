@@ -30,9 +30,9 @@ spec:
         spec:
           properties:
             users:
-              type: object
+              type: array
             volumes:
-              type: object
+              type: array
             basePath:
               type: string
             keycloakSpec:
