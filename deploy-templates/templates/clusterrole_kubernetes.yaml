@@ -1,0 +1,42 @@
+{{- if eq .Values.platform "kubernetes" -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    openshift.io/description: Role for {{ .Values.name }}-edp service account
+    openshift.io/reconcile-protect: "false"
+  name: {{ .Values.name }}-{{ .Values.namespace }}-clusterrole
+rules:
+- apiGroups:
+    - '*'
+  attributeRestrictions: null
+  resources:
+    - deployments/finalizers
+    - nexuses
+    - nexuses/finalizers
+    - nexuses/status
+    - keycloaks
+    - keycloaks/status
+    - keycloakclients
+    - keycloakclients/finalizers
+    - keycloakclients/status
+    - keycloakrealms
+    - keycloakrealms/status
+    - edpcomponents
+    - edpcomponents/finalizers
+    - edpcomponents/status
+    - jenkins
+    - jenkins/finalizers
+    - jenkins/status
+    - jenkinses
+    - jenkinses/finalizers
+    - jenkinses/status
+    - jenkinsserviceaccounts
+    - jenkinsserviceaccounts/finalizers
+    - jenkinsserviceaccounts/status
+    - jenkinsscripts
+    - jenkinsscripts/finalizers
+    - jenkinsscripts/status
+  verbs:
+    - '*'
+{{ end }}
