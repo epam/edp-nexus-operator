@@ -31,6 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
+	"strings"
 )
 
 var log = logf.Log.WithName("platform")
@@ -105,7 +106,7 @@ func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string
 
 	h := i.Spec.Rules[0].Host
 	sc := "https"
-	p := i.Spec.Rules[0].HTTP.Paths[0].Path
+	p := strings.TrimRight(i.Spec.Rules[0].HTTP.Paths[0].Path, "/")
 
 	return fmt.Sprintf("%s://%s%s", sc, h, p), h, sc, nil
 }
