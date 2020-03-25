@@ -10,8 +10,8 @@ require (
 	github.com/coreos/prometheus-operator v0.29.0 // indirect
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
 	github.com/epmd-edp/edp-component-operator v0.0.1-2
-	github.com/epmd-edp/jenkins-operator/v2 v2.2.0-92
-	github.com/epmd-edp/keycloak-operator v1.0.31-alpha-56
+	github.com/epmd-edp/jenkins-operator/v2 v2.3.0-126
+	github.com/epmd-edp/keycloak-operator v1.3.0-alpha-81.0.20200325101343-c04e7ce7d0d3
 	github.com/go-openapi/spec v0.19.3
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openshift/client-go v3.9.0+incompatible
