@@ -48,5 +48,5 @@ const (
 
 	NexusKeycloakProxyPort int32 = 3000
 
-	NexusKeycloakProxyImage string = "keycloak/keycloak-gatekeeper:6.0.1"
+	NexusKeycloakProxyImage string = "quay.io/keycloak/keycloak-gatekeeper:8.0.2"
 )
