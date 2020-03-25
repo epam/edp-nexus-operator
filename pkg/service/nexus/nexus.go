@@ -256,6 +256,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 		keycloakClient.Spec.ClientId = instance.Name
 		keycloakClient.Spec.Public = true
 		keycloakClient.Spec.WebUrl = webURL
+		keycloakClient.Spec.AudRequired = true
 
 		err = n.platformService.CreateKeycloakClient(&keycloakClient)
 		if err != nil {
