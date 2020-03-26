@@ -1,4 +1,4 @@
-/* Copyright 2018 EPAM Systems.
+/* Copyright 2020 EPAM Systems.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,11 +23,14 @@ authentication = parsed_args.remote_username == null ? null : [
         password: parsed_args.remote_password
 ]
 
-configuration = new Configuration(
-        repositoryName: parsed_args.name,
-        recipeName: 'npm-proxy',
-        online: true,
-        attributes: [
+configuration = repository.createProxy(parsed_args.name,
+                      'npm-proxy',
+                      parsed_args.remote_url,
+                      parsed_args.blob_store,
+                      Boolean.valueOf(parsed_args.strict_content_validation))
+
+configuration.setAttributes(
+        [
                 proxy  : [
                         remoteUrl: parsed_args.remote_url,
                         contentMaxAge: 1440.0,

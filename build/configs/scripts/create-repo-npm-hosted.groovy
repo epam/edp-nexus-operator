@@ -1,4 +1,4 @@
-/* Copyright 2018 EPAM Systems.
+/* Copyright 2020 EPAM Systems.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@ limitations under the License. */
 
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.config.Configuration
+import org.sonatype.nexus.repository.storage.WritePolicy
 
 parsed_args = new JsonSlurper().parseText(args)
 
-configuration = new Configuration(
-        repositoryName: parsed_args.name,
-        recipeName: 'npm-hosted',
-        online: true,
-        attributes: [
-                storage: [
-                        writePolicy: parsed_args.write_policy.toUpperCase(),
-                        blobStoreName: parsed_args.blob_store,
-                        strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
-                ]
-        ]
-)
+configuration = repository.createHosted(parsed_args.name,
+                                  'npm-hosted',
+                                  parsed_args.blob_store,
+                                  WritePolicy.valueOf(parsed_args.write_policy.toUpperCase()),
+                                  Boolean.valueOf(parsed_args.strict_content_validation))
 
 def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
 

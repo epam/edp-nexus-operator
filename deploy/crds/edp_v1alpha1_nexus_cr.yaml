@@ -4,7 +4,7 @@ metadata:
   name: example-nexus
 spec:
   image: "sonatype/nexus3"
-  version: "3.15.1"
+  version: "3.21.2"
   basePath: ""
   keycloakSpec:
     enabled: false

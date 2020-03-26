@@ -1,4 +1,4 @@
-/* Copyright 2018 EPAM Systems.
+/* Copyright 2020 EPAM Systems.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,14 +14,18 @@ limitations under the License. */
 
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.config.Configuration
+import org.sonatype.nexus.repository.storage.WritePolicy
 
 parsed_args = new JsonSlurper().parseText(args)
 
-configuration = new Configuration(
-        repositoryName: parsed_args.name,
-        recipeName: 'maven2-hosted',
-        online: true,
-        attributes: [
+configuration = repository.createHosted(parsed_args.name,
+                   'maven2-hosted',
+                   parsed_args.blob_store,
+                   WritePolicy.valueOf(parsed_args.write_policy.toUpperCase()),
+                   Boolean.valueOf(parsed_args.strict_content_validation))
+
+configuration.setAttributes(
+        [
                 maven  : [
                         versionPolicy: parsed_args.version_policy.toUpperCase(),
                         layoutPolicy : parsed_args.layout_policy.toUpperCase()
@@ -31,8 +35,7 @@ configuration = new Configuration(
                         blobStoreName: parsed_args.blob_store,
                         strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
                 ]
-        ]
-)
+        ])
 
 def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
 

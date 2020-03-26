@@ -1,4 +1,4 @@
-/* Copyright 2018 EPAM Systems.
+/* Copyright 2020 EPAM Systems.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@ import org.sonatype.nexus.repository.config.Configuration
 
 parsed_args = new JsonSlurper().parseText(args)
 
-configuration = new Configuration(
-        repositoryName: parsed_args.name,
-        recipeName: 'npm-group',
-        online: true,
-        attributes: [
+configuration = repository.createGroup(parsed_args.name,
+                    'npm-group',
+                    parsed_args.blob_store,
+                    "")
+
+configuration.setAttributes(
+        [
                 group  : [
                         memberNames: parsed_args.member_repos
                 ],
