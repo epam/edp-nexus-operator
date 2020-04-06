@@ -18,6 +18,15 @@
     "write_policy": "allow"
   },
   {
+    "name": "edp-npm-hosted",
+    "repositoryType": "npm-hosted",
+    "blob_store": "edp-npm",
+    "version_policy": "mixed",
+    "layout_policy": "strict",
+    "strict_content_validation": "true",
+    "write_policy": "allow"
+  },
+  {
     "name": "edp-maven-releases",
     "repositoryType": "maven-hosted",
     "blob_store": "edp-maven",
@@ -49,6 +58,15 @@
     "repositoryType": "nuget-hosted",
     "blob_store": "edp-dotnet",
     "version_policy": "snapshot",
+    "layout_policy": "strict",
+    "strict_content_validation": "true",
+    "write_policy": "allow"
+  },
+  {
+    "name": "edp-dotnet-hosted",
+    "repositoryType": "nuget-hosted",
+    "blob_store": "edp-dotnet",
+    "version_policy": "mixed",
     "layout_policy": "strict",
     "strict_content_validation": "true",
     "write_policy": "allow"
@@ -108,7 +126,8 @@
     "member_repos": [
       "edp-dotnet-proxy",
       "edp-dotnet-releases",
-      "edp-dotnet-snapshots"
+      "edp-dotnet-snapshots",
+      "edp-dotnet-hosted"
     ]
   },
   {
@@ -122,7 +141,8 @@
     "member_repos": [
       "edp-npm-proxy",
       "edp-npm-releases",
-      "edp-npm-snapshots"
+      "edp-npm-snapshots",
+      "edp-npm-hosted"
     ]
   }
 ]
