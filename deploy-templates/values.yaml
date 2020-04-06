@@ -4,4 +4,4 @@ platform: "openshift"
 dnsWildcard: ""
 image:
   name: epamedp/nexus-operator
-  version: 2.3.0
+  version: v2.3.0
