@@ -16,7 +16,7 @@ _**NOTE:** Installation of operators is platform-independent, that is why there 
 _**NOTE:** It is highly recommended to use the latest released version._
 
 * Go to the unzipped directory/deploy-templates/ and deploy operator:
-```yaml
+```bash
 helm install nexus-operator --namespace <edp_cicd_project> --set name=nexus-operator --set namespace=<edp_cicd_project> --set platform=<platform_type> --set image.name=epamedp/nexus-operator --set image.version=<operator_version> --set dnsWildcard=<dns_wildcard>
 ```
 
