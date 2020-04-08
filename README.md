@@ -15,9 +15,9 @@ _**NOTE:** Installation of operators is platform-independent, that is why there 
 
 _**NOTE:** It is highly recommended to use the latest released version._
 
-* Go to the unzipped directory/deploy-templates/ and deploy operator:
+* Go to the unzipped directory and deploy operator:
 ```bash
-helm install nexus-operator --namespace <edp_cicd_project> --set name=nexus-operator --set namespace=<edp_cicd_project> --set platform=<platform_type> --set image.name=epamedp/nexus-operator --set image.version=<operator_version> --set dnsWildcard=<dns_wildcard>
+helm install nexus-operator --namespace <edp_cicd_project> --set name=nexus-operator --set namespace=<edp_cicd_project> --set platform=<platform_type> --set image.name=epamedp/nexus-operator --set image.version=<operator_version> --set dnsWildcard=<dns_wildcard> deploy-templates
 ```
 
 - _<edp_cicd_project> - a namespace or a project name (in case of OpenShift) that is created by one of the instructions: [edp-install-openshift](https://github.com/epmd-edp/edp-install/blob/master/documentation/openshift_install_edp.md#install-edp) or [edp-install-kubernetes](https://github.com/epmd-edp/edp-install/blob/master/documentation/kubernetes_install_edp.md#install-edp);_ 
