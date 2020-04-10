@@ -1,7 +1,6 @@
 name: nexus-operator
 namespace: ""
 platform: "openshift"
-dnsWildcard: ""
 image:
   name: epamedp/nexus-operator
   version: v2.3.0
