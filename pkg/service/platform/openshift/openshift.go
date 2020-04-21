@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
+	"strings"
 )
 
 var log = logf.Log.WithName("platform")
@@ -178,8 +179,13 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 
 // CreateDeployment performs creating DeploymentConfig in Openshift
 func (service OpenshiftService) CreateDeployment(instance v1alpha1.Nexus) error {
-
 	labels := platformHelper.GenerateLabels(instance.Name)
+
+	nexusContextEnv := "/"
+	if len(instance.Spec.BasePath) != 0 {
+		nexusContextEnv = instance.Spec.BasePath
+	}
+
 	deploymentConfigObject := &appsV1Api.DeploymentConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name,
@@ -210,8 +216,8 @@ func (service OpenshiftService) CreateDeployment(instance v1alpha1.Nexus) error 
 							ImagePullPolicy: coreV1Api.PullAlways,
 							Env: []coreV1Api.EnvVar{
 								{
-									Name:  "CONTEXT_PATH",
-									Value: "/",
+									Name:  "NEXUS_CONTEXT",
+									Value: nexusContextEnv,
 								},
 							},
 							Ports: []coreV1Api.ContainerPort{
@@ -308,8 +314,14 @@ func (service OpenshiftService) CreateDeployment(instance v1alpha1.Nexus) error 
 
 // CreateExternalEndpoint performs creating Route in Openshift
 func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
-
 	labels := platformHelper.GenerateLabels(instance.Name)
+
+	hostname := fmt.Sprintf("%v-%v.%v", instance.Name, instance.Namespace, instance.Spec.EdpSpec.DnsWildcard)
+	path := "/"
+	if len(instance.Spec.BasePath) != 0 {
+		hostname = instance.Spec.EdpSpec.DnsWildcard
+		path = fmt.Sprintf("/%v(/|$)(.*)", instance.Spec.BasePath)
+	}
 
 	routeObject := &routeV1Api.Route{
 		ObjectMeta: metav1.ObjectMeta{
@@ -318,6 +330,8 @@ func (service OpenshiftService) CreateExternalEndpoint(instance v1alpha1.Nexus) 
 			Labels:    labels,
 		},
 		Spec: routeV1Api.RouteSpec{
+			Path: path,
+			Host: hostname,
 			TLS: &routeV1Api.TLSConfig{
 				Termination:                   routeV1Api.TLSTerminationEdge,
 				InsecureEdgeTerminationPolicy: routeV1Api.InsecureEdgeTerminationPolicyRedirect,
@@ -367,7 +381,9 @@ func (service OpenshiftService) GetExternalUrl(namespace string, name string) (w
 	if route.Spec.TLS.Termination != "" {
 		routeScheme = "https"
 	}
-	return fmt.Sprintf("%s://%s", routeScheme, route.Spec.Host), route.Spec.Host, routeScheme, nil
+	p := strings.TrimRight(route.Spec.Path, platformHelper.UrlCutset)
+
+	return fmt.Sprintf("%s://%s%s", routeScheme, route.Spec.Host, p), route.Spec.Host, routeScheme, nil
 }
 
 // IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
