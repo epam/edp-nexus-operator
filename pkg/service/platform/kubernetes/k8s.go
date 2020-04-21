@@ -106,7 +106,7 @@ func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string
 
 	h := i.Spec.Rules[0].Host
 	sc := "https"
-	p := strings.TrimRight(i.Spec.Rules[0].HTTP.Paths[0].Path, "/")
+	p := strings.TrimRight(i.Spec.Rules[0].HTTP.Paths[0].Path, platformHelper.UrlCutset)
 
 	return fmt.Sprintf("%s://%s%s", sc, h, p), h, sc, nil
 }
