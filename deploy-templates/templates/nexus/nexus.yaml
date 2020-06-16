@@ -1,0 +1,27 @@
+{{- if .Values.nexus.deploy -}}
+apiVersion: v2.edp.epam.com/v1alpha1
+kind: Nexus
+metadata:
+  name: {{.Values.nexus.name}}
+spec:
+  edpSpec:
+    dnsWildcard: {{ .Values.nexus.dnsWildCard }}
+  keycloakSpec:
+    enabled: true
+  users:
+  {{- range .Values.nexus.admins }}
+  - email: ''
+    first_name: ''
+    last_name: ''
+    roles:
+      - nx-admin
+    username: {{ . }}
+  {{ end }}
+  image: {{.Values.nexus.image}}
+  version: {{.Values.nexus.version}}
+  basePath: ""
+  volumes:
+    - capacity: 10Gi
+      name: data
+      storage_class: gp2
+{{end}}
