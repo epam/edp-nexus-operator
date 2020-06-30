@@ -9,7 +9,7 @@ nexus:
   deploy: true
   name: "nexus"
   image: "sonatype/nexus3"
-  version: "3.21.2"
+  version: "3.24.0"
   dnsWildCard: ""
   admins:
     - "userOne"
