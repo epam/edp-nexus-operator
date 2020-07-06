@@ -5,7 +5,7 @@ metadata:
   name: {{.Values.nexus.name}}
 spec:
   edpSpec:
-    dnsWildcard: {{ .Values.nexus.dnsWildCard }}
+    dnsWildcard: {{ .Values.edp.dnsWildCard }}
   keycloakSpec:
     enabled: true
   users:

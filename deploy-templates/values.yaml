@@ -10,7 +10,8 @@ nexus:
   name: "nexus"
   image: "sonatype/nexus3"
   version: "3.24.0"
-  dnsWildCard: ""
   admins:
-    - "userOne"
-    - "userTwo"
+    - "stub_user_one@example.com"
+
+edp:
+  dnsWildCard: ""
