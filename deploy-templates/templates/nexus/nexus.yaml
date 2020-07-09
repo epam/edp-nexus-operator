@@ -5,11 +5,11 @@ metadata:
   name: {{.Values.nexus.name}}
 spec:
   edpSpec:
-    dnsWildcard: {{ .Values.edp.dnsWildCard }}
+    dnsWildcard: {{ .Values.global.dnsWildCard }}
   keycloakSpec:
     enabled: true
   users:
-  {{- range .Values.nexus.admins }}
+  {{- range .Values.global.admins }}
   - email: ''
     first_name: ''
     last_name: ''

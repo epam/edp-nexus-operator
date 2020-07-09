@@ -1,6 +1,11 @@
+global:
+  edpName: ""
+  platform: "openshift"
+  admins:
+    - "stub_user_one@example.com"
+  dnsWildCard:
+
 name: nexus-operator
-namespace: ""
-platform: "openshift"
 image:
   name: epamedp/nexus-operator
   version: v2.4.0
@@ -10,8 +15,3 @@ nexus:
   name: "nexus"
   image: "sonatype/nexus3"
   version: "3.24.0"
-  admins:
-    - "stub_user_one@example.com"
-
-edp:
-  dnsWildCard: ""
