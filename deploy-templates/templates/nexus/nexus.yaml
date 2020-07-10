@@ -19,7 +19,7 @@ spec:
   {{ end }}
   image: {{.Values.nexus.image}}
   version: {{.Values.nexus.version}}
-  basePath: {{.Values.nexus.basePath}}
+  basePath: "{{.Values.nexus.basePath}}"
   imagePullSecrets: {{.Values.nexus.imagePullSecrets}}
   volumes:
     - capacity: {{.Values.nexus.storage.size}}
