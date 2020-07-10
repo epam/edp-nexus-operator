@@ -19,9 +19,10 @@ spec:
   {{ end }}
   image: {{.Values.nexus.image}}
   version: {{.Values.nexus.version}}
-  basePath: ""
+  basePath: {{.Values.nexus.basePath}}
+  imagePullSecrets: {{.Values.nexus.imagePullSecrets}}
   volumes:
-    - capacity: 10Gi
+    - capacity: {{.Values.nexus.storage.size}}
       name: data
-      storage_class: gp2
+      storage_class: {{.Values.nexus.storage.class}}
 {{end}}

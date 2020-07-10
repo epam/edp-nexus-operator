@@ -37,6 +37,11 @@ Parameters:
     - nexus.name                                    # Nexus name;
     - nexus.image                                   # Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3);
     - nexus.version                                 # Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags)'
+    - nexus.basePath                                # Base path for Nexus URL;
+    - nexus.imagePullSecrets                        # Secrets to pull from private Docker registry;
+    - nexus.storage.class                           # Storageclass for Nexus data volume. Default is "gp2";
+    - nexus.storage.size                            # Nexus data volume capacity. Default is "10Gi";
+
  ```
 
 _**NOTE:** Follow instruction to create namespace [edp-install-openshift](https://github.com/epmd-edp/edp-install/blob/master/documentation/openshift_install_edp.md#install-edp) or [edp-install-kubernetes](https://github.com/epmd-edp/edp-install/blob/master/documentation/kubernetes_install_edp.md#install-edp)._
