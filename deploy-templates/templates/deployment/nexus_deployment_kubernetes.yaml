@@ -1,0 +1,87 @@
+{{if eq .Values.global.platform "kubernetes"}}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: nexus
+  name: nexus
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: nexus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nexus
+    spec:
+      {{- if .Values.nexus.imagePullSecrets}}
+      imagePullSecrets:
+        {{- range .Values.nexus.imagePullSecrets }}
+        - {{. -}}
+        {{- end -}}
+      {{end}}
+      containers:
+        - env:
+            - name: NEXUS_CONTEXT
+              value: "{{if .Values.nexus.basePath}}{{.Values.nexus.basePath}}{{.Values.nexus.basePath}}{{else}}/{{end}}"
+          image: sonatype/nexus3:3.24.0
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 180
+            periodSeconds: 20
+            successThreshold: 1
+            tcpSocket:
+              port: 8081
+            timeoutSeconds: 1
+          name: nexus
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8081
+            timeoutSeconds: 1
+          resources:
+            requests:
+              memory: 500Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /nexus-data
+              name: data
+            - mountPath: /opt/sonatype/nexus/etc/nexus-default.properties
+              name: config
+              subPath: nexus-default.properties
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 200
+        runAsGroup: 200
+        runAsNonRoot: true
+        runAsUser: 200
+      serviceAccount: nexus
+      serviceAccountName: nexus
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: nexus-data
+        - configMap:
+            defaultMode: 420
+            name: nexus-nexus-default.properties
+          name: config
+{{end}}

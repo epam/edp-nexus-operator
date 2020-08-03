@@ -31,7 +31,7 @@ type PlatformService interface {
 	GetSecretData(namespace string, name string) (map[string][]byte, error)
 	CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error
 	CreateService(instance v1alpha1.Nexus) error
-	GetServiceByCr(instance v1alpha1.Nexus) (*coreV1Api.Service, error)
+	GetServiceByCr(name, namespace string) (*coreV1Api.Service, error)
 	AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error
 	CreateVolume(instance v1alpha1.Nexus) error
 	CreateServiceAccount(instance v1alpha1.Nexus) error

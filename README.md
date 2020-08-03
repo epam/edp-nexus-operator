@@ -31,7 +31,20 @@ In order to install the Nexus operator, follow the steps below:
    
     _**NOTE:** It is highly recommended to use the latest released version._
     
-3. Deploy operator:
+3. It is necessary to create such secret manually:
+
+    3.1 OpenShift:
+    ```bash
+    oc -n <edp_cicd_project> create secret generic nexus-admin-password --from-literal=user=<user_name> --from-literal=password=<password>
+    ```
+
+    3.2 Kubernetes: 
+    ```bash
+    kubectl -n <edp_cicd_project> create secret generic nexus-admin-password --from-literal=user=<user_name> --from-literal=password=<password>
+    ```
+    >_INFO: <edp_cicd_project> is created project/namespace in OpenShift/Kubernetes._
+    
+4. Deploy operator:
 
    Full available chart parameters list:
    ```
@@ -53,11 +66,11 @@ In order to install the Nexus operator, follow the steps below:
 
     ```
 
-4. Install operator in the <edp_cicd_project> namespace with the helm command; find below the installation command example:
+5. Install operator in the <edp_cicd_project> namespace with the helm command; find below the installation command example:
     ```bash
     helm install nexus-operator epamedp/nexus-operator --version <chart_version> --namespace <edp_cicd_project> --set name=nexus-operator --set global.edpName=<edp_cicd_project> --set global.platform=<platform_type> --set global.dnsWildCard=<cluster_DNS_wildcard>
     ```
-5. Check the <edp_cicd_project> namespace that should contain operator deployment with your operator in a running status.
+6. Check the <edp_cicd_project> namespace that should contain operator deployment with your operator in a running status.
 
 ## Local Development
 In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](documentation/local-development.md) page.

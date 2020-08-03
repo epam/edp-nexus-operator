@@ -499,25 +499,21 @@ func (s K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
 	return nil
 }
 
-// GetServiceByCr return Service object with instance as a reference owner
-func (s K8SService) GetServiceByCr(instance v1alpha1.Nexus) (*coreV1Api.Service, error) {
-	serviceList, err := s.CoreClient.Services(instance.Namespace).List(metav1.ListOptions{})
+// GetServiceByCr return Service object by name
+func (s K8SService) GetServiceByCr(name, namespace string) (*coreV1Api.Service, error) {
+	service, err := s.CoreClient.Services(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
-		return nil, errors.Wrap(err, "couldn't retrieve services list from the cluster")
-	}
-	for _, service := range serviceList.Items {
-		for _, owner := range service.OwnerReferences {
-			if owner.UID == instance.UID {
-				return &service, nil
-			}
+		if k8serrors.IsNotFound(err) {
+			return nil, errors.Wrapf(err, "couldn't find service by %v name", name)
 		}
+		return nil, err
 	}
-	return nil, nil
+	return service, nil
 }
 
 // AddPortToService performs adding new port in Service in K8S
 func (s K8SService) AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error {
-	svc, err := s.GetServiceByCr(instance)
+	svc, err := s.GetServiceByCr(instance.Name, instance.Namespace)
 	if err != nil || svc == nil {
 		return errors.Wrap(err, "couldn't get s")
 	}

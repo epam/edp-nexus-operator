@@ -1,0 +1,38 @@
+apiVersion: v1
+data:
+  default-roles: |-
+    [
+      {
+        "id": "edp-admin",
+        "name": "edp-admin",
+        "description": "Read and write access to all repos and scripts",
+        "privileges": [
+          "nx-search-read",
+          "nx-repository-view-*-*-read",
+          "nx-repository-view-*-*-browse",
+          "nx-repository-view-*-*-add",
+          "nx-repository-view-*-*-edit",
+          "nx-apikey-all",
+          "nx-script-*-add",
+          "nx-script-*-delete",
+          "nx-script-*-run"
+        ],
+        "roles": []
+      },
+      {
+        "id": "edp-viewer",
+        "name": "edp-viewer",
+        "description": "Read access rights to all repos",
+        "privileges": [
+          "nx-search-read",
+          "nx-repository-view-*-*-read",
+          "nx-repository-view-*-*-browse"
+        ],
+        "roles": []
+      }
+    ]
+kind: ConfigMap
+metadata:
+  labels:
+    app: nexus
+  name: nexus-default-roles

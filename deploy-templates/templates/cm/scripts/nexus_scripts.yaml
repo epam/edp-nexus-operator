@@ -1,0 +1,976 @@
+apiVersion: v1
+data:
+  create-blobstore.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    existingBlobStore = blobStore.getBlobStoreManager().get(parsed_args.name)
+    if (existingBlobStore == null) {
+        blobStore.createFileBlobStore(parsed_args.name, parsed_args.path)
+    }
+  create-repo-maven-group.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    configuration = repository.createGroup(parsed_args.name,
+                        'maven2-group',
+                        parsed_args.blob_store,
+                        parsed_args.member_repos[0])
+
+    configuration.setAttributes(
+            [
+                    group  : [
+                            memberNames: parsed_args.member_repos
+                    ],
+                    storage: [
+                            blobStoreName: parsed_args.blob_store,
+                            strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
+                    ]
+            ])
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-maven-hosted.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+    import org.sonatype.nexus.repository.storage.WritePolicy
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    configuration = repository.createHosted(parsed_args.name,
+                       'maven2-hosted',
+                       parsed_args.blob_store,
+                       WritePolicy.valueOf(parsed_args.write_policy.toUpperCase()),
+                       Boolean.valueOf(parsed_args.strict_content_validation))
+
+    configuration.setAttributes(
+            [
+                    maven  : [
+                            versionPolicy: parsed_args.version_policy.toUpperCase(),
+                            layoutPolicy : parsed_args.layout_policy.toUpperCase()
+                    ],
+                    storage: [
+                            writePolicy: parsed_args.write_policy.toUpperCase(),
+                            blobStoreName: parsed_args.blob_store,
+                            strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
+                    ]
+            ])
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-maven-proxy.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    authentication = parsed_args.remote_username == null ? null : [
+            type: 'username',
+            username: parsed_args.remote_username,
+            password: parsed_args.remote_password
+    ]
+
+    configuration = repository.createProxy(parsed_args.name,
+                           'maven2-proxy',
+                           parsed_args.remote_url,
+                           parsed_args.blob_store,
+                           Boolean.valueOf(parsed_args.strict_content_validation))
+
+    configuration.setAttributes(
+            [
+                    maven  : [
+                            versionPolicy: parsed_args.version_policy.toUpperCase(),
+                            layoutPolicy : parsed_args.layout_policy.toUpperCase()
+                    ],
+                    proxy  : [
+                            remoteUrl: parsed_args.remote_url,
+                            contentMaxAge: 1440.0,
+                            metadataMaxAge: 1440.0
+                    ],
+                    httpclient: [
+                            blocked: false,
+                            autoBlock: true,
+                            authentication: authentication,
+                            connection: [
+                                    useTrustStore: false
+                            ]
+                    ],
+                    storage: [
+                            blobStoreName: parsed_args.blob_store,
+                            strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
+                    ],
+                    negativeCache: [
+                            enabled: true,
+                            timeToLive: 1440.0
+                    ]
+            ])
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-npm-group.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    configuration = repository.createGroup(parsed_args.name,
+                        'npm-group',
+                        parsed_args.blob_store,
+                        "")
+
+    configuration.setAttributes(
+            [
+                    group  : [
+                            memberNames: parsed_args.member_repos
+                    ],
+                    storage: [
+                            blobStoreName: parsed_args.blob_store,
+                            strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
+                    ]
+            ]
+    )
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-npm-hosted.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+    import org.sonatype.nexus.repository.storage.WritePolicy
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    configuration = repository.createHosted(parsed_args.name,
+                                      'npm-hosted',
+                                      parsed_args.blob_store,
+                                      WritePolicy.valueOf(parsed_args.write_policy.toUpperCase()),
+                                      Boolean.valueOf(parsed_args.strict_content_validation))
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-npm-proxy.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    authentication = parsed_args.remote_username == null ? null : [
+            type: 'username',
+            username: parsed_args.remote_username,
+            password: parsed_args.remote_password
+    ]
+
+    configuration = repository.createProxy(parsed_args.name,
+                          'npm-proxy',
+                          parsed_args.remote_url,
+                          parsed_args.blob_store,
+                          Boolean.valueOf(parsed_args.strict_content_validation))
+
+    configuration.setAttributes(
+            [
+                    proxy  : [
+                            remoteUrl: parsed_args.remote_url,
+                            contentMaxAge: 1440.0,
+                            metadataMaxAge: 1440.0
+                    ],
+                    httpclient: [
+                            blocked: false,
+                            autoBlock: true,
+                            connection: [
+                                    useTrustStore: false
+                            ]
+                    ],
+                    storage: [
+                            blobStoreName: parsed_args.blob_store,
+                            strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
+                    ],
+                    negativeCache: [
+                            enabled: true,
+                            timeToLive: 1440.0
+                    ]
+            ]
+    )
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-nuget-group.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    configuration = repository.createGroup(parsed_args.name,
+                         'nuget-group',
+                         parsed_args.blob_store,
+                         "")
+
+    configuration.setAttributes(
+            [
+                    group  : [
+                            memberNames: parsed_args.member_repos
+                    ],
+                    storage: [
+                            blobStoreName: parsed_args.blob_store,
+                            strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
+                    ]
+            ]
+    )
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-nuget-hosted.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+    import org.sonatype.nexus.repository.storage.WritePolicy
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    configuration = repository.createHosted(parsed_args.name,
+                           'nuget-hosted',
+                           parsed_args.blob_store,
+                           WritePolicy.valueOf(parsed_args.write_policy.toUpperCase()),
+                           Boolean.valueOf(parsed_args.strict_content_validation))
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-repo-nuget-proxy.groovy: |
+    /* Copyright 2020 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.repository.config.Configuration
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    authentication = parsed_args.remote_username == null ? null : [
+            type: 'username',
+            username: parsed_args.remote_username,
+            password: parsed_args.remote_password
+    ]
+
+    configuration = repository.createProxy(parsed_args.name,
+                        'nuget-proxy',
+                        parsed_args.remote_url,
+                        parsed_args.blob_store,
+                        Boolean.valueOf(parsed_args.strict_content_validation))
+
+    configuration.setAttributes(
+            [
+                    proxy  : [
+                            remoteUrl: parsed_args.remote_url,
+                            contentMaxAge: 1440.0,
+                            metadataMaxAge: 1440.0
+                    ],
+                    httpclient: [
+                            blocked: false,
+                            autoBlock: true,
+                            connection: [
+                                    useTrustStore: false
+                            ]
+                    ],
+                    storage: [
+                            blobStoreName: parsed_args.blob_store,
+                            strictContentTypeValidation: Boolean.valueOf(parsed_args.strict_content_validation)
+                    ],
+                    negativeCache: [
+                            enabled: true,
+                            timeToLive: 1440.0
+                    ]
+            ]
+    )
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        existingRepository.stop()
+        configuration.attributes['storage']['blobStoreName'] = existingRepository.configuration.attributes['storage']['blobStoreName']
+        configuration.entityMetadata=existingRepository.configuration.entityMetadata
+        existingRepository.update(configuration)
+        existingRepository.start()
+    } else {
+        repository.getRepositoryManager().create(configuration)
+    }
+  create-task.groovy: |-
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.scheduling.TaskConfiguration
+    import org.sonatype.nexus.scheduling.TaskInfo
+    import org.sonatype.nexus.scheduling.TaskScheduler
+    import org.sonatype.nexus.scheduling.schedule.Schedule
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    TaskScheduler taskScheduler = container.lookup(TaskScheduler.class.getName())
+
+    TaskInfo existingTask = taskScheduler.listsTasks().find { TaskInfo taskInfo ->
+        taskInfo.name == parsed_args.name
+    }
+
+    if (existingTask && !existingTask.remove()) {
+        throw new RuntimeException("Could not remove currently running task : " + parsed_args.name)
+    }
+
+    TaskConfiguration taskConfiguration = taskScheduler.createTaskConfigurationInstance(parsed_args.typeId)
+    taskConfiguration.setName(parsed_args.name)
+
+    parsed_args.taskProperties.each { key, value -> taskConfiguration.setString(key, value) }
+
+    Schedule schedule = taskScheduler.scheduleFactory.cron(new Date(), parsed_args.cron)
+
+    taskScheduler.scheduleTask(taskConfiguration, schedule)
+  delete-blobstore.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    existingBlobStore = blobStore.getBlobStoreManager().get(parsed_args.name)
+    if (existingBlobStore != null) {
+        blobStore.getBlobStoreManager().delete(parsed_args.name)
+    }
+  delete-repo.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    def existingRepository = repository.getRepositoryManager().get(parsed_args.name)
+
+    if (existingRepository != null) {
+        repository.getRepositoryManager().delete(parsed_args.name)
+    }
+  disable-outreach-capability.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import org.sonatype.nexus.capability.CapabilityRegistry
+
+    capabilityRegistry = container.lookup(CapabilityRegistry.class)
+    capabilityRegistry.all.findAll {it.context().type().toString().startsWith("Outreach")}.each {
+        capabilityRegistry.disable(it.context().id())
+    }
+  enable-realm.groovy: |-
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import org.sonatype.nexus.security.realm.RealmManager
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    realmManager = container.lookup(RealmManager.class.getName())
+    realmManager.enableRealm(parsed_args.name)
+  get-role.groovy: |-
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import groovy.json.JsonOutput
+    import org.sonatype.nexus.security.user.UserManager
+    import org.sonatype.nexus.security.role.NoSuchRoleException
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    authManager = security.getSecuritySystem().getAuthorizationManager(UserManager.DEFAULT_SOURCE)
+
+    def existingRole = null
+
+    try {
+        existingRole = authManager.getRole(parsed_args.id)
+    } catch (NoSuchRoleException ignored) {
+        // could not find role
+    }
+
+    return JsonOutput.toJson(existingRole)
+  setup-anonymous-access.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    security.setAnonymousAccess(Boolean.valueOf(parsed_args.anonymous_access))
+  setup-base-url.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    core.baseUrl(parsed_args.base_url)
+  setup-capability.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.capability.CapabilityReference
+    import org.sonatype.nexus.capability.CapabilityType
+    import org.sonatype.nexus.internal.capability.DefaultCapabilityReference
+    import org.sonatype.nexus.internal.capability.DefaultCapabilityRegistry
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    parsed_args.capability_properties['headerEnabled'] = parsed_args.capability_properties['headerEnabled'].toString()
+    parsed_args.capability_properties['footerEnabled'] = parsed_args.capability_properties['footerEnabled'].toString()
+
+    def capabilityRegistry = container.lookup(DefaultCapabilityRegistry.class.getName())
+    def capabilityType = CapabilityType.capabilityType(parsed_args.capability_typeId)
+
+    DefaultCapabilityReference existing = capabilityRegistry.all.find { CapabilityReference capabilityReference ->
+        capabilityReference.context().descriptor().type() == capabilityType
+    }
+
+    if (existing) {
+        log.info(parsed_args.typeId + ' capability updated to: {}',
+                capabilityRegistry.update(existing.id(), existing.active, existing.notes(), parsed_args.capability_properties).toString()
+        )
+    }
+    else {
+        log.info(parsed_args.typeId + ' capability created as: {}', capabilityRegistry.
+                add(capabilityType, true, 'configured through api', parsed_args.capability_properties).toString()
+        )
+    }
+  setup-ldap.groovy: |-
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+
+    import org.sonatype.nexus.ldap.persist.LdapConfigurationManager
+    import org.sonatype.nexus.ldap.persist.entity.LdapConfiguration
+    import org.sonatype.nexus.ldap.persist.entity.Connection
+    import org.sonatype.nexus.ldap.persist.entity.Mapping
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+
+    def ldapConfigMgr = container.lookup(LdapConfigurationManager.class.getName());
+
+    def ldapConfig = new LdapConfiguration()
+    boolean update = false;
+
+    // Look for existing config to update
+    ldapConfigMgr.listLdapServerConfigurations().each {
+        if (it.name == parsed_args.name) {
+            ldapConfig = it
+            update = true
+        }
+    }
+
+    ldapConfig.setName(parsed_args.name)
+
+    // Connection
+    connection = new Connection()
+    connection.setHost(new Connection.Host(Connection.Protocol.valueOf(parsed_args.protocol), parsed_args.hostname, Integer.valueOf(parsed_args.port)))
+    connection.setAuthScheme("none")
+    connection.setSearchBase(parsed_args.search_base)
+    connection.setConnectionTimeout(30)
+    connection.setConnectionRetryDelay(300)
+    connection.setMaxIncidentsCount(3)
+    ldapConfig.setConnection(connection)
+
+
+    // Mapping
+    mapping = new Mapping()
+    mapping.setUserBaseDn(parsed_args.user_base_dn)
+    mapping.setUserObjectClass(parsed_args.user_object_class)
+    mapping.setUserIdAttribute(parsed_args.user_id_attribute)
+    mapping.setUserRealNameAttribute(parsed_args.user_real_name_attribute)
+    mapping.setEmailAddressAttribute(parsed_args.user_email_attribute)
+
+    mapping.setLdapGroupsAsRoles(true)
+    mapping.setGroupBaseDn(parsed_args.group_base_dn)
+    mapping.setGroupObjectClass(parsed_args.group_object_class)
+    mapping.setGroupIdAttribute(parsed_args.group_id_attribute)
+    mapping.setGroupMemberAttribute(parsed_args.group_member_attribute)
+    mapping.setGroupMemberFormat(parsed_args.group_member_format)
+
+    ldapConfig.setMapping(mapping)
+
+
+    if (update) {
+        ldapConfigMgr.updateLdapServerConfiguration(ldapConfig)
+    } else {
+        ldapConfigMgr.addLdapServerConfiguration(ldapConfig)
+    }
+  setup-privilege.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.security.privilege.NoSuchPrivilegeException
+    import org.sonatype.nexus.security.user.UserManager
+    import org.sonatype.nexus.security.privilege.Privilege
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    authManager = security.getSecuritySystem().getAuthorizationManager(UserManager.DEFAULT_SOURCE)
+
+    def privilege
+    boolean update = true
+
+    try {
+        privilege = authManager.getPrivilege(parsed_args.name)
+    } catch (NoSuchPrivilegeException ignored) {
+        // could not find any existing  privilege
+        update = false
+        privilege = new Privilege(
+                'id': parsed_args.name,
+                'name': parsed_args.name
+        )
+    }
+
+    privilege.setDescription(parsed_args.description)
+    privilege.setType(parsed_args.type)
+    privilege.setProperties([
+            'format': parsed_args.format,
+            'repository': parsed_args.repository,
+            'actions': parsed_args.actions.join(',')
+    ] as Map<String, String>)
+
+    if (update) {
+        authManager.updatePrivilege(privilege)
+    } else {
+        authManager.addPrivilege(privilege)
+    }
+  setup-role.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.security.user.UserManager
+    import org.sonatype.nexus.security.role.NoSuchRoleException
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    authManager = security.getSecuritySystem().getAuthorizationManager(UserManager.DEFAULT_SOURCE)
+
+    def existingRole = null
+
+    try {
+        existingRole = authManager.getRole(parsed_args.id)
+    } catch (NoSuchRoleException ignored) {
+        // could not find role
+    }
+
+    privileges = (parsed_args.privileges == null ? new HashSet() : parsed_args.privileges.toSet())
+    roles = (parsed_args.roles == null ? new HashSet() : parsed_args.roles.toSet())
+
+    if (existingRole != null) {
+        existingRole.setName(parsed_args.name)
+        existingRole.setDescription(parsed_args.description)
+        existingRole.setPrivileges(privileges)
+        existingRole.setRoles(roles)
+        authManager.updateRole(existingRole)
+    } else {
+        security.addRole(parsed_args.id, parsed_args.name, parsed_args.description, privileges.toList(), roles.toList())
+    }
+  setup-user.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+    import org.sonatype.nexus.security.user.UserNotFoundException
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    try {
+        // update an existing user
+        user = security.securitySystem.getUser(parsed_args.username)
+        user.setFirstName(parsed_args.first_name)
+        user.setLastName(parsed_args.last_name)
+        user.setEmailAddress(parsed_args.email)
+        security.securitySystem.updateUser(user)
+        security.setUserRoles(parsed_args.username, parsed_args.roles)
+        security.securitySystem.changePassword(parsed_args.username, parsed_args.password)
+    } catch(UserNotFoundException ignored) {
+        // create the new user
+        security.addUser(parsed_args.username, parsed_args.first_name, parsed_args.last_name, parsed_args.email, true, parsed_args.password, parsed_args.roles)
+    }
+  update-admin-password.groovy: |
+    /* Copyright 2018 EPAM Systems.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    See the License for the specific language governing permissions and
+    limitations under the License. */
+
+    import groovy.json.JsonSlurper
+
+    parsed_args = new JsonSlurper().parseText(args)
+
+    security.securitySystem.changePassword('admin', parsed_args.new_password)
+kind: ConfigMap
+metadata:
+  labels:
+    app: nexus
+  name: nexus-scripts
