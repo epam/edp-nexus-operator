@@ -1,0 +1,31 @@
+apiVersion: v1
+data:
+  repos-to-delete: |-
+    [
+      {
+        "name": "maven-central"
+      },
+      {
+        "name": "maven-public"
+      },
+      {
+        "name": "maven-releases"
+      },
+      {
+        "name": "maven-snapshots"
+      },
+      {
+        "name": "nuget-group"
+      },
+      {
+        "name": "nuget-hosted"
+      },
+      {
+        "name": "nuget.org-proxy"
+      }
+    ]
+kind: ConfigMap
+metadata:
+  labels:
+    app: nexus
+  name: nexus-repos-to-delete

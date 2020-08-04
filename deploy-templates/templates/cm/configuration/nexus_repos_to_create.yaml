@@ -1,0 +1,156 @@
+apiVersion: v1
+data:
+  repos-to-create: |-
+    [
+      {
+        "name": "edp-npm-releases",
+        "repositoryType": "npm-hosted",
+        "blob_store": "edp-npm",
+        "version_policy": "release",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-npm-snapshots",
+        "repositoryType": "npm-hosted",
+        "blob_store": "edp-npm",
+        "version_policy": "snapshot",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-npm-hosted",
+        "repositoryType": "npm-hosted",
+        "blob_store": "edp-npm",
+        "version_policy": "mixed",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-maven-releases",
+        "repositoryType": "maven-hosted",
+        "blob_store": "edp-maven",
+        "version_policy": "release",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-maven-snapshots",
+        "repositoryType": "maven-hosted",
+        "blob_store": "edp-maven",
+        "version_policy": "snapshot",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-dotnet-releases",
+        "repositoryType": "nuget-hosted",
+        "blob_store": "edp-dotnet",
+        "version_policy": "release",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-dotnet-snapshots",
+        "repositoryType": "nuget-hosted",
+        "blob_store": "edp-dotnet",
+        "version_policy": "snapshot",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-dotnet-hosted",
+        "repositoryType": "nuget-hosted",
+        "blob_store": "edp-dotnet",
+        "version_policy": "mixed",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-npm-proxy",
+        "repositoryType": "npm-proxy",
+        "blob_store": "edp-npm",
+        "remote_url": "https://registry.npmjs.org",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "version_policy": "mixed",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-maven-proxy",
+        "repositoryType": "maven-proxy",
+        "blob_store": "edp-maven",
+        "remote_url": "https://repo1.maven.org/maven2/",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "version_policy": "mixed",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-dotnet-proxy",
+        "repositoryType": "nuget-proxy",
+        "blob_store": "edp-dotnet",
+        "remote_url": "https://www.nuget.org/api/v2/",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "version_policy": "mixed",
+        "write_policy": "allow"
+      },
+      {
+        "name": "edp-maven-group",
+        "repositoryType": "maven-group",
+        "blob_store": "edp-maven",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "version_policy": "mixed",
+        "write_policy": "allow",
+        "member_repos": [
+          "edp-maven-proxy",
+          "edp-maven-releases",
+          "edp-maven-snapshots"
+        ]
+      },
+      {
+        "name": "edp-dotnet-group",
+        "repositoryType": "nuget-group",
+        "blob_store": "edp-dotnet",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "version_policy": "mixed",
+        "write_policy": "allow",
+        "member_repos": [
+          "edp-dotnet-proxy",
+          "edp-dotnet-releases",
+          "edp-dotnet-snapshots",
+          "edp-dotnet-hosted"
+        ]
+      },
+      {
+        "name": "edp-npm-group",
+        "repositoryType": "npm-group",
+        "blob_store": "edp-npm",
+        "layout_policy": "strict",
+        "strict_content_validation": "true",
+        "version_policy": "mixed",
+        "write_policy": "allow",
+        "member_repos": [
+          "edp-npm-proxy",
+          "edp-npm-releases",
+          "edp-npm-snapshots",
+          "edp-npm-hosted"
+        ]
+      }
+    ]
+kind: ConfigMap
+metadata:
+  labels:
+    app: nexus
+  name: nexus-repos-to-create

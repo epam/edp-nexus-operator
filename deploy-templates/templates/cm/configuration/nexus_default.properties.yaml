@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+  nexus-default.properties: |
+    # Jetty section
+    application-port=8081
+    application-host=0.0.0.0
+    jetty.request.header.size=10000
+    nexus-args=${jetty.etc}/jetty.xml,${jetty.etc}/jetty-http.xml,${jetty.etc}/jetty-requestlog.xml
+    nexus-context-path=/${NEXUS_CONTEXT}
+
+    # Nexus section
+    nexus-edition=nexus-pro-edition
+    nexus-features=nexus-pro-feature
+    nexus.clustered=false
+    nexus.scripts.allowCreation=true
+    nexus.onboarding.enabled=false
+    nexus.security.randompassword=false
+kind: ConfigMap
+metadata:
+  labels:
+    app: nexus
+  name: nexus-nexus-default.properties

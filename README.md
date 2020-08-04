@@ -30,7 +30,7 @@ In order to install the Nexus operator, follow the steps below:
      ```
    
     _**NOTE:** It is highly recommended to use the latest released version._
-    
+        
 3. Deploy operator:
 
    Full available chart parameters list:
