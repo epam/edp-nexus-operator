@@ -36,6 +36,24 @@
     "write_policy": "allow"
   },
   {
+    "name": "edp-python-releases",
+    "repositoryType": "pypi-hosted",
+    "blob_store": "edp-python",
+    "version_policy": "release",
+    "layout_policy": "strict",
+    "strict_content_validation": "true",
+    "write_policy": "allow"
+  },
+  {
+    "name": "edp-python-snapshots",
+    "repositoryType": "pypi-hosted",
+    "blob_store": "edp-python",
+    "version_policy": "release",
+    "layout_policy": "strict",
+    "strict_content_validation": "true",
+    "write_policy": "allow"
+  },
+  {
     "name": "edp-maven-snapshots",
     "repositoryType": "maven-hosted",
     "blob_store": "edp-maven",
