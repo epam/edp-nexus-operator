@@ -48,7 +48,7 @@
     "name": "edp-python-snapshots",
     "repositoryType": "pypi-hosted",
     "blob_store": "edp-python",
-    "version_policy": "release",
+    "version_policy": "snapshot",
     "layout_policy": "strict",
     "strict_content_validation": "true",
     "write_policy": "allow"
