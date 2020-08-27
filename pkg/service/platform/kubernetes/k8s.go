@@ -804,9 +804,10 @@ func (s K8SService) createEDPComponent(nexus v1alpha1.Nexus, url string, icon st
 			Name: nexus.Name,
 		},
 		Spec: edpCompApi.EDPComponentSpec{
-			Type: "nexus",
-			Url:  url,
-			Icon: icon,
+			Type:    "nexus",
+			Url:     url,
+			Icon:    icon,
+			Visible: true,
 		},
 	}
 	if err := controllerutil.SetControllerReference(&nexus, obj, s.Scheme); err != nil {
