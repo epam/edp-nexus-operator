@@ -8,13 +8,13 @@ global:
 name: nexus-operator
 image:
   name: epamedp/nexus-operator
-  version: v2.4.0
+  version: v2.5.0
 
 nexus:
   deploy: true
   name: "nexus"
   image: "sonatype/nexus3"
-  version: "3.24.0"
+  version: "3.27.0"
   basePath: ""
   imagePullSecrets:
   storage:
