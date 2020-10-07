@@ -1,5 +1,5 @@
 global:
-  edpName: ""
+  edpName: "edp"
   platform: "openshift"
   admins:
     - "stub_user_one@example.com"
