@@ -10,6 +10,14 @@ image:
   name: epamedp/nexus-operator
   version: v2.5.0
 
+resources:
+  limits:
+    cpu: 200m
+    memory: 192Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
 nexus:
   deploy: true
   name: "nexus"
@@ -20,3 +28,11 @@ nexus:
   storage:
     class: gp2
     size: 10G
+
+  resources:
+    limits:
+      cpu: 2
+      memory: 3Gi
+    requests:
+      cpu: 500m
+      memory: 1.5Gi

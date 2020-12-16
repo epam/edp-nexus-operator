@@ -53,8 +53,7 @@ spec:
               port: 8081
             timeoutSeconds: 1
           resources:
-            requests:
-              memory: 500Mi
+{{ toYaml .Values.nexus.resources | indent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
           terminationMessagePath: /dev/termination-log
