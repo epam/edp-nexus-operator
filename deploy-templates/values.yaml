@@ -8,7 +8,8 @@ global:
 name: nexus-operator
 image:
   name: epamedp/nexus-operator
-  version: v2.5.0
+  # if not defined then .Chart.AppVersion is used
+  version:
 
 resources:
   limits:
