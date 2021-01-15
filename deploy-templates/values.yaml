@@ -12,7 +12,6 @@ image:
 
 resources:
   limits:
-    cpu: 200m
     memory: 192Mi
   requests:
     cpu: 50m
@@ -31,7 +30,6 @@ nexus:
 
   resources:
     limits:
-      cpu: 2
       memory: 3Gi
     requests:
       cpu: 100m
