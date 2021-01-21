@@ -30,16 +30,9 @@ type PlatformService interface {
 	IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error)
 	GetSecretData(namespace string, name string) (map[string][]byte, error)
 	CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error
-	CreateService(instance v1alpha1.Nexus) error
 	GetServiceByCr(name, namespace string) (*coreV1Api.Service, error)
 	AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error
-	CreateVolume(instance v1alpha1.Nexus) error
-	CreateServiceAccount(instance v1alpha1.Nexus) error
 	CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error
-	CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error
-	CreateDeployment(instance v1alpha1.Nexus) error
-	CreateExternalEndpoint(instance v1alpha1.Nexus) error
-	CreateSecurityContext(ac v1alpha1.Nexus, priority int32) error
 	GetSecret(namespace string, name string) (*coreV1Api.Secret, error)
 	UpdateSecret(secret *coreV1Api.Secret) error
 	CreateJenkinsServiceAccount(namespace string, secretName string) error

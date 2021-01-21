@@ -141,12 +141,6 @@ func (r *ReconcileNexus) Reconcile(request reconcile.Request) (reconcile.Result,
 		}
 	}
 
-	instance, err = r.service.Install(*instance)
-	if err != nil {
-		r.updateStatus(instance, StatusFailed)
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errorsf.Wrap(err, "Installation has been failed")
-	}
-
 	if instance.Status.Status == StatusInstall {
 		reqLogger.Info("Installation has been finished")
 		r.updateStatus(instance, StatusCreated)

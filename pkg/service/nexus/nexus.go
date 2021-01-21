@@ -12,7 +12,6 @@ import (
 	keycloakControllerHelper "github.com/epmd-edp/keycloak-operator/pkg/controller/helper"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/client/nexus"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
 	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
 	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
@@ -28,21 +27,12 @@ import (
 var log = logf.Log.WithName("nexus_service")
 
 const (
-	//NexusDefaultConfigurationDirectoryPath
-	NexusDefaultConfigurationDirectoryPath = "/usr/local/configs/default-configuration"
-
-	//NexusDefaultScriptsPath - default scripts for uploading to Nexus
-	NexusDefaultScriptsPath = "/usr/local/configs/scripts"
-
-	LocalConfigsRelativePath = "configs"
-
 	imgFolder = "img"
 	nexusIcon = "nexus.svg"
 )
 
 // NexusService interface for Nexus EDP component
 type NexusService interface {
-	Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error)
 	Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error)
 	ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error)
 	Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error)
@@ -310,6 +300,16 @@ func (n NexusServiceImpl) getIcon() (*string, error) {
 
 // Configure performs self-configuration of Nexus
 func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
+	adminSecret := map[string][]byte{
+		"user":     []byte(nexusDefaultSpec.NexusDefaultAdminUser),
+		"password": []byte(nexusDefaultSpec.NexusDefaultAdminPassword),
+	}
+
+	err := n.platformService.CreateSecret(instance, instance.Name+"-admin-password", adminSecret)
+	if err != nil {
+		return &instance, false, errors.Wrap(err, "failed to create Secret")
+	}
+
 	u, err := n.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get Nexus REST API URL")
@@ -508,69 +508,4 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	return &instance, true, nil
-}
-
-// Install performs installation of Nexus
-func (n NexusServiceImpl) Install(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
-
-	adminSecret := map[string][]byte{
-		"user":     []byte(nexusDefaultSpec.NexusDefaultAdminUser),
-		"password": []byte(nexusDefaultSpec.NexusDefaultAdminPassword),
-	}
-
-	err := n.platformService.CreateSecret(instance, instance.Name+"-admin-password", adminSecret)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create Secret")
-	}
-
-	err = n.platformService.CreateVolume(instance)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create Volume")
-	}
-
-	err = n.platformService.CreateServiceAccount(instance)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create Service Account")
-	}
-
-	err = n.platformService.CreateSecurityContext(instance, 1)
-	if err != nil {
-		return &instance, err
-	}
-
-	err = n.platformService.CreateService(instance)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create Service")
-	}
-
-	executableFilePath := helper.GetExecutableFilePath()
-	NexusConfigurationDirectoryPath := NexusDefaultConfigurationDirectoryPath
-	if _, err = k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
-		NexusConfigurationDirectoryPath = fmt.Sprintf("%v/../%v/default-configuration", executableFilePath, LocalConfigsRelativePath)
-	}
-	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusConfigurationDirectoryPath, true)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create default Config Maps")
-	}
-
-	NexusScriptsPath := NexusDefaultScriptsPath
-	if _, err = k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
-		NexusScriptsPath = fmt.Sprintf("%v/../%v/scripts", executableFilePath, LocalConfigsRelativePath)
-	}
-	err = n.platformService.CreateConfigMapsFromDirectory(instance, NexusScriptsPath, false)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create default Config Maps")
-	}
-
-	err = n.platformService.CreateDeployment(instance)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create Deployment Config")
-	}
-
-	err = n.platformService.CreateExternalEndpoint(instance)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to create external endpoint")
-	}
-
-	return &instance, nil
 }

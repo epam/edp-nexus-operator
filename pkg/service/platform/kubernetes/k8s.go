@@ -13,11 +13,9 @@ import (
 	platformHelper "github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/pkg/errors"
 	"io/ioutil"
-	appsV1Api "k8s.io/api/apps/v1"
 	coreV1Api "k8s.io/api/core/v1"
 	extensionsV1Api "k8s.io/api/extensions/v1beta1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -129,221 +127,6 @@ func (s K8SService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort
 	return err
 }
 
-func (s K8SService) CreateDeployment(instance v1alpha1.Nexus) error {
-	l := platformHelper.GenerateLabels(instance.Name)
-	var rc int32 = 1
-	var fsg int64 = 200
-	t := true
-	f := false
-
-	nexusContextEnv := "/"
-	if len(instance.Spec.BasePath) != 0 {
-		nexusContextEnv = instance.Spec.BasePath
-	}
-
-	do := &appsV1Api.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
-			Labels:    l,
-		},
-		Spec: appsV1Api.DeploymentSpec{
-			Replicas: &rc,
-			Strategy: appsV1Api.DeploymentStrategy{
-				Type: appsV1Api.RecreateDeploymentStrategyType,
-			},
-			Selector: &metav1.LabelSelector{
-				MatchLabels: l,
-			},
-			Template: coreV1Api.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: l,
-				},
-				Spec: coreV1Api.PodSpec{
-					ImagePullSecrets: instance.Spec.ImagePullSecrets,
-					Containers: []coreV1Api.Container{
-						{
-							Name:            instance.Name,
-							Image:           instance.Spec.Image + ":" + instance.Spec.Version,
-							ImagePullPolicy: coreV1Api.PullAlways,
-							Env: []coreV1Api.EnvVar{
-								{
-									Name:  "NEXUS_CONTEXT",
-									Value: nexusContextEnv,
-								},
-							},
-							Ports: []coreV1Api.ContainerPort{
-								{
-									ContainerPort: nexusDefaultSpec.NexusPort,
-								},
-							},
-							LivenessProbe: &coreV1Api.Probe{
-								FailureThreshold:    5,
-								InitialDelaySeconds: 180,
-								PeriodSeconds:       20,
-								SuccessThreshold:    1,
-								Handler: coreV1Api.Handler{
-									TCPSocket: &coreV1Api.TCPSocketAction{
-										Port: intstr.FromInt(nexusDefaultSpec.NexusPort),
-									},
-								},
-							},
-							ReadinessProbe: &coreV1Api.Probe{
-								FailureThreshold:    3,
-								InitialDelaySeconds: 30,
-								PeriodSeconds:       10,
-								SuccessThreshold:    1,
-								Handler: coreV1Api.Handler{
-									TCPSocket: &coreV1Api.TCPSocketAction{
-										Port: intstr.FromInt(nexusDefaultSpec.NexusPort),
-									},
-								},
-							},
-							TerminationMessagePath: "/dev/termination-log",
-							Resources: coreV1Api.ResourceRequirements{
-								Requests: map[coreV1Api.ResourceName]resource.Quantity{
-									coreV1Api.ResourceMemory: resource.MustParse(nexusDefaultSpec.NexusMemoryRequest),
-								},
-							},
-							SecurityContext: &coreV1Api.SecurityContext{
-								AllowPrivilegeEscalation: &f,
-							},
-							VolumeMounts: []coreV1Api.VolumeMount{
-								{
-									MountPath: "/nexus-data",
-									Name:      "data",
-								},
-								{
-									MountPath: "/opt/sonatype/nexus/etc/nexus-default.properties",
-									Name:      "config",
-									SubPath:   "nexus-default.properties",
-								},
-							},
-						},
-					},
-					SecurityContext: &coreV1Api.PodSecurityContext{
-						FSGroup:      &fsg,
-						RunAsNonRoot: &t,
-						RunAsUser:    &fsg,
-						RunAsGroup:   &fsg,
-					},
-					ServiceAccountName: instance.Name,
-					Volumes: []coreV1Api.Volume{
-						{
-							Name: "data",
-							VolumeSource: coreV1Api.VolumeSource{
-								PersistentVolumeClaim: &coreV1Api.PersistentVolumeClaimVolumeSource{
-									ClaimName: fmt.Sprintf("%v-data", instance.Name),
-								},
-							},
-						},
-						{
-							Name: "config",
-							VolumeSource: coreV1Api.VolumeSource{
-								ConfigMap: &coreV1Api.ConfigMapVolumeSource{
-									LocalObjectReference: coreV1Api.LocalObjectReference{Name: fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultPropertiesConfigMapPrefix)},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	if err := controllerutil.SetControllerReference(&instance, do, s.Scheme); err != nil {
-		return err
-	}
-
-	d, err := s.appClient.Deployments(do.Namespace).Get(do.Name, metav1.GetOptions{})
-	if err == nil {
-		return err
-	}
-
-	if !k8serrors.IsNotFound(err) {
-		return err
-	}
-
-	d, err = s.appClient.Deployments(do.Namespace).Create(do)
-	if err != nil {
-		return err
-	}
-
-	log.Info("Deployment has been created",
-		"Namespace", d.Name, "Name", d.Name, "DeploymentName", d.Name)
-
-	return nil
-}
-
-func (s K8SService) CreateExternalEndpoint(instance v1alpha1.Nexus) error {
-	l := platformHelper.GenerateLabels(instance.Name)
-
-	cs, err := s.CoreClient.Services(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
-	if err != nil {
-		log.Info("Nexus Service has not been found")
-		return err
-	}
-
-	hostname := fmt.Sprintf("%v-%v.%v", instance.Name, instance.Namespace, instance.Spec.EdpSpec.DnsWildcard)
-	path := "/"
-	if len(instance.Spec.BasePath) != 0 {
-		hostname = instance.Spec.EdpSpec.DnsWildcard
-		path = fmt.Sprintf("/%v", instance.Spec.BasePath)
-	}
-
-	io := &extensionsV1Api.Ingress{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
-			Labels:    l,
-		},
-		Spec: extensionsV1Api.IngressSpec{
-			Rules: []extensionsV1Api.IngressRule{
-				{
-					Host: hostname,
-					IngressRuleValue: extensionsV1Api.IngressRuleValue{
-						HTTP: &extensionsV1Api.HTTPIngressRuleValue{
-							Paths: []extensionsV1Api.HTTPIngressPath{
-								{
-									Path: path,
-									Backend: extensionsV1Api.IngressBackend{
-										ServiceName: instance.Name,
-										ServicePort: intstr.IntOrString{
-											IntVal: cs.Spec.Ports[0].TargetPort.IntVal,
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	if err := controllerutil.SetControllerReference(&instance, io, s.Scheme); err != nil {
-		return err
-	}
-
-	i, err := s.extensionsV1Client.Ingresses(io.Namespace).Get(io.Name, metav1.GetOptions{})
-	if err == nil {
-		return err
-	}
-
-	if !k8serrors.IsNotFound(err) {
-		return err
-	}
-
-	i, err = s.extensionsV1Client.Ingresses(io.Namespace).Create(io)
-	if err != nil {
-		return err
-	}
-
-	log.Info("Ingress has been created",
-		"Namespace", i.Namespace, "Name", i.Name, "IngressName", i.Name)
-
-	return nil
-}
-
 // Init initializes K8SService
 func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *client.Client) error {
 	CoreClient, err := coreV1Client.NewForConfig(c)
@@ -376,56 +159,6 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *cli
 	s.appClient = *ac
 	s.extensionsV1Client = *ec
 	s.edpCompClient = *edpCl
-	return nil
-}
-
-func (s K8SService) CreateSecurityContext(instance v1alpha1.Nexus, priority int32) error {
-	return nil
-}
-
-// CreateVolume performs creating PersistentVolumeClaim in K8S
-func (s K8SService) CreateVolume(instance v1alpha1.Nexus) error {
-	labels := platformHelper.GenerateLabels(instance.Name)
-
-	for _, volume := range instance.Spec.Volumes {
-		volumeObject := &coreV1Api.PersistentVolumeClaim{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      instance.Name + "-" + volume.Name,
-				Namespace: instance.Namespace,
-				Labels:    labels,
-			},
-			Spec: coreV1Api.PersistentVolumeClaimSpec{
-				AccessModes: []coreV1Api.PersistentVolumeAccessMode{
-					coreV1Api.ReadWriteOnce,
-				},
-				StorageClassName: &volume.StorageClass,
-				Resources: coreV1Api.ResourceRequirements{
-					Requests: map[coreV1Api.ResourceName]resource.Quantity{
-						coreV1Api.ResourceStorage: resource.MustParse(volume.Capacity),
-					},
-				},
-			},
-		}
-
-		if err := controllerutil.SetControllerReference(&instance, volumeObject, s.Scheme); err != nil {
-			return err
-		}
-
-		volume, err := s.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Get(volumeObject.Name, metav1.GetOptions{})
-		if err == nil {
-			return err
-		}
-
-		if !k8serrors.IsNotFound(err) {
-			return err
-		}
-		volume, err = s.CoreClient.PersistentVolumeClaims(volumeObject.Namespace).Create(volumeObject)
-		if err != nil {
-			return err
-		}
-
-		log.Info("Volume has been created", "Namespace", instance.Namespace, "Name", instance.Name, "VolumeName", volume.Name)
-	}
 	return nil
 }
 
@@ -465,40 +198,6 @@ func (s K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[
 	return nil
 }
 
-// CreateServiceAccount performs creating ServiceAccount in K8S
-func (s K8SService) CreateServiceAccount(instance v1alpha1.Nexus) error {
-	labels := platformHelper.GenerateLabels(instance.Name)
-
-	svcAccObj := &coreV1Api.ServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
-			Labels:    labels,
-		},
-	}
-
-	if err := controllerutil.SetControllerReference(&instance, svcAccObj, s.Scheme); err != nil {
-		return err
-	}
-
-	svcAcc, err := s.CoreClient.ServiceAccounts(svcAccObj.Namespace).Get(svcAccObj.Name, metav1.GetOptions{})
-	if err == nil {
-		return err
-	}
-
-	if !k8serrors.IsNotFound(err) {
-		return err
-	}
-
-	svcAcc, err = s.CoreClient.ServiceAccounts(svcAccObj.Namespace).Create(svcAccObj)
-	if err != nil {
-		return err
-	}
-	log.Info("ServiceAccount has been created", "Namespace", instance.Namespace, "Name", instance.Name, "ServiceAccountName", svcAcc.Name)
-
-	return nil
-}
-
 // GetServiceByCr return Service object by name
 func (s K8SService) GetServiceByCr(name, namespace string) (*coreV1Api.Service, error) {
 	service, err := s.CoreClient.Services(namespace).Get(name, metav1.GetOptions{})
@@ -529,51 +228,6 @@ func (s K8SService) AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1
 	if _, err = s.CoreClient.Services(instance.Namespace).Update(svc); err != nil {
 		return err
 	}
-	return nil
-}
-
-// CreateService performs creating Service in K8S
-func (s K8SService) CreateService(instance v1alpha1.Nexus) error {
-	labels := platformHelper.GenerateLabels(instance.Name)
-
-	serviceObject := &coreV1Api.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      instance.Name,
-			Namespace: instance.Namespace,
-			Labels:    labels,
-		},
-		Spec: coreV1Api.ServiceSpec{
-			Selector: labels,
-			Ports: []coreV1Api.ServicePort{
-				{
-					TargetPort: intstr.IntOrString{StrVal: instance.Name},
-					Port:       nexusDefaultSpec.NexusPort,
-					Name:       "nexus-http",
-				},
-			},
-		},
-	}
-
-	if err := controllerutil.SetControllerReference(&instance, serviceObject, s.Scheme); err != nil {
-		return err
-	}
-
-	svc, err := s.CoreClient.Services(instance.Namespace).Get(serviceObject.Name, metav1.GetOptions{})
-	if err == nil {
-		return err
-	}
-
-	if !k8serrors.IsNotFound(err) {
-		return err
-	}
-
-	svc, err = s.CoreClient.Services(serviceObject.Namespace).Create(serviceObject)
-	if err != nil {
-		return err
-	}
-	log.Info("Service has been created",
-		"Namespace", instance.Namespace, "Name", instance.Name, "ServiceName", svc.Name)
-
 	return nil
 }
 
@@ -636,32 +290,6 @@ func (s K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapNa
 	log.Info("ConfigMap has been created",
 		"Namespace", instance.Namespace, "Name", instance.Name, "ConfigMapName", cm.Name)
 
-	return nil
-}
-
-// CreateConfigMapFromFile performs creating ConfigMap in K8S
-func (s K8SService) CreateConfigMapsFromDirectory(instance v1alpha1.Nexus, directoryPath string, createDedicatedConfigMaps bool) error {
-	directory, err := ioutil.ReadDir(directoryPath)
-	if err != nil {
-		return errors.Wrapf(err, "couldn't read directory %v with scripts", directoryPath)
-	}
-
-	if !createDedicatedConfigMaps {
-		configMapName := fmt.Sprintf("%v-%v", instance.Name, filepath.Base(directoryPath))
-		err = s.CreateConfigMapFromFile(instance, configMapName, directoryPath)
-		if err != nil {
-			return errors.Wrapf(err, "couldn't create config-map %v", configMapName)
-		}
-		return nil
-	}
-
-	for _, file := range directory {
-		configMapName := fmt.Sprintf("%v-%v", instance.Name, file.Name())
-		err = s.CreateConfigMapFromFile(instance, configMapName, fmt.Sprintf("%v/%v", directoryPath, file.Name()))
-		if err != nil {
-			return errors.Wrapf(err, "couldn't create config-map %v", configMapName)
-		}
-	}
 	return nil
 }
 
