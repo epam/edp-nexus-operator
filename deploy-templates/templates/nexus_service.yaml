@@ -3,6 +3,7 @@ kind: Service
 metadata:
   labels:
     app: nexus
+    {{- include "nexus-operator.labels" . | nindent 4 }}
   name: nexus
 spec:
   ports:

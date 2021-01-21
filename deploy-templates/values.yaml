@@ -6,6 +6,10 @@ global:
   dnsWildCard:
 
 name: nexus-operator
+annotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
 image:
   name: epamedp/nexus-operator
   # if not defined then .Chart.AppVersion is used
@@ -28,6 +32,12 @@ nexus:
   storage:
     class: gp2
     size: 10G
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  ingress:
+    annotations: {}
 
   resources:
     limits:

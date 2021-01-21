@@ -4,6 +4,11 @@ kind: DeploymentConfig
 metadata:
   labels:
     app: nexus
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  {{- with .Values.nexus.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   name: nexus
 spec:
   replicas: 1
@@ -80,6 +85,18 @@ spec:
             defaultMode: 420
             name: nexus-nexus-default.properties
           name: config
+      {{- with .Values.nexus.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nexus.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nexus.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   test: false
   triggers:
     - type: ConfigChange

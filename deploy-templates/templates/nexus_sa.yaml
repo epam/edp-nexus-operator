@@ -4,3 +4,4 @@ metadata:
     name: nexus
     labels:
       app: nexus
+      {{- include "nexus-operator.labels" . | nindent 4 }}

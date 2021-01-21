@@ -4,6 +4,11 @@ kind: Route
 metadata:
   labels:
     app: nexus
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  {{- with .Values.nexus.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   name: nexus
 spec:
   host: {{if .Values.nexus.basePath}}{{ .Values.global.dnsWildCard }}{{else}}nexus-{{ .Values.global.edpName }}.{{ .Values.global.dnsWildCard }}{{end}}

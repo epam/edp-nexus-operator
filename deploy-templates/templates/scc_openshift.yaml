@@ -18,6 +18,7 @@ metadata:
     "helm.sh/hook": "pre-install"
   labels:
     app: nexus
+    {{- include "nexus-operator.labels" . | nindent 4 }}
   name: nexus
 priority: 1
 readOnlyRootFilesystem: false
