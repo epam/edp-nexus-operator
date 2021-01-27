@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-    name: nexus
-    labels:
-      app: nexus
-      {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: nexus
+  labels:
+    app: nexus
+    {{- include "nexus-operator.labels" . | nindent 4 }}
