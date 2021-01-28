@@ -14,7 +14,4 @@ spec:
             backend:
               serviceName: nexus
               servicePort: 8081
-status:
-  loadBalancer:
-    ingress:
 {{ end }}
