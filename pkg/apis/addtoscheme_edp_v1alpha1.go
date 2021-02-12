@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
 )
 
 func init() {

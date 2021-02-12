@@ -3,16 +3,20 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 	edpCompApi "github.com/epmd-edp/edp-component-operator/pkg/apis/v1/v1alpha1"
 	edpCompClient "github.com/epmd-edp/edp-component-operator/pkg/client"
 	jenkinsV1Api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis/v2/v1alpha1"
 	jenkinsV1Client "github.com/epmd-edp/jenkins-operator/v2/pkg/controller/jenkinsserviceaccount/client"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
-	platformHelper "github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/pkg/errors"
-	"io/ioutil"
 	coreV1Api "k8s.io/api/core/v1"
 	extensionsV1Api "k8s.io/api/extensions/v1beta1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -24,12 +28,9 @@ import (
 	coreV1Client "k8s.io/client-go/kubernetes/typed/core/v1"
 	extensionsV1Client "k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
 	"k8s.io/client-go/rest"
-	"os"
-	"path/filepath"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
-	"strings"
 )
 
 var log = logf.Log.WithName("platform")

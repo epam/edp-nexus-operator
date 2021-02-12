@@ -2,10 +2,12 @@ package openshift
 
 import (
 	"fmt"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
-	platformHelper "github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/helper"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/kubernetes"
+	"strings"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
 	routeV1Api "github.com/openshift/api/route/v1"
 	appsV1client "github.com/openshift/client-go/apps/clientset/versioned/typed/apps/v1"
 	routeV1Client "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
@@ -19,7 +21,6 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
-	"strings"
 )
 
 var log = logf.Log.WithName("platform")

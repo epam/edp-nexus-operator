@@ -3,14 +3,15 @@ package nexus
 import (
 	"context"
 	"fmt"
-	edpv1alpha1 "github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/controller/helper"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform"
 	"os"
+	"time"
+
+	edpv1alpha1 "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
-	"time"
 
 	errorsf "github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -55,7 +56,7 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	scheme := mgr.GetScheme()
 	client := mgr.GetClient()
 	platformType := helper.GetPlatformTypeEnv()
-	platformService, err := platform.NewPlatformService(platformType,scheme, &client)
+	platformService, err := platform.NewPlatformService(platformType, scheme, &client)
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)

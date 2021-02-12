@@ -2,18 +2,19 @@ package platform
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/helper"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/openshift"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/helper"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/kubernetes"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform/openshift"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 const (

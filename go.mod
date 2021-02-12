@@ -1,4 +1,4 @@
-module github.com/epmd-edp/nexus-operator/v2
+module github.com/epam/edp-nexus-operator/v2
 
 go 1.14
 
@@ -12,6 +12,7 @@ require (
 	github.com/epmd-edp/edp-component-operator v0.1.1-0.20200827122548-e87429a916e0
 	github.com/epmd-edp/jenkins-operator/v2 v2.3.0-126
 	github.com/epmd-edp/keycloak-operator v1.3.0-alpha-81.0.20200325101343-c04e7ce7d0d3
+	github.com/epmd-edp/nexus-operator/v2 v2.3.0-63 // indirect
 	github.com/go-openapi/spec v0.19.3
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openshift/client-go v3.9.0+incompatible

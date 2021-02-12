@@ -10,8 +10,8 @@ import (
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	"github.com/epmd-edp/nexus-operator/v2/pkg/apis"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/controller"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller"
 
 	jenkinsV2api "github.com/epmd-edp/jenkins-operator/v2/pkg/apis"
 	keycloakApi "github.com/epmd-edp/keycloak-operator/pkg/apis"

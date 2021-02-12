@@ -78,6 +78,8 @@ github.com/epmd-edp/keycloak-operator v1.0.31-alpha-56 h1:xVXmJ2hXrjGX3R/kSIhEPB
 github.com/epmd-edp/keycloak-operator v1.0.31-alpha-56/go.mod h1:uXEmg98UyXkMVe9deHTkz0wF7fb47geazmAoiQAb/Zw=
 github.com/epmd-edp/keycloak-operator v1.3.0-alpha-81.0.20200325101343-c04e7ce7d0d3 h1:VDSCKMl90WPH2j8+lvhggy9vaUbzxYctCMJpsf/oKl0=
 github.com/epmd-edp/keycloak-operator v1.3.0-alpha-81.0.20200325101343-c04e7ce7d0d3/go.mod h1:s0lt8ML/jHCgPVaKw2YI60dpHIH+Jb9RkRak95UrXLU=
+github.com/epmd-edp/nexus-operator/v2 v2.3.0-63 h1:PwDMdBNbF8kp12v0kpmIobGeGoCz45FDIomLOC7Irq4=
+github.com/epmd-edp/nexus-operator/v2 v2.3.0-63/go.mod h1:/J7lxGUoSBzib86LnCpL8wVIM6F8Yi21v2Z3MME9wSA=
 github.com/evanphx/json-patch v4.0.0+incompatible h1:xregGRMLBeuRcwiOTHRCsPPuzCQlqhxUPbqdw+zNkLc=
 github.com/evanphx/json-patch v4.0.0+incompatible/go.mod h1:50XU6AFN0ol/bzJsmQLiYLvXMP4fmwYFNcr97nuDLSk=
 github.com/evanphx/json-patch v4.5.0+incompatible h1:ouOWdg56aJriqS0huScTkVXPC5IcNrDCXZ6OoTAWu7M=

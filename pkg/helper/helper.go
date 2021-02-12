@@ -2,10 +2,11 @@ package helper
 
 import (
 	"fmt"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 )
 
 func LogErrorAndReturn(err error) error {

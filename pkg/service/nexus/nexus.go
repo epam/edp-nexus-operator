@@ -6,20 +6,21 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/dchest/uniuri"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
+	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 	platformHelper "github.com/epmd-edp/jenkins-operator/v2/pkg/service/platform/helper"
 	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
 	keycloakControllerHelper "github.com/epmd-edp/keycloak-operator/pkg/controller/helper"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/client/nexus"
-	nexusDefaultSpec "github.com/epmd-edp/nexus-operator/v2/pkg/service/nexus/spec"
-	"github.com/epmd-edp/nexus-operator/v2/pkg/service/platform"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
-	"io/ioutil"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
@@ -136,6 +137,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 		secret := fmt.Sprintf("--client-secret=42")
 		du := fmt.Sprintf("--discovery-url=%s/auth/realms/%s", keycloak.Spec.Url, keycloakRealm.Spec.RealmName)
 		uu := upstreamUrl
+		listen := fmt.Sprintf("--listen=0.0.0.0:%d", nexusDefaultSpec.NexusKeycloakProxyPort)
 
 		proxyConfig = append(
 			proxyConfig,
@@ -143,7 +145,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			du,
 			id,
 			secret,
-			"--listen=0.0.0.0:3000",
+			listen,
 			ru,
 			uu,
 			"--resources=uri=/*|roles=developer,administrator|require-any-role=true",
