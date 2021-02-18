@@ -31,7 +31,7 @@ nexus:
   imagePullSecrets:
   storage:
     class: gp2
-    size: 10G
+    size: 10Gi
   annotations: {}
   nodeSelector: {}
   tolerations: []
