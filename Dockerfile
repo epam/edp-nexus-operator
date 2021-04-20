@@ -1,4 +1,4 @@
-FROM alpine:3.11.8
+FROM alpine:3.11.10
 
 ENV OPERATOR=/usr/local/bin/nexus-operator \
     USER_UID=1001 \
