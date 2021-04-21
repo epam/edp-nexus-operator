@@ -1,7 +1,9 @@
 package openshift
 
 import (
+	"context"
 	"fmt"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 
 	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
@@ -20,10 +22,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
-var log = logf.Log.WithName("platform")
+var log = ctrl.Log.WithName("platform")
 
 // OpenshiftService struct for Openshift platform service
 type OpenshiftService struct {
@@ -79,7 +80,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 		Args:                     args,
 	}
 
-	oldNexusDeploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
+	oldNexusDeploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -90,7 +91,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 	}
 	oldNexusDeploymentConfig.Spec.Template.Spec.Containers = append(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec)
 
-	_, err = service.appClient.DeploymentConfigs(instance.Namespace).Update(oldNexusDeploymentConfig)
+	_, err = service.appClient.DeploymentConfigs(instance.Namespace).Update(context.TODO(), oldNexusDeploymentConfig, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
@@ -102,7 +103,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 
 // GetExternalUrl returns Web URL for object and scheme from Openshift Route
 func (service OpenshiftService) GetExternalUrl(namespace string, name string) (webURL, host string, scheme string, err error) {
-	route, err := service.routeClient.Routes(namespace).Get(name, metav1.GetOptions{})
+	route, err := service.routeClient.Routes(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			log.Info("Route not found", "Namespace", namespace, "Name", name, "RouteName", name)
@@ -122,7 +123,7 @@ func (service OpenshiftService) GetExternalUrl(namespace string, name string) (w
 
 // IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
 func (service OpenshiftService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
-	deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
+	deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
 	if err != nil {
 		return
 	}
@@ -134,7 +135,7 @@ func (service OpenshiftService) IsDeploymentReady(instance v1alpha1.Nexus) (res 
 
 // GetRouteByCr return Route object with instance as a reference owner
 func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error) {
-	rl, err := service.routeClient.Routes(instance.Namespace).List(metav1.ListOptions{})
+	rl, err := service.routeClient.Routes(instance.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't retrieve services list from the cluster")
 	}
@@ -158,6 +159,6 @@ func (service OpenshiftService) UpdateExternalTargetPath(instance v1alpha1.Nexus
 	}
 	instanceRoute.Spec.Port = &routeV1Api.RoutePort{TargetPort: targetPort}
 
-	_, err = service.routeClient.Routes(instance.Namespace).Update(instanceRoute)
+	_, err = service.routeClient.Routes(instance.Namespace).Update(context.TODO(), instanceRoute, metav1.UpdateOptions{})
 	return err
 }
