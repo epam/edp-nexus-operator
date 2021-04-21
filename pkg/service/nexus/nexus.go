@@ -6,26 +6,27 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"io/ioutil"
+	"k8s.io/apimachinery/pkg/runtime"
 	"os"
+	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/dchest/uniuri"
+	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
+	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
+	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
-	platformHelper "github.com/epmd-edp/jenkins-operator/v2/pkg/service/platform/helper"
-	keycloakV1Api "github.com/epmd-edp/keycloak-operator/pkg/apis/v1/v1alpha1"
-	keycloakControllerHelper "github.com/epmd-edp/keycloak-operator/pkg/controller/helper"
-	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
-var log = logf.Log.WithName("nexus_service")
+var log = ctrl.Log.WithName("nexus_service")
 
 const (
 	imgFolder = "img"
@@ -41,15 +42,20 @@ type NexusService interface {
 }
 
 // NewNexusService function that returns NexusService implementation
-func NewNexusService(platformService platform.PlatformService, k8sClient client.Client) NexusService {
-	return NexusServiceImpl{platformService: platformService, k8sClient: k8sClient}
+func NewNexusService(platformService platform.PlatformService, client client.Client, scheme *runtime.Scheme) NexusService {
+	return NexusServiceImpl{
+		platformService: platformService,
+		client:          client,
+		keycloakHelper:  keycloakHelper.MakeHelper(client, scheme),
+	}
 }
 
 // NexusServiceImpl struct fo Nexus EDP Component
 type NexusServiceImpl struct {
 	platformService platform.PlatformService
-	k8sClient       client.Client
+	client          client.Client
 	nexusClient     nexus.NexusClient
+	keycloakHelper  *keycloakHelper.Helper
 }
 
 // IsDeploymentReady check if deployment for Nexus is ready
@@ -63,7 +69,7 @@ func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, e
 		basePath = fmt.Sprintf("/%v", instance.Spec.BasePath)
 	}
 	u := fmt.Sprintf("http://%v.%v:%v%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, basePath, nexusDefaultSpec.NexusRestApiUrlPath)
-	if _, err := k8sutil.GetOperatorNamespace(); err != nil && err == k8sutil.ErrNoNamespace {
+	if !helper.RunningInCluster() {
 		eu, _, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return "", errors.Wrapf(err, "failed to get Route for %v/%v", instance.Namespace, instance.Name)
@@ -101,7 +107,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, errors.Wrap(err, "failed to get Keycloak client data!")
 		}
 
-		keycloakRealm, err := keycloakControllerHelper.GetOwnerKeycloakRealm(n.k8sClient, keycloakClient.ObjectMeta)
+		keycloakRealm, err := n.keycloakHelper.GetOwnerKeycloakRealm(keycloakClient.ObjectMeta)
 		if err != nil {
 			return &instance, nil
 		}
@@ -110,7 +116,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			return &instance, errors.New("Keycloak Realm CR in not created yet!")
 		}
 
-		keycloak, err := keycloakControllerHelper.GetOwnerKeycloak(n.k8sClient, keycloakRealm.ObjectMeta)
+		keycloak, err := n.keycloakHelper.GetOwnerKeycloak(keycloakRealm.ObjectMeta)
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to get owner for %s/%s", keycloakClient.Namespace, keycloakClient.Name)
 			return &instance, errors.Wrap(err, errMsg)
@@ -234,7 +240,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 		}
 	}
 
-	_ = n.k8sClient.Update(context.TODO(), &instance)
+	_ = n.client.Update(context.TODO(), &instance)
 
 	if instance.Spec.KeycloakSpec.Enabled {
 		webURL, _, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
