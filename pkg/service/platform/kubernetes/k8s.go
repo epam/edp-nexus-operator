@@ -10,9 +10,7 @@ import (
 	"strings"
 
 	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1alpha1"
-	edpCompClient "github.com/epam/edp-component-operator/pkg/client"
 	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1alpha1"
-	jenkinsV1Client "github.com/epam/edp-jenkins-operator/v2/pkg/controller/jenkinsserviceaccount/client"
 	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
@@ -37,13 +35,11 @@ var log = ctrl.Log.WithName("platform")
 
 // K8SService struct for K8S platform service
 type K8SService struct {
-	Scheme                      *runtime.Scheme
-	CoreClient                  coreV1Client.CoreV1Client
-	JenkinsServiceAccountClient jenkinsV1Client.EdpV1Client
-	k8sUnstructuredClient       client.Client
-	appClient                   appsV1Client.AppsV1Client
-	extensionsV1Client          extensionsV1Client.ExtensionsV1beta1Client
-	edpCompClient               edpCompClient.EDPComponentV1Client
+	Scheme             *runtime.Scheme
+	CoreClient         coreV1Client.CoreV1Client
+	client             client.Client
+	appClient          appsV1Client.AppsV1Client
+	extensionsV1Client extensionsV1Client.ExtensionsV1beta1Client
 }
 
 func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
@@ -135,11 +131,6 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *cli
 		return errors.Wrap(err, "coreV1 client initialization failed")
 	}
 
-	JenkinsServiceAccountClient, err := jenkinsV1Client.NewForConfig(c)
-	if err != nil {
-		return errors.Wrap(err, "jenkinsServiceAccountClientV1alpha client initialization failed")
-	}
-
 	ac, err := appsV1Client.NewForConfig(c)
 	if err != nil {
 		return errors.New("appsV1 client initialization failed")
@@ -149,17 +140,12 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *cli
 	if err != nil {
 		return errors.New("extensionsV1beta1 client initialization failed")
 	}
-	edpCl, err := edpCompClient.NewForConfig(c)
-	if err != nil {
-		return errors.Wrap(err, "failed to init edp component client")
-	}
+
 	s.CoreClient = *CoreClient
-	s.JenkinsServiceAccountClient = *JenkinsServiceAccountClient
-	s.k8sUnstructuredClient = *k8sClient
+	s.client = *k8sClient
 	s.Scheme = Scheme
 	s.appClient = *ac
 	s.extensionsV1Client = *ec
-	s.edpCompClient = *edpCl
 	return nil
 }
 
@@ -328,36 +314,41 @@ func (s K8SService) UpdateSecret(secret *coreV1Api.Secret) error {
 }
 
 func (s K8SService) CreateJenkinsServiceAccount(namespace string, secretName string) error {
+	if _, err := s.getJenkinsServiceAccount(secretName, namespace); err != nil {
+		if k8serrors.IsNotFound(err) {
+			jsa := &jenkinsV1Api.JenkinsServiceAccount{
+				TypeMeta: metav1.TypeMeta{},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      secretName,
+					Namespace: namespace,
+				},
+				Spec: jenkinsV1Api.JenkinsServiceAccountSpec{
+					Type:        "password",
+					Credentials: secretName,
+				},
+			}
 
-	jsa := &jenkinsV1Api.JenkinsServiceAccount{
-		TypeMeta: metav1.TypeMeta{},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      secretName,
-			Namespace: namespace,
-		},
-		Spec: jenkinsV1Api.JenkinsServiceAccountSpec{
-			Type:        "password",
-			Credentials: secretName,
-		},
-	}
-
-	_, err := s.JenkinsServiceAccountClient.Get(context.TODO(), secretName, namespace, metav1.GetOptions{})
-	if err == nil {
+			if err := s.client.Create(context.TODO(), jsa); err != nil {
+				return err
+			}
+			log.Info("JenkinsServiceAccount has been created", "Namespace", namespace, "JenkinsServiceAccountName", jsa.Name)
+			return nil
+		}
 		return err
 	}
-
-	if !k8serrors.IsNotFound(err) {
-		return err
-	}
-
-	_, err = s.JenkinsServiceAccountClient.Create(context.TODO(), jsa, namespace)
-	if err != nil {
-		return err
-	}
-
-	log.Info("JenkinsServiceAccount has been created", "Namespace", namespace, "JenkinsServiceAccountName", jsa.Name)
-
 	return nil
+}
+
+func (s K8SService) getJenkinsServiceAccount(name, namespace string) (*jenkinsV1Api.JenkinsServiceAccount, error) {
+	jsa := &jenkinsV1Api.JenkinsServiceAccount{}
+	err := s.client.Get(context.TODO(), types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}, jsa)
+	if err != nil {
+		return nil, err
+	}
+	return jsa, nil
 }
 
 func (s K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error {
@@ -366,7 +357,7 @@ func (s K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error
 		Name:      kc.Name,
 	}
 
-	err := s.k8sUnstructuredClient.Get(context.TODO(), nsn, kc)
+	err := s.client.Get(context.TODO(), nsn, kc)
 	if err == nil {
 		return err
 	}
@@ -375,7 +366,7 @@ func (s K8SService) CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error
 		return err
 	}
 
-	err = s.k8sUnstructuredClient.Create(context.TODO(), kc)
+	err = s.client.Create(context.TODO(), kc)
 	if err != nil {
 		return errors.Wrapf(err, "failed to create Keycloak client %s", kc.Name)
 	}
@@ -392,7 +383,7 @@ func (s K8SService) GetKeycloakClient(name string, namespace string) (keycloakV1
 		Name:      name,
 	}
 
-	err := s.k8sUnstructuredClient.Get(context.TODO(), nsn, &out)
+	err := s.client.Get(context.TODO(), nsn, &out)
 	if err != nil {
 		return out, err
 	}
@@ -414,17 +405,26 @@ func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*extensionsV1Api.In
 }
 
 func (s K8SService) CreateEDPComponentIfNotExist(nexus v1alpha1.Nexus, url string, icon string) error {
-	comp, err := s.edpCompClient.
-		EDPComponents(nexus.Namespace).
-		Get(nexus.Name, metav1.GetOptions{})
-	if err == nil {
-		log.Info("edp component already exists", "name", comp.Name)
-		return nil
+	if _, err := s.getEDPComponent(nexus.Name, nexus.Namespace); err != nil {
+		if k8serrors.IsNotFound(err) {
+			return s.createEDPComponent(nexus, url, icon)
+		}
+		return errors.Wrapf(err, "failed to get edp component: %v", nexus.Name)
 	}
-	if k8serrors.IsNotFound(err) {
-		return s.createEDPComponent(nexus, url, icon)
+	log.Info("edp component already exists", "name", nexus.Name)
+	return nil
+}
+
+func (s K8SService) getEDPComponent(name, namespace string) (*edpCompApi.EDPComponent, error) {
+	c := &edpCompApi.EDPComponent{}
+	err := s.client.Get(context.TODO(), types.NamespacedName{
+		Namespace: namespace,
+		Name:      name,
+	}, c)
+	if err != nil {
+		return nil, err
 	}
-	return errors.Wrapf(err, "failed to get edp component: %v", nexus.Name)
+	return c, nil
 }
 
 func (s K8SService) createEDPComponent(nexus v1alpha1.Nexus, url string, icon string) error {
@@ -442,8 +442,5 @@ func (s K8SService) createEDPComponent(nexus v1alpha1.Nexus, url string, icon st
 	if err := controllerutil.SetControllerReference(&nexus, obj, s.Scheme); err != nil {
 		return err
 	}
-	_, err := s.edpCompClient.
-		EDPComponents(nexus.Namespace).
-		Create(obj)
-	return err
+	return s.client.Create(context.TODO(), obj)
 }
