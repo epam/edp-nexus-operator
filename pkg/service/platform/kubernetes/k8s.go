@@ -430,7 +430,8 @@ func (s K8SService) getEDPComponent(name, namespace string) (*edpCompApi.EDPComp
 func (s K8SService) createEDPComponent(nexus v1alpha1.Nexus, url string, icon string) error {
 	obj := &edpCompApi.EDPComponent{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: nexus.Name,
+			Name:      nexus.Name,
+			Namespace: nexus.Namespace,
 		},
 		Spec: edpCompApi.EDPComponentSpec{
 			Type:    "nexus",
