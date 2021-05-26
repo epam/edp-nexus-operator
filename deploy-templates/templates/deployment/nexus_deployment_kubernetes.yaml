@@ -1,4 +1,4 @@
-{{if eq .Values.global.platform "kubernetes"}}
+{{if or (eq .Values.global.platform "kubernetes") (eq .Values.global.openshift.deploymentType "deployments")}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

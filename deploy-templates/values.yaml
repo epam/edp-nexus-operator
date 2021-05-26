@@ -4,6 +4,8 @@ global:
   admins:
     - "stub_user_one@example.com"
   dnsWildCard:
+  openshift:
+    deploymentType: "deploymentConfigs"
 
 name: nexus-operator
 annotations: {}

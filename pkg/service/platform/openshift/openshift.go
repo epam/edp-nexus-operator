@@ -3,6 +3,7 @@ package openshift
 import (
 	"context"
 	"fmt"
+	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 
@@ -35,6 +36,11 @@ type OpenshiftService struct {
 	securityClient securityV1Client.SecurityV1Client
 }
 
+const (
+	deploymentTypeEnvName           = "DEPLOYMENT_TYPE"
+	deploymentConfigsDeploymentType = "deploymentConfigs"
+)
+
 // Init initializes OpenshiftService
 func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Scheme, k8sClient *client.Client) error {
 	err := service.K8SService.Init(config, scheme, k8sClient)
@@ -64,41 +70,42 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 }
 
 func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
-
-	containerSpec := coreV1Api.Container{
-		Name:            "keycloak-proxy",
-		Image:           nexusDefaultSpec.NexusKeycloakProxyImage,
-		ImagePullPolicy: coreV1Api.PullIfNotPresent,
-		Ports: []coreV1Api.ContainerPort{
-			{
-				ContainerPort: nexusDefaultSpec.NexusKeycloakProxyPort,
-				Protocol:      coreV1Api.ProtocolTCP,
+	if os.Getenv(deploymentTypeEnvName) == deploymentConfigsDeploymentType {
+		containerSpec := coreV1Api.Container{
+			Name:            "keycloak-proxy",
+			Image:           nexusDefaultSpec.NexusKeycloakProxyImage,
+			ImagePullPolicy: coreV1Api.PullIfNotPresent,
+			Ports: []coreV1Api.ContainerPort{
+				{
+					ContainerPort: nexusDefaultSpec.NexusKeycloakProxyPort,
+					Protocol:      coreV1Api.ProtocolTCP,
+				},
 			},
-		},
-		TerminationMessagePath:   "/dev/termination-log",
-		TerminationMessagePolicy: coreV1Api.TerminationMessageReadFile,
-		Args:                     args,
-	}
+			TerminationMessagePath:   "/dev/termination-log",
+			TerminationMessagePolicy: coreV1Api.TerminationMessageReadFile,
+			Args:                     args,
+		}
 
-	oldNexusDeploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
+		oldNexusDeploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
 
-	if platformHelper.ContainerInDeployConf(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec) {
-		log.V(1).Info("Keycloak proxy is present", "Namespace", instance.Namespace, "Name", instance.Name)
+		if platformHelper.ContainerInDeployConf(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec) {
+			log.V(1).Info("Keycloak proxy is present", "Namespace", instance.Namespace, "Name", instance.Name)
+			return nil
+		}
+		oldNexusDeploymentConfig.Spec.Template.Spec.Containers = append(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec)
+
+		_, err = service.appClient.DeploymentConfigs(instance.Namespace).Update(context.TODO(), oldNexusDeploymentConfig, metav1.UpdateOptions{})
+		if err != nil {
+			return err
+		}
+
+		log.Info("Keycloak proxy added.", "Namespace", instance.Namespace, "Name", instance.Name)
 		return nil
 	}
-	oldNexusDeploymentConfig.Spec.Template.Spec.Containers = append(oldNexusDeploymentConfig.Spec.Template.Spec.Containers, containerSpec)
-
-	_, err = service.appClient.DeploymentConfigs(instance.Namespace).Update(context.TODO(), oldNexusDeploymentConfig, metav1.UpdateOptions{})
-	if err != nil {
-		return err
-	}
-
-	log.Info("Keycloak proxy added.", "Namespace", instance.Namespace, "Name", instance.Name)
-	return nil
-
+	return service.K8SService.AddKeycloakProxyToDeployConf(instance, args)
 }
 
 // GetExternalUrl returns Web URL for object and scheme from Openshift Route
@@ -123,14 +130,21 @@ func (service OpenshiftService) GetExternalUrl(namespace string, name string) (w
 
 // IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
 func (service OpenshiftService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
-	deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
-	if err != nil {
-		return
-	}
+	if os.Getenv(deploymentTypeEnvName) == deploymentConfigsDeploymentType {
+		deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
+		if err != nil {
+			return getBoolP(false), err
+		}
 
-	t := deploymentConfig.Status.UpdatedReplicas == 1 && deploymentConfig.Status.AvailableReplicas == 1
-	res = &t
-	return
+		t := deploymentConfig.Status.UpdatedReplicas == 1 && deploymentConfig.Status.AvailableReplicas == 1
+		res = &t
+		return getBoolP(t), nil
+	}
+	return service.K8SService.IsDeploymentReady(instance)
+}
+
+func getBoolP(val bool) *bool {
+	return &val
 }
 
 // GetRouteByCr return Route object with instance as a reference owner

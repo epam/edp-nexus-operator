@@ -43,6 +43,10 @@ spec:
               value: "{{ .Values.name }}"
             - name: PLATFORM_TYPE
               value: "{{ .Values.global.platform }}"
+{{- if eq .Values.global.platform "openshift" }}
+            - name: DEPLOYMENT_TYPE
+              value: "{{ .Values.global.openshift.deploymentType }}"
+{{- end }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
       {{- with .Values.nodeSelector }}
