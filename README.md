@@ -40,6 +40,7 @@ In order to install the Nexus operator, follow the steps below:
     - global.platform                               # openshift or kubernetes;
     - global.admins                                 # Administrators of your tenant separated by comma (,) (eg --set 'global.admins={test@example.com}');
     - global.dnsWildCard                            # Developers of your tenant separated by comma (,) (eg --set 'global.developers={test@example.com}');
+    - global.openshift.deploymentType               # Wich type of kind will be deployed to Openshift (values: deployments/deploymentConfigs);
     - image.name                                    # EDP image. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator);
     - image.version                                 # EDP tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags);
     - nexus.deploy                                  # Flag to enable/disable Nexus deploy;
