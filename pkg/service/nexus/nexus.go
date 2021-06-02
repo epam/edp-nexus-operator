@@ -6,10 +6,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"io/ioutil"
-	"k8s.io/apimachinery/pkg/runtime"
 	"os"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
+	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/dchest/uniuri"
@@ -255,6 +256,10 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 		keycloakClient.Spec.Public = true
 		keycloakClient.Spec.WebUrl = webURL
 		keycloakClient.Spec.AudRequired = true
+
+		if instance.Spec.KeycloakSpec.Realm != "" {
+			keycloakClient.Spec.TargetRealm = instance.Spec.KeycloakSpec.Realm
+		}
 
 		err = n.platformService.CreateKeycloakClient(&keycloakClient)
 		if err != nil {

@@ -39,6 +39,8 @@ spec:
               properties:
                 enabled:
                   type: boolean
+                realm:
+                  type: string
               required:
                 - enabled
               type: object

@@ -1,9 +1,10 @@
 package v1alpha1
 
 import (
+	"time"
+
 	coreV1Api "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -53,8 +54,9 @@ type NexusStatus struct {
 }
 
 type KeycloakSpec struct {
-	Enabled bool   `json:"enabled, omitempty"`
-	Url     string `json:"url, omitempty"`
+	Enabled bool   `json:"enabled,omitempty"`
+	Url     string `json:"url,omitempty"`
+	Realm   string `json:"realm,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
