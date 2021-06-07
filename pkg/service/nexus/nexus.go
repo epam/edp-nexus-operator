@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -155,8 +156,13 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 			listen,
 			ru,
 			uu,
-			"--resources=uri=/*|roles=developer,administrator|require-any-role=true",
 		)
+
+		if len(instance.Spec.KeycloakSpec.Roles) > 0 {
+			proxyConfig = append(proxyConfig,
+				fmt.Sprintf("--resources=uri=/*|roles=%s|require-any-role=true",
+					strings.Join(instance.Spec.KeycloakSpec.Roles, ",")))
+		}
 
 		err = n.platformService.AddKeycloakProxyToDeployConf(instance, proxyConfig)
 		if err != nil {

@@ -1,8 +1,9 @@
 package helper
 
 import (
-	coreV1Api "k8s.io/api/core/v1"
 	"reflect"
+
+	coreV1Api "k8s.io/api/core/v1"
 )
 
 const (
@@ -18,7 +19,7 @@ func GenerateLabels(name string) map[string]string {
 
 func ContainerInDeployConf(containers []coreV1Api.Container, newContainer coreV1Api.Container) bool {
 	for _, container := range containers {
-		if reflect.DeepEqual(container, newContainer) {
+		if container.Name == newContainer.Name {
 			return true
 		}
 	}

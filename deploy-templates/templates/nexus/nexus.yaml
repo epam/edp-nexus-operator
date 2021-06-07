@@ -8,6 +8,9 @@ spec:
     dnsWildcard: {{ .Values.global.dnsWildCard }}
   keycloakSpec:
     enabled: true
+    roles:
+      - developer
+      - administrator
   users:
   {{- range .Values.global.admins }}
   - email: ''

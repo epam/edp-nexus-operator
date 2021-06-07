@@ -41,6 +41,8 @@ spec:
                   type: boolean
                 realm:
                   type: string
+                roles:
+                  type: array
               required:
                 - enabled
               type: object
