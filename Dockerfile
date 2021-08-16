@@ -6,7 +6,7 @@ ENV OPERATOR=/usr/local/bin/nexus-operator \
     HOME=/home/nexus-operator
 
 # install operator binary
-COPY nexus-operator ${OPERATOR}
+COPY go-binary ${OPERATOR}
 
 COPY build/bin /usr/local/bin
 COPY build/configs /usr/local/configs
