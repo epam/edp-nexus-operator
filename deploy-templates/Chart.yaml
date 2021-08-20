@@ -3,8 +3,8 @@ description: A Helm chart for EDP Nexus Operator
 home: https://solutionshub.epam.com/solution/epam-delivery-platform
 name: nexus-operator
 type: application
-version: 2.8.0
-appVersion: 2.8.0
+version: 2.8.1
+appVersion: 2.8.1
 maintainers:
     - name: EPAM EDP Team
 sources:
