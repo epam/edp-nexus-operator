@@ -11,6 +11,7 @@ spec:
     roles:
       - developer
       - administrator
+    proxyImage: {{.Values.nexus.proxyImage}}
   users:
   {{- range .Values.global.admins }}
   - email: ''

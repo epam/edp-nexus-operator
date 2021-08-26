@@ -47,6 +47,4 @@ const (
 	EdpCiUserSuffix string = "ci-credentials"
 
 	NexusKeycloakProxyPort int32 = 3000
-
-	NexusKeycloakProxyImage string = "quay.io/keycloak/keycloak-gatekeeper:10.0.0"
 )

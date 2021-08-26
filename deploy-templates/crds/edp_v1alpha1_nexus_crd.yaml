@@ -43,6 +43,8 @@ spec:
                   type: string
                 roles:
                   type: array
+                proxyImage:
+                  type: string
               required:
                 - enabled
               type: object
