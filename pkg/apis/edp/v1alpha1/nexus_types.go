@@ -54,10 +54,11 @@ type NexusStatus struct {
 }
 
 type KeycloakSpec struct {
-	Enabled bool     `json:"enabled,omitempty"`
-	Url     string   `json:"url,omitempty"`
-	Realm   string   `json:"realm,omitempty"`
-	Roles   []string `json:"roles,omitempty"`
+	Enabled    bool     `json:"enabled,omitempty"`
+	Url        string   `json:"url,omitempty"`
+	Realm      string   `json:"realm,omitempty"`
+	Roles      []string `json:"roles,omitempty"`
+	ProxyImage string   `json:"proxyImage,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

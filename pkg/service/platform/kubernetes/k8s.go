@@ -56,7 +56,7 @@ func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err e
 func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
 	c := coreV1Api.Container{
 		Name:            "keycloak-proxy",
-		Image:           nexusDefaultSpec.NexusKeycloakProxyImage,
+		Image:           instance.Spec.KeycloakSpec.ProxyImage,
 		ImagePullPolicy: coreV1Api.PullIfNotPresent,
 		Ports: []coreV1Api.ContainerPort{
 			{

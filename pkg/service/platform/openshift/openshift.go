@@ -73,7 +73,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.N
 	if os.Getenv(deploymentTypeEnvName) == deploymentConfigsDeploymentType {
 		containerSpec := coreV1Api.Container{
 			Name:            "keycloak-proxy",
-			Image:           nexusDefaultSpec.NexusKeycloakProxyImage,
+			Image:           instance.Spec.KeycloakSpec.ProxyImage,
 			ImagePullPolicy: coreV1Api.PullIfNotPresent,
 			Ports: []coreV1Api.ContainerPort{
 				{
