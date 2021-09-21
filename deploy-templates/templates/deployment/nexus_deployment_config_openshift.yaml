@@ -38,7 +38,7 @@ spec:
             - name: NEXUS_CONTEXT
               value: "{{if .Values.nexus.basePath}}{{.Values.nexus.basePath}}{{.Values.nexus.basePath}}{{else}}/{{end}}"
           image: "{{.Values.nexus.image}}:{{.Values.nexus.version}}"
-          imagePullPolicy: Always
+          imagePullPolicy: "{{ .Values.nexus.imagePullPolicy }}"
           livenessProbe:
             failureThreshold: 5
             initialDelaySeconds: 180
