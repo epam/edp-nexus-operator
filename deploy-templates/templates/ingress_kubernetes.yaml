@@ -1,6 +1,10 @@
 {{ if eq .Values.global.platform "kubernetes" }}
+{{- $ingressApiIsStable := eq (include "nexus.ingress.isStable" .) "true" -}}
+{{- $ingressSupportsIngressClassName := eq (include "nexus.ingress.supportsIngressClassName" .) "true" -}}
+{{- $ingressSupportsPathType := eq (include "nexus.ingress.supportsPathType" .) "true" -}}
+{{- $ingressPathType := .Values.nexus.ingress.pathType -}}
 kind: Ingress
-apiVersion: extensions/v1beta1
+apiVersion: {{ include "nexus.ingress.apiVersion" . }}
 metadata:
   name: nexus
   labels:
@@ -11,12 +15,25 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  {{- if and $ingressSupportsIngressClassName .Values.nexus.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.nexus.ingress.ingressClassName }}
+  {{- end }}
   rules:
     - host: {{if .Values.nexus.basePath}}{{ .Values.global.dnsWildCard }}{{else}}nexus-{{ .Values.global.edpName }}.{{ .Values.global.dnsWildCard }}{{end}}
       http:
         paths:
           - path: {{if .Values.nexus.basePath}}/{{.Values.nexus.basePath}}{{else}}/{{end}}
+            {{- if $ingressSupportsPathType }}
+            pathType: {{ $ingressPathType }}
+            {{- end }}
             backend:
+              {{- if $ingressApiIsStable }}
+              service:
+                name: nexus
+                port: 
+                  number: 3000
+              {{- else }}
               serviceName: nexus
               servicePort: 3000
+              {{- end }}
 {{ end }}
