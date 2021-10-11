@@ -1,22 +1,12 @@
-{{- if eq .Values.global.platform "openshift" -}}
-apiVersion: authorization.openshift.io/v1
-kind: ClusterRole
+{{- if eq .Values.global.platform "kubernetes" -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
+  namespace: {{ .Values.global.edpName }}
   labels:
     {{- include "nexus-operator.labels" . | nindent 4 }}
-  name: edp-{{ .Values.name }}-{{ .Values.global.edpName }}
+  name: edp-{{ .Values.name }}
 rules:
-- apiGroups:
-    - '*'
-  resources:
-    - securitycontextconstraints
-  verbs:
-    - patch
-    - update
-    - delete
-    - get
-    - list
-    - create
 - apiGroups:
     - '*'
   resources:
