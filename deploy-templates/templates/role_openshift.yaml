@@ -47,6 +47,7 @@ rules:
     - jenkinsscripts
     - jenkinsscripts/finalizers
     - jenkinsscripts/status
+    - events
   verbs:
     - '*'
 - apiGroups:
