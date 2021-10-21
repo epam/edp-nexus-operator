@@ -2,7 +2,7 @@
 apiVersion: authorization.openshift.io/v1
 kind: RoleBinding
 metadata:
-  name: edp-{{ .Values.name }}-{{ .Values.global.edpName }}-admin
+  name: edp-{{ .Values.name }}-admin
   labels:
     {{- include "nexus-operator.labels" . | nindent 4 }}
 roleRef:
