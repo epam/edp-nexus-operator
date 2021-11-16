@@ -1,21 +1,24 @@
 # Nexus Operator
 
-Get acquainted with the Nexus Operator and the installation process as well as the local development, 
-and architecture scheme.
+| :heavy_exclamation_mark: Please refer to [EDP documentation](https://epam.github.io/edp-install/) to get the notion of the main concepts and guidelines. |
+| --- |
+
+Get acquainted with the Nexus Operator and the installation process as well as the local development, and architecture scheme.
 
 ## Overview
 
-Nexus Operator is an EDP operator that is responsible for installing and configuring Nexus. 
-Operator installation can be applied on two container orchestration platforms: OpenShift and Kubernetes.
+Nexus Operator is an EDP operator that is responsible for installing and configuring Nexus. Operator installation can be applied on two container orchestration platforms: OpenShift and Kubernetes.
 
 _**NOTE:** Operator is platform-independent, that is why there is a unified instruction for deploying._
 
 ## Prerequisites
+
 1. Linux machine or Windows Subsystem for Linux instance with [Helm 3](https://helm.sh/docs/intro/install/) installed;
 2. Cluster admin access to the cluster;
-3. EDP project/namespace is deployed by following one of the instructions: [edp-install-openshift](https://github.com/epam/edp-install/blob/master/documentation/openshift_install_edp.md#edp-project) or [edp-install-kubernetes](https://github.com/epam/edp-install/blob/master/documentation/kubernetes_install_edp.md#edp-namespace).
+3. EDP project/namespace is deployed by following one the [Install EDP](https://epam.github.io/edp-install/operator-guide/install-edp/) instruction.
 
 ## Installation
+
 In order to install the Nexus operator, follow the steps below:
 
 1. To add the Helm EPAMEDP Charts for local client, run "helm repo add":
@@ -28,9 +31,9 @@ In order to install the Nexus operator, follow the steps below:
      NAME                        CHART VERSION   APP VERSION     DESCRIPTION
      epamedp/nexus-operator      v2.4.0                          Helm chart for Golang application/service deplo...
      ```
-   
+
     _**NOTE:** It is highly recommended to use the latest released version._
-        
+
 3. Deploy operator:
 
    Full available chart parameters list:
@@ -61,8 +64,10 @@ In order to install the Nexus operator, follow the steps below:
 5. Check the <edp_cicd_project> namespace that should contain operator deployment with your operator in a running status.
 
 ## Local Development
+
 In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](documentation/local-development.md) page.
 
 ### Related Articles
 
-- [Architecture Scheme of Nexus Operator](documentation/arch.md)
+* [Architecture Scheme of Nexus Operator](documentation/arch.md)
+* [Install EDP](https://epam.github.io/edp-install/operator-guide/install-edp/)
