@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"os"
+
+	buildInfo "github.com/epam/edp-common/pkg/config"
 	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1alpha1"
 	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1alpha1"
 	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
@@ -10,7 +13,7 @@ import (
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/nexus"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/rest"
-	"os"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -21,6 +24,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
 	//+kubebuilder:scaffold:imports
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
@@ -69,7 +73,19 @@ func main() {
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
+	v := buildInfo.Get()
+
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	setupLog.Info("Starting the Nexus Operator",
+		"version", v.Version,
+		"git-commit", v.GitCommit,
+		"git-tag", v.GitTag,
+		"build-date", v.BuildDate,
+		"go-version", v.Go,
+		"go-client", v.KubectlVersion,
+		"platform", v.Platform,
+	)
 
 	ns, err := helper.GetWatchNamespace()
 	if err != nil {
