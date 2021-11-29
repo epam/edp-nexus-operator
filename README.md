@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/epam/edp-nexus-operator/branch/master/graph/badge.svg?token=JB9ZT0PCDJ)](https://codecov.io/gh/epam/edp-nexus-operator)
+
 # Nexus Operator
 
 | :heavy_exclamation_mark: Please refer to [EDP documentation](https://epam.github.io/edp-install/) to get the notion of the main concepts and guidelines. |
