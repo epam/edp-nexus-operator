@@ -17,7 +17,7 @@ func LogErrorAndReturn(err error) error {
 func GetExecutableFilePath() string {
 	executableFilePath, err := os.Executable()
 	if err != nil {
-		LogErrorAndReturn(err)
+		_ = LogErrorAndReturn(err)
 	}
 	return filepath.Dir(executableFilePath)
 }

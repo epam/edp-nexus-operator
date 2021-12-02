@@ -142,7 +142,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 
 		ru := fmt.Sprintf("--redirection-url=%v", fmt.Sprintf("%v://%v", scheme, host))
 		id := fmt.Sprintf("--client-id=%v", keycloakClient.Spec.ClientId)
-		secret := fmt.Sprintf("--client-secret=42")
+		secret := "--client-secret=42"
 		du := fmt.Sprintf("--discovery-url=%s/auth/realms/%s", keycloak.Spec.Url, keycloakRealm.Spec.RealmName)
 		uu := upstreamUrl
 		listen := fmt.Sprintf("--listen=0.0.0.0:%d", nexusDefaultSpec.NexusKeycloakProxyPort)
@@ -214,6 +214,9 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 	var newUserSecretName string
 	var parsedUsers []map[string]interface{}
 	err = json.Unmarshal([]byte(nexusDefaultUsersToCreate[nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix]), &parsedUsers)
+	if err != nil {
+		return &instance, errors.Wrapf(err, "cant umarshal %v", []byte(nexusDefaultUsersToCreate[nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix]))
+	}
 
 	newUser := map[string][]byte{}
 
@@ -400,6 +403,9 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 	var parsedTasks []map[string]interface{}
 	err = json.Unmarshal([]byte(nexusDefaultTasksToCreate[nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix]), &parsedTasks)
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "cant unmarshal %v", []byte(nexusDefaultTasksToCreate[nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix]))
+	}
 	for _, taskParameters := range parsedTasks {
 		_, err = n.nexusClient.RunScript("create-task", taskParameters)
 		if err != nil {
@@ -420,6 +426,9 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 	var nexusParsedCapabilities []map[string]interface{}
 	err = json.Unmarshal([]byte(nexusCapabilities["default-capabilities"]), &nexusParsedCapabilities)
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "Cant unmarshal %v", []byte(nexusCapabilities["default-capabilities"]))
+	}
 
 	for _, capability := range nexusParsedCapabilities {
 		_, err = n.nexusClient.RunScript("setup-capability", capability)
@@ -445,6 +454,11 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 
 	var parsedRoles []map[string]interface{}
 	err = json.Unmarshal([]byte(nexusDefaultRolesToCreate[nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix]), &parsedRoles)
+
+	if err != nil {
+		return &instance, false, errors.Wrapf(err, "cant unmarshal %v", []byte(nexusDefaultRolesToCreate[nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix]))
+	}
+
 	for _, roleParameters := range parsedRoles {
 		_, err := n.nexusClient.RunScript("setup-role", roleParameters)
 		if err != nil {

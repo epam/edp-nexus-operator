@@ -167,7 +167,7 @@ func (s K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[
 		return err
 	}
 
-	secret, err := s.CoreClient.Secrets(secretObject.Namespace).Get(context.TODO(), secretObject.Name, metav1.GetOptions{})
+	_, err := s.CoreClient.Secrets(secretObject.Namespace).Get(context.TODO(), secretObject.Name, metav1.GetOptions{})
 	if err == nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func (s K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[
 		return err
 	}
 
-	secret, err = s.CoreClient.Secrets(secretObject.Namespace).Create(context.TODO(), secretObject, metav1.CreateOptions{})
+	secret, err := s.CoreClient.Secrets(secretObject.Namespace).Create(context.TODO(), secretObject, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -261,7 +261,7 @@ func (s K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapNa
 		return err
 	}
 
-	cm, err := s.CoreClient.ConfigMaps(instance.Namespace).Get(context.TODO(), configMapObject.Name, metav1.GetOptions{})
+	_, err = s.CoreClient.ConfigMaps(instance.Namespace).Get(context.TODO(), configMapObject.Name, metav1.GetOptions{})
 	if err == nil {
 		return err
 	}
@@ -270,7 +270,7 @@ func (s K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapNa
 		return err
 	}
 
-	cm, err = s.CoreClient.ConfigMaps(configMapObject.Namespace).Create(context.TODO(), configMapObject, metav1.CreateOptions{})
+	cm, err := s.CoreClient.ConfigMaps(configMapObject.Namespace).Create(context.TODO(), configMapObject, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}

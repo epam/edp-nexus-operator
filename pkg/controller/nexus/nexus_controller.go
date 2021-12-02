@@ -60,10 +60,7 @@ func (r *ReconcileNexus) SetupWithManager(mgr ctrl.Manager) error {
 		UpdateFunc: func(e event.UpdateEvent) bool {
 			oldObject := e.ObjectOld.(*nexusApi.Nexus)
 			newObject := e.ObjectNew.(*nexusApi.Nexus)
-			if oldObject.Status != newObject.Status {
-				return false
-			}
-			return true
+			return oldObject.Status == newObject.Status
 		},
 	}
 

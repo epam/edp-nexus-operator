@@ -50,6 +50,9 @@ func (nc NexusClient) CheckScriptExist(scriptName string) (bool, error) {
 
 	var scriptsList []map[string]string
 	err = json.Unmarshal(resp.Body(), &scriptsList)
+	if err != nil {
+		return false, errors.Wrapf(err, "cant umarshal %v", resp.Body())
+	}
 	for _, script := range scriptsList {
 		if script["name"] == scriptName {
 			return true, nil
@@ -75,7 +78,7 @@ func (nc NexusClient) UploadScript(scriptName string, scriptType string, scriptC
 func (nc NexusClient) AreDefaultScriptsDeclared(listOfScripts map[string]string) (bool, error) {
 	defaultScriptsAreDeclared := true
 
-	for scriptFullName, _ := range listOfScripts {
+	for scriptFullName := range listOfScripts {
 		scriptName := strings.Split(scriptFullName, ".")[0]
 		scriptExist, err := nc.CheckScriptExist(scriptName)
 		if err != nil {
@@ -118,6 +121,9 @@ func (nc NexusClient) CheckTaskExist(taskName string) (bool, error) {
 
 	var tasksList map[string][]map[string]interface{}
 	err = json.Unmarshal(resp.Body(), &tasksList)
+	if err != nil {
+		return false, errors.Wrapf(err, "cant unmarshal %v", resp.Body())
+	}
 	for _, task := range tasksList["items"] {
 		if task["name"] == taskName {
 			return true, nil
@@ -189,6 +195,8 @@ func (nc NexusClient) GetRepositoryList() ([]map[string]interface{}, error) {
 	}
 
 	err = json.Unmarshal(resp.Body(), &out)
-
+	if err != nil {
+		return nil, errors.Wrapf(err, "Cant unmarshal %v", resp.Body())
+	}
 	return out, nil
 }

@@ -1,0 +1,4 @@
+# options for analysis running
+linters:
+  disable:
+    - unused
