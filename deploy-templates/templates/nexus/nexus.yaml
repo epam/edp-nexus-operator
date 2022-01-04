@@ -14,13 +14,10 @@ spec:
     proxyImage: {{.Values.nexus.proxyImage}}
   users:
   {{- range .Values.global.admins }}
-  - email: ''
-    first_name: ''
-    last_name: ''
-    roles:
-      - nx-admin
-    username: {{ . }}
-  {{ end }}
+    - username: {{ . }}
+      roles:
+        - nx-admin
+  {{- end }}
   image: {{.Values.nexus.image}}
   version: {{.Values.nexus.version}}
   basePath: "{{.Values.nexus.basePath}}"
