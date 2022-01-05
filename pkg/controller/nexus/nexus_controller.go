@@ -3,22 +3,21 @@ package nexus
 import (
 	"context"
 	"fmt"
-	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
-	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
-	"github.com/go-logr/logr"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"time"
 
 	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
-
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
+	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -35,7 +34,7 @@ const (
 )
 
 func NewReconcileNexus(client client.Client, scheme *runtime.Scheme, log logr.Logger) (*ReconcileNexus, error) {
-	ps, err := platform.NewPlatformService(helper.GetPlatformTypeEnv(), scheme, &client)
+	ps, err := platform.NewPlatformService(helper.GetPlatformTypeEnv(), scheme, client)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to create platform service")
 	}
@@ -43,7 +42,7 @@ func NewReconcileNexus(client client.Client, scheme *runtime.Scheme, log logr.Lo
 	return &ReconcileNexus{
 		client:  client,
 		scheme:  scheme,
-		service: nexus.NewNexusService(ps, client, scheme),
+		service: nexus.NewService(ps, client, scheme),
 		log:     log.WithName("nexus"),
 	}, nil
 }
@@ -51,7 +50,7 @@ func NewReconcileNexus(client client.Client, scheme *runtime.Scheme, log logr.Lo
 type ReconcileNexus struct {
 	client  client.Client
 	scheme  *runtime.Scheme
-	service nexus.NexusService
+	service nexus.Service
 	log     logr.Logger
 }
 
@@ -74,6 +73,7 @@ func (r *ReconcileNexus) Reconcile(ctx context.Context, request reconcile.Reques
 	log.Info("Reconciling has been started")
 
 	instance := &nexusApi.Nexus{}
+	instance.GetNamespace()
 	if err := r.client.Get(ctx, request.NamespacedName, instance); err != nil {
 		if k8sErrors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.

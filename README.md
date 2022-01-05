@@ -69,6 +69,9 @@ In order to install the Nexus operator, follow the steps below:
 
 In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](documentation/local-development.md) page.
 
+To generate deep copy files you can use [deepcopy-gen](https://pkg.go.dev/k8s.io/gengo/examples/deepcopy-gen) tool
+Example of usage: `deepcopy-gen -i ./v1alpha1 -o ./v1alpha1`
+
 ### Related Articles
 
 * [Architecture Scheme of Nexus Operator](documentation/arch.md)

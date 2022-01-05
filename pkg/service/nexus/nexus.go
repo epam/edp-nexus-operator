@@ -10,21 +10,20 @@ import (
 	"os"
 	"strings"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-
 	"github.com/dchest/uniuri"
 	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
 	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -36,16 +35,17 @@ const (
 )
 
 // NexusService interface for Nexus EDP component
-type NexusService interface {
+type Service interface {
 	Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error)
 	ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error)
 	Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error)
 	IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error)
+	ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error)
 }
 
 // NewNexusService function that returns NexusService implementation
-func NewNexusService(platformService platform.PlatformService, client client.Client, scheme *runtime.Scheme) NexusService {
-	return NexusServiceImpl{
+func NewService(platformService platform.PlatformService, client client.Client, scheme *runtime.Scheme) Service {
+	return ServiceImpl{
 		platformService: platformService,
 		client:          client,
 		keycloakHelper:  keycloakHelper.MakeHelper(client, scheme),
@@ -53,19 +53,18 @@ func NewNexusService(platformService platform.PlatformService, client client.Cli
 }
 
 // NexusServiceImpl struct fo Nexus EDP Component
-type NexusServiceImpl struct {
+type ServiceImpl struct {
 	platformService platform.PlatformService
 	client          client.Client
-	nexusClient     nexus.NexusClient
 	keycloakHelper  *keycloakHelper.Helper
 }
 
 // IsDeploymentReady check if deployment for Nexus is ready
-func (n NexusServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
+func (n ServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
 	return n.platformService.IsDeploymentReady(instance)
 }
 
-func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
+func (n ServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
 	basePath := ""
 	if len(instance.Spec.BasePath) > 0 {
 		basePath = fmt.Sprintf("/%v", instance.Spec.BasePath)
@@ -81,7 +80,7 @@ func (n NexusServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, e
 	return u, nil
 }
 
-func (n NexusServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string, error) {
+func (n ServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string, error) {
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	nexusAdminCredentials, err := n.platformService.GetSecretData(instance.Namespace, secretName)
 	if err != nil {
@@ -90,7 +89,7 @@ func (n NexusServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string
 	return string(nexusAdminCredentials["password"]), nil
 }
 
-func (n NexusServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, value string) {
+func (n ServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, value string) {
 	if len(instance.Annotations) == 0 {
 		instance.ObjectMeta.Annotations = map[string]string{
 			key: value,
@@ -101,7 +100,7 @@ func (n NexusServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, va
 }
 
 // Integration performs integration Nexus with other EDP components
-func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
+func (n ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 
 	if instance.Spec.KeycloakSpec.Enabled {
 		keycloakClient, err := n.platformService.GetKeycloakClient(instance.Name, instance.Namespace)
@@ -190,7 +189,7 @@ func (n NexusServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus,
 }
 
 // ExposeConfiguration performs exposing Nexus configuration for other EDP components
-func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
+func (n ServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 	u, err := n.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to get Nexus REST API URL")
@@ -201,10 +200,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 		return &instance, errors.Wrap(err, "failed to get Nexus admin password from secret")
 	}
 
-	err = n.nexusClient.InitNewRestClient(&instance, u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
-	if err != nil {
-		return &instance, errors.Wrap(err, "failed to initialize Nexus client")
-	}
+	nexusClient := nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 
 	nexusDefaultUsersToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix))
 	if err != nil {
@@ -244,7 +240,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 
 		userProperties["password"] = string(data["password"])
 
-		_, err = n.nexusClient.RunScript("setup-user", userProperties)
+		_, err = nexusClient.RunScript("setup-user", userProperties)
 		if err != nil {
 			return &instance, errors.Wrapf(err, "failed to create user %v ", userProperties["username"])
 		}
@@ -281,7 +277,7 @@ func (n NexusServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha
 	return &instance, err
 }
 
-func (n NexusServiceImpl) createEDPComponent(nexus v1alpha1.Nexus) error {
+func (n ServiceImpl) createEDPComponent(nexus v1alpha1.Nexus) error {
 	url, err := n.getUrl(nexus)
 	if err != nil {
 		return err
@@ -293,7 +289,7 @@ func (n NexusServiceImpl) createEDPComponent(nexus v1alpha1.Nexus) error {
 	return n.platformService.CreateEDPComponentIfNotExist(nexus, *url, *icon)
 }
 
-func (n NexusServiceImpl) getUrl(nexus v1alpha1.Nexus) (*string, error) {
+func (n ServiceImpl) getUrl(nexus v1alpha1.Nexus) (*string, error) {
 	url, _, _, err := n.platformService.GetExternalUrl(nexus.Namespace, nexus.Name)
 	if err != nil {
 		return nil, err
@@ -301,7 +297,7 @@ func (n NexusServiceImpl) getUrl(nexus v1alpha1.Nexus) (*string, error) {
 	return &url, nil
 }
 
-func (n NexusServiceImpl) getIcon() (*string, error) {
+func (n ServiceImpl) getIcon() (*string, error) {
 	p, err := platformHelper.CreatePathToTemplateDirectory(imgFolder)
 	if err != nil {
 		return nil, err
@@ -321,7 +317,7 @@ func (n NexusServiceImpl) getIcon() (*string, error) {
 }
 
 // Configure performs self-configuration of Nexus
-func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
+func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
 	adminSecret := map[string][]byte{
 		"user":     []byte(nexusDefaultSpec.NexusDefaultAdminUser),
 		"password": []byte(nexusDefaultSpec.NexusDefaultAdminPassword),
@@ -342,12 +338,9 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		return &instance, false, errors.Wrap(err, "failed to get Nexus admin password from secret")
 	}
 
-	err = n.nexusClient.InitNewRestClient(&instance, u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
-	if err != nil {
-		return &instance, false, errors.Wrap(err, "failed to initialize Nexus client")
-	}
+	nexusClient := nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 
-	if nexusApiIsReady, _, err := n.nexusClient.IsNexusRestApiReady(); err != nil {
+	if nexusApiIsReady, _, err := nexusClient.IsNexusRestApiReady(); err != nil {
 		return &instance, false, errors.Wrap(err, "checking if Nexus REST API is ready has been failed")
 	} else if !nexusApiIsReady {
 		log.Info("Nexus REST API is not ready for configuration yet",
@@ -360,12 +353,12 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		return &instance, false, errors.Wrap(err, "failed to get default tasks from Config Map")
 	}
 
-	err = n.nexusClient.DeclareDefaultScripts(nexusDefaultScriptsToCreate)
+	err = nexusClient.DeclareDefaultScripts(nexusDefaultScriptsToCreate)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to upload default scripts")
 	}
 
-	defaultScriptsAreDeclared, err := n.nexusClient.AreDefaultScriptsDeclared(nexusDefaultScriptsToCreate)
+	defaultScriptsAreDeclared, err := nexusClient.AreDefaultScriptsDeclared(nexusDefaultScriptsToCreate)
 	if !defaultScriptsAreDeclared || err != nil {
 		return &instance, false, errors.Wrap(err, "default scripts are not uploaded yet")
 	}
@@ -384,17 +377,14 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 			return &instance, false, errors.Wrap(err, "failed to update Nexus admin secret with new password")
 		}
 
-		_, err = n.nexusClient.RunScript("update-admin-password", updatePasswordParameters)
+		_, err = nexusClient.RunScript("update-admin-password", updatePasswordParameters)
 		if err != nil {
 			return &instance, false, errors.Wrap(err, "failed to update admin password")
 		}
 
 		passwordString := string(nexusAdminPassword.Data["password"])
 
-		err = n.nexusClient.InitNewRestClient(&instance, u, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
-		if err != nil {
-			return &instance, false, errors.Wrap(err, "failed to initialize Nexus client")
-		}
+		nexusClient = nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
 	}
 	nexusDefaultTasksToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
 	if err != nil {
@@ -407,14 +397,14 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		return &instance, false, errors.Wrapf(err, "cant unmarshal %v", []byte(nexusDefaultTasksToCreate[nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix]))
 	}
 	for _, taskParameters := range parsedTasks {
-		_, err = n.nexusClient.RunScript("create-task", taskParameters)
+		_, err = nexusClient.RunScript("create-task", taskParameters)
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to create task %v", taskParameters["name"])
 		}
 	}
 
 	var emptyParameter map[string]interface{}
-	_, err = n.nexusClient.RunScript("disable-outreach-capability", emptyParameter)
+	_, err = nexusClient.RunScript("disable-outreach-capability", emptyParameter)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to run disable-outreach-capability scripts")
 	}
@@ -431,7 +421,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	for _, capability := range nexusParsedCapabilities {
-		_, err = n.nexusClient.RunScript("setup-capability", capability)
+		_, err = nexusClient.RunScript("setup-capability", capability)
 		if err != nil {
 			return &instance, false, errors.Wrap(err, "failed to install default capabilities")
 		}
@@ -441,7 +431,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 		{"name": "NuGetApiKey"},
 	}
 	for _, realmName := range enabledRealms {
-		_, err = n.nexusClient.RunScript("enable-realm", realmName)
+		_, err = nexusClient.RunScript("enable-realm", realmName)
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to enable %v realm", enabledRealms)
 		}
@@ -460,7 +450,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	for _, roleParameters := range parsedRoles {
-		_, err := n.nexusClient.RunScript("setup-role", roleParameters)
+		_, err := nexusClient.RunScript("setup-role", roleParameters)
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to create role %v", roleParameters["name"])
 		}
@@ -479,7 +469,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	for _, blob := range parsedBlobsConfig {
-		_, err := n.nexusClient.RunScript("create-blobstore", blob)
+		_, err := nexusClient.RunScript("create-blobstore", blob)
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to create blob store %v", blob["name"])
 		}
@@ -500,7 +490,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	for _, repositoryToCreate := range parsedReposToCreate {
 		repositoryName := repositoryToCreate["name"].(string)
 		repositoryType := repositoryToCreate["repositoryType"].(string)
-		_, err := n.nexusClient.RunScript(fmt.Sprintf("create-repo-%v", repositoryType), repositoryToCreate)
+		_, err := nexusClient.RunScript(fmt.Sprintf("create-repo-%v", repositoryType), repositoryToCreate)
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to create repository %v", repositoryName)
 		}
@@ -518,7 +508,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 	}
 
 	for _, repositoryToDelete := range parsedReposToDelete {
-		_, err := n.nexusClient.RunScript("delete-repo", repositoryToDelete)
+		_, err := nexusClient.RunScript("delete-repo", repositoryToDelete)
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to delete repository %v", repositoryToDelete)
 		}
@@ -534,7 +524,7 @@ func (n NexusServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, b
 			"roles":      user.Roles,
 		}
 
-		_, err = n.nexusClient.RunScript("setup-user", setupUserParameters)
+		_, err = nexusClient.RunScript("setup-user", setupUserParameters)
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to create user %v", user.Username)
 		}

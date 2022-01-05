@@ -8,11 +8,13 @@ import (
 	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1alpha1"
 	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1alpha1"
 	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
+	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/client-go/rest"
+
 	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/nexus"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/client-go/rest"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/user"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -39,7 +41,7 @@ const nexusOperatorLock = "edp-nexus-operator-lock"
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(nexusApi.AddToScheme(scheme))
+	nexusApi.RegisterTypes(scheme)
 
 	utilruntime.Must(edpCompApi.AddToScheme(scheme))
 
@@ -110,7 +112,9 @@ func main() {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
-	nexusCtrl, err := nexus.NewReconcileNexus(mgr.GetClient(), mgr.GetScheme(), ctrl.Log.WithName("controllers"))
+
+	platformType := helper.GetPlatformTypeEnv()
+	nexusCtrl, err := nexus.NewReconcileNexus(mgr.GetClient(), mgr.GetScheme(), setupLog.WithName("nexus-ctrl"))
 	if err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "nexus")
 		os.Exit(1)
@@ -118,6 +122,17 @@ func main() {
 
 	if err := nexusCtrl.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "nexus")
+		os.Exit(1)
+	}
+
+	userCtrl, err := user.NewReconcile(mgr.GetClient(), mgr.GetScheme(), setupLog.WithName("user-ctrl"), platformType)
+	if err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "user")
+		os.Exit(1)
+	}
+
+	if err := userCtrl.SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "user")
 		os.Exit(1)
 	}
 

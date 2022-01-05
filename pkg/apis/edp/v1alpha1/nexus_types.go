@@ -81,7 +81,3 @@ type NexusList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Nexus `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&Nexus{}, &NexusList{})
-}

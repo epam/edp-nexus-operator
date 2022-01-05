@@ -5,27 +5,29 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	nexusClientHelper "github.com/epam/edp-nexus-operator/v2/pkg/client/helper"
-	"github.com/epam/edp-nexus-operator/v2/pkg/helper"
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
+
+	nexusClientHelper "github.com/epam/edp-nexus-operator/v2/pkg/client/helper"
+	"github.com/epam/edp-nexus-operator/v2/pkg/helper"
 )
 
-type NexusClient struct {
-	instance *v1alpha1.Nexus
-	resty    resty.Client
+type Client struct {
+	resty resty.Client //TODO: change to pointer
 }
 
-// InitNewRestClient performs initialization of Nexus connection
-func (nc *NexusClient) InitNewRestClient(instance *v1alpha1.Nexus, url string, user string, password string) error {
-	nc.resty = *resty.SetHostURL(url).SetBasicAuth(user, password)
-	nc.instance = instance
-	return nil
+// Init performs initialization of Nexus connection
+func Init(url string, user string, password string) *Client {
+	return &Client{
+		resty: *resty.SetHostURL(url).SetBasicAuth(user, password).SetHeaders(map[string]string{
+			"Content-Type": "application/json",
+			"Accept":       "application/json",
+		}),
+	}
 }
 
 // WaitForStatusIsUp waits for Nexus to be up
-func (nc NexusClient) IsNexusRestApiReady() (bool, int, error) {
+func (nc Client) IsNexusRestApiReady() (bool, int, error) {
 	nexusIsReady := true
 	resp, err := nc.resty.
 		SetRedirectPolicy(resty.FlexibleRedirectPolicy(10)).
@@ -40,7 +42,7 @@ func (nc NexusClient) IsNexusRestApiReady() (bool, int, error) {
 }
 
 // CheckScriptExist checks if script is already uploaded
-func (nc NexusClient) CheckScriptExist(scriptName string) (bool, error) {
+func (nc Client) CheckScriptExist(scriptName string) (bool, error) {
 	resp, err := nc.resty.R().
 		SetHeader("accept", "application/json").
 		Get("/script")
@@ -62,7 +64,7 @@ func (nc NexusClient) CheckScriptExist(scriptName string) (bool, error) {
 }
 
 // UploadScript uploads script to Nexus
-func (nc NexusClient) UploadScript(scriptName string, scriptType string, scriptContent string) error {
+func (nc Client) UploadScript(scriptName string, scriptType string, scriptContent string) error {
 	formattedContent := nexusClientHelper.FormateNexusScript(scriptContent)
 	resp, err := nc.resty.R().
 		SetBody(`{"name":"` + scriptName + `", "type":"` + scriptType + `", "content": "` + formattedContent + `"}`).
@@ -75,7 +77,7 @@ func (nc NexusClient) UploadScript(scriptName string, scriptType string, scriptC
 }
 
 // AreDefaultScriptsDeclared checks if default scripts are already declared in Nexus
-func (nc NexusClient) AreDefaultScriptsDeclared(listOfScripts map[string]string) (bool, error) {
+func (nc Client) AreDefaultScriptsDeclared(listOfScripts map[string]string) (bool, error) {
 	defaultScriptsAreDeclared := true
 
 	for scriptFullName := range listOfScripts {
@@ -92,7 +94,7 @@ func (nc NexusClient) AreDefaultScriptsDeclared(listOfScripts map[string]string)
 }
 
 // DeclareDefaultScripts declares default scripts in Nexus
-func (nc NexusClient) DeclareDefaultScripts(listOfScripts map[string]string) error {
+func (nc Client) DeclareDefaultScripts(listOfScripts map[string]string) error {
 	for scriptFullName, scriptContent := range listOfScripts {
 		scriptName := strings.Split(scriptFullName, ".")[0]
 		scriptExtension := strings.Split(scriptFullName, ".")[1]
@@ -111,7 +113,7 @@ func (nc NexusClient) DeclareDefaultScripts(listOfScripts map[string]string) err
 }
 
 // CheckScriptExist checks if task is already uploaded
-func (nc NexusClient) CheckTaskExist(taskName string) (bool, error) {
+func (nc Client) CheckTaskExist(taskName string) (bool, error) {
 	resp, err := nc.resty.R().
 		SetHeader("accept", "application/json").
 		Get("/tasks")
@@ -133,7 +135,7 @@ func (nc NexusClient) CheckTaskExist(taskName string) (bool, error) {
 }
 
 // RunScript runs script in Nexus
-func (nc NexusClient) RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error) {
+func (nc Client) RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error) {
 	body, err := json.Marshal(parameters)
 	if err != nil {
 		return nil, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Couldn't marshmal parameters %v from script %v. Err - %v", parameters, scriptName, err)))
@@ -149,7 +151,7 @@ func (nc NexusClient) RunScript(scriptName string, parameters map[string]interfa
 }
 
 // CheckRoleExist checks if role is already exist
-func (nc NexusClient) CheckRoleExist(roleName interface{}) (bool, error) {
+func (nc Client) CheckRoleExist(roleName interface{}) (bool, error) {
 	resp, err := nc.RunScript("get-role", map[string]interface{}{"id": roleName})
 	if err != nil {
 		return false, err
@@ -171,7 +173,7 @@ func (nc NexusClient) CheckRoleExist(roleName interface{}) (bool, error) {
 }
 
 // CheckRepositoryExist checks if repository name is present in Nexus repository list
-func (nc NexusClient) CheckRepositoryExist(repositoryName string) (bool, error) {
+func (nc Client) CheckRepositoryExist(repositoryName string) (bool, error) {
 	serverRepoList, err := nc.GetRepositoryList()
 	if err != nil {
 		return false, errors.Wrap(err, "Failed to get repository list from Nexus!")
@@ -186,7 +188,7 @@ func (nc NexusClient) CheckRepositoryExist(repositoryName string) (bool, error) 
 }
 
 // GetRepositoryList takes list of repositories from Nexus server
-func (nc NexusClient) GetRepositoryList() ([]map[string]interface{}, error) {
+func (nc Client) GetRepositoryList() ([]map[string]interface{}, error) {
 	var out []map[string]interface{}
 
 	resp, err := nc.resty.R().Get("/repositories")

@@ -1,0 +1,12 @@
+apiVersion: v2.edp.epam.com/v1alpha1
+kind: NexusUser
+metadata:
+  name: test-mk1
+spec:
+  ownerName: nexus
+  firstName: John
+  lastName: Doe
+  email: john.doe@example.com
+  userId: jondoe14
+  roles: ["edp-admin"]
+  status: "active"

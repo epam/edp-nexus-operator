@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 
 	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1alpha1"
@@ -27,6 +26,7 @@ import (
 	coreV1Client "k8s.io/client-go/kubernetes/typed/core/v1"
 	extensionsV1Client "k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
 	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -125,7 +125,7 @@ func (s K8SService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort
 }
 
 // Init initializes K8SService
-func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *client.Client) error {
+func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient client.Client) error {
 	CoreClient, err := coreV1Client.NewForConfig(c)
 	if err != nil {
 		return errors.Wrap(err, "coreV1 client initialization failed")
@@ -142,7 +142,7 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient *cli
 	}
 
 	s.CoreClient = *CoreClient
-	s.client = *k8sClient
+	s.client = k8sClient
 	s.Scheme = Scheme
 	s.appClient = *ac
 	s.extensionsV1Client = *ec
