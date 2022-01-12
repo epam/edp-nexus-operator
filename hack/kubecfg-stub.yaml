@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Config
+clusters:
+  - cluster:
+      server: https://1.2.3.4
+    name: mock
+contexts:
+  - context:
+      cluster: mock
+      namespace: default
+    name: mock-ctx
+current-context: mock-ctx

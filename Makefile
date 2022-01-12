@@ -30,7 +30,7 @@ help:  ## Display this help
 
 # Run tests
 test: fmt vet
-	go test ./... -coverprofile=coverage.out `go list ./...`
+	KUBECONFIG=${CURRENT_DIR}/hack/kubecfg-stub.yaml go test ./... -coverprofile=coverage.out `go list ./...`
 
 fmt:  ## Run go fmt
 	go fmt ./...

@@ -20,10 +20,10 @@ jobs:
           go-version: ${{ env.GOLANG_VERSION }}
 
       - name: Build
-        run: go build -o /tmp/operator cmd/manager/main.go
+        run: make build
 
       - name: Test
-        run: go test -v ./... -coverprofile=coverage.out
+        run: make test
 
       - name: Upload codecov
         uses: codecov/codecov-action@v2.1.0
