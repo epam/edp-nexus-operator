@@ -13,13 +13,13 @@ import (
 )
 
 type Client struct {
-	resty resty.Client //TODO: change to pointer
+	resty *resty.Client
 }
 
 // Init performs initialization of Nexus connection
 func Init(url string, user string, password string) *Client {
 	return &Client{
-		resty: *resty.SetHostURL(url).SetBasicAuth(user, password).SetHeaders(map[string]string{
+		resty: resty.SetHostURL(url).SetBasicAuth(user, password).SetHeaders(map[string]string{
 			"Content-Type": "application/json",
 			"Accept":       "application/json",
 		}),
@@ -112,7 +112,7 @@ func (nc Client) DeclareDefaultScripts(listOfScripts map[string]string) error {
 	return nil
 }
 
-// CheckScriptExist checks if task is already uploaded
+// CheckTaskExist checks if task is already uploaded
 func (nc Client) CheckTaskExist(taskName string) (bool, error) {
 	resp, err := nc.resty.R().
 		SetHeader("accept", "application/json").

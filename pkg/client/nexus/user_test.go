@@ -10,7 +10,7 @@ import (
 
 func initClient() *Client {
 	cl := Client{
-		resty: *resty.New(),
+		resty: resty.New(),
 	}
 
 	httpmock.ActivateNonDefault(cl.resty.GetClient())
