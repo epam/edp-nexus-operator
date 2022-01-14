@@ -48,6 +48,9 @@ rules:
     - jenkinsscripts/finalizers
     - jenkinsscripts/status
     - events
+    - nexususers
+    - nexususers/finalizers
+    - nexususers/status
   verbs:
     - '*'
 - apiGroups:
