@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
-	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
-	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
@@ -19,6 +15,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 )
 
 const (
@@ -73,7 +74,6 @@ func (r *ReconcileNexus) Reconcile(ctx context.Context, request reconcile.Reques
 	log.Info("Reconciling has been started")
 
 	instance := &nexusApi.Nexus{}
-	instance.GetNamespace()
 	if err := r.client.Get(ctx, request.NamespacedName, instance); err != nil {
 		if k8sErrors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
