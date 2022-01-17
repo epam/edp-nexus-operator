@@ -146,6 +146,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusInstallErr(t *testing.T) {
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }

@@ -14,17 +14,18 @@ import (
 	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
 	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
-	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
-	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
-	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
+	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
+	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 )
 
 var log = ctrl.Log.WithName("nexus_service")
@@ -228,7 +229,7 @@ func (n ServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nex
 			return &instance, errors.Wrapf(err, "failed to create %s secret", newUserSecretName)
 		}
 
-		err := n.platformService.CreateJenkinsServiceAccount(instance.Namespace, newUserSecretName)
+		err = n.platformService.CreateJenkinsServiceAccount(instance.Namespace, newUserSecretName)
 		if err != nil {
 			return &instance, errors.Wrapf(err, "failed to create Jenkins service account %s", newUserSecretName)
 		}

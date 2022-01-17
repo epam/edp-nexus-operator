@@ -3,11 +3,12 @@ package nexus
 import (
 	"context"
 
+	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/types"
+
 	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
-	"github.com/pkg/errors"
-	"k8s.io/apimachinery/pkg/types"
 )
 
 type Child interface {
