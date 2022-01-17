@@ -42,6 +42,14 @@ func createSecretData() map[string][]byte {
 	}
 }
 
+func ReturnTrue() bool {
+	return true
+}
+
+func ReturnFalse() bool {
+	return false
+}
+
 func TestServiceImpl_IsDeploymentReadyError(t *testing.T) {
 	instance := v1alpha1.Nexus{}
 	platformMock := pMock.PlatformService{}
@@ -371,13 +379,33 @@ func TestServiceImpl_Integration(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestServiceImpl_ExposeConfiguration_GetSecretDataErr(t *testing.T) {
+func TestServiceImpl_ExposeConfiguration_LocalGetNexusRestApiUrlErr(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnFalse,
+	}
+	errTest := errors.New("test")
+	platformMock.On("GetExternalUrl", namespace, name).Return("", "", "", errTest)
+
+	_, err := nexusService.ExposeConfiguration(instance)
+	assert.Error(t, err)
+	assert.True(t, strings.Contains(err.Error(), "failed to get Nexus REST API URL"))
+	platformMock.AssertExpectations(t)
+}
+
+func TestServiceImpl_ExposeConfiguration_LocalGetSecretDataErr(t *testing.T) {
+	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	platformMock := pMock.PlatformService{}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnFalse,
+	}
 	errTest := errors.New("test")
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 
+	platformMock.On("GetExternalUrl", namespace, name).Return("", "", "", nil)
 	platformMock.On("GetSecretData", namespace, secretName).Return(nil, errTest)
 
 	_, err := nexusService.ExposeConfiguration(instance)
@@ -389,7 +417,10 @@ func TestServiceImpl_ExposeConfiguration_GetSecretDataErr(t *testing.T) {
 func TestServiceImpl_ExposeConfiguration_GetConfigMapDataErr(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	errTest := errors.New("test")
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
@@ -407,7 +438,10 @@ func TestServiceImpl_ExposeConfiguration_GetConfigMapDataErr(t *testing.T) {
 func TestServiceImpl_ExposeConfiguration_UnmarshalErr(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
 	configData := map[string]string{"nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix": ""}
@@ -425,7 +459,10 @@ func TestServiceImpl_ExposeConfiguration_UnmarshalErr(t *testing.T) {
 func TestServiceImpl_ExposeConfiguration_CreateSecretErr(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
 	parseUsers := []map[string]interface{}{{"username": name, "first_name": name, "last_name": name}}
@@ -451,7 +488,10 @@ func TestServiceImpl_ExposeConfiguration_CreateSecretErr(t *testing.T) {
 func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
 	parseUsers := []map[string]interface{}{{"username": name, "first_name": name, "last_name": name}}
@@ -478,7 +518,10 @@ func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testi
 func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
 	parseUsers := []map[string]interface{}{{"username": name, "first_name": name, "last_name": name}}
@@ -507,7 +550,10 @@ func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
 func TestServiceImpl_ExposeConfiguration_RunScriptErr(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
 	parseUsers := []map[string]interface{}{{"username": name, "first_name": name, "last_name": name}}
@@ -540,7 +586,11 @@ func TestServiceImpl_ExposeConfiguration_createEDPComponentErr(t *testing.T) {
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&instance).Build()
 
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock, client: client}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		client:               client,
+		runningInClusterFunc: ReturnTrue,
+	}
 	platformMock.On("GetExternalUrl", namespace, name).Return(host, "", "", nil)
 
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
@@ -571,7 +621,11 @@ func TestServiceImpl_ExposeConfiguration_GetExternalUrlErr(t *testing.T) {
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&instance).Build()
 
 	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{platformService: &platformMock, client: client}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		client:               client,
+		runningInClusterFunc: ReturnTrue,
+	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
 	var parseUsers []map[string]interface{}
@@ -604,7 +658,11 @@ func TestServiceImpl_ExposeConfiguration_CantCreateKeycloakClient(t *testing.T) 
 
 	platformMock := pMock.PlatformService{}
 	platformMock.On("GetExternalUrl", namespace, name).Return(host, "", "", nil)
-	nexusService := ServiceImpl{platformService: &platformMock, client: client}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		client:               client,
+		runningInClusterFunc: ReturnTrue,
+	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
 	var parseUsers []map[string]interface{}
@@ -659,7 +717,10 @@ func TestServiceImpl_Configure_getNexusAdminPasswordErr(t *testing.T) {
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	platformMock.On("GetSecretData", namespace, secretName).Return(nil, errTest)
 
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	configure, ok, err := nexusService.Configure(instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to get Nexus admin password from secret"))
@@ -677,7 +738,10 @@ func TestServiceImpl_Configure_IsNexusRestApiReadyErr(t *testing.T) {
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	platformMock.On("GetSecretData", namespace, secretName).Return(secretData, nil)
 
-	nexusService := ServiceImpl{platformService: &platformMock}
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	configure, ok, err := nexusService.Configure(instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "checking if Nexus REST API is ready has been failed"))
@@ -744,8 +808,10 @@ func TestServiceImpl_ClientForNexusChild(t *testing.T) {
 	platformMock.On("GetSecretData", namespace, secretName).Return(secretData, nil)
 
 	nexusService := ServiceImpl{
-		client:          client,
-		platformService: &platformMock}
+		client:               client,
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+	}
 	child, err := nexusService.ClientForNexusChild(ctx, &nexusUser)
 	assert.NotNil(t, child)
 	assert.NoError(t, err)

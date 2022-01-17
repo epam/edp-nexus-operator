@@ -16,21 +16,21 @@ type Child interface {
 	GetNamespace() string
 }
 
-func (n ServiceImpl) ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error) {
+func (s ServiceImpl) ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error) {
 	var nx v1alpha1.Nexus
-	if err := n.client.Get(ctx, types.NamespacedName{
+	if err := s.client.Get(ctx, types.NamespacedName{
 		Namespace: child.GetNamespace(),
 		Name:      child.OwnerName(),
 	}, &nx); err != nil {
 		return nil, errors.Wrap(err, "unable to get nexus owner")
 	}
 
-	pwd, err := n.getNexusAdminPassword(nx)
+	pwd, err := s.getNexusAdminPassword(nx)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to get nexus admin password")
 	}
 
-	u, err := n.getNexusRestApiUrl(nx)
+	u, err := s.getNexusRestApiUrl(nx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Nexus REST API URL")
 	}

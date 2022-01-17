@@ -47,50 +47,57 @@ type Service interface {
 // NewNexusService function that returns NexusService implementation
 func NewService(platformService platform.PlatformService, client client.Client, scheme *runtime.Scheme) Service {
 	return ServiceImpl{
-		platformService: platformService,
-		client:          client,
-		keycloakHelper:  keycloakHelper.MakeHelper(client, scheme),
+		platformService:      platformService,
+		client:               client,
+		keycloakHelper:       keycloakHelper.MakeHelper(client, scheme),
+		runningInClusterFunc: helper.RunningInCluster,
 	}
 }
 
 // NexusServiceImpl struct fo Nexus EDP Component
 type ServiceImpl struct {
-	platformService platform.PlatformService
-	client          client.Client
-	keycloakHelper  *keycloakHelper.Helper
+	platformService      platform.PlatformService
+	client               client.Client
+	keycloakHelper       *keycloakHelper.Helper
+	runningInClusterFunc func() bool
 }
 
 // IsDeploymentReady check if deployment for Nexus is ready
-func (n ServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
-	return n.platformService.IsDeploymentReady(instance)
+func (s ServiceImpl) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
+	return s.platformService.IsDeploymentReady(instance)
 }
 
-func (n ServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
+func (s ServiceImpl) getNexusRestApiUrl(instance v1alpha1.Nexus) (string, error) {
 	basePath := ""
 	if len(instance.Spec.BasePath) > 0 {
 		basePath = fmt.Sprintf("/%v", instance.Spec.BasePath)
 	}
 	u := fmt.Sprintf("http://%v.%v:%v%v/%v", instance.Name, instance.Namespace, nexusDefaultSpec.NexusPort, basePath, nexusDefaultSpec.NexusRestApiUrlPath)
-	if !helper.RunningInCluster() {
-		eu, _, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
-		if err != nil {
-			return "", errors.Wrapf(err, "failed to get Route for %v/%v", instance.Namespace, instance.Name)
+	if s.runningInClusterFunc != nil {
+		if !s.runningInClusterFunc() {
+			eu, _, _, err := s.platformService.GetExternalUrl(instance.Namespace, instance.Name)
+			if err != nil {
+				return "", errors.Wrapf(err, "failed to get Route for %v/%v", instance.Namespace, instance.Name)
+			}
+			u = fmt.Sprintf("%v/%v", eu, nexusDefaultSpec.NexusRestApiUrlPath)
 		}
-		u = fmt.Sprintf("%v/%v", eu, nexusDefaultSpec.NexusRestApiUrlPath)
+	} else {
+		return "", errors.New("missing runningInClusterFunc")
 	}
+
 	return u, nil
 }
 
-func (n ServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string, error) {
+func (s ServiceImpl) getNexusAdminPassword(instance v1alpha1.Nexus) (string, error) {
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
-	nexusAdminCredentials, err := n.platformService.GetSecretData(instance.Namespace, secretName)
+	nexusAdminCredentials, err := s.platformService.GetSecretData(instance.Namespace, secretName)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to get Secret %v for %v/%v", secretName, instance.Namespace, instance.Name)
 	}
 	return string(nexusAdminCredentials["password"]), nil
 }
 
-func (n ServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, value string) {
+func (s ServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, value string) {
 	if len(instance.Annotations) == 0 {
 		instance.ObjectMeta.Annotations = map[string]string{
 			key: value,
@@ -101,15 +108,15 @@ func (n ServiceImpl) setAnnotation(instance *v1alpha1.Nexus, key string, value s
 }
 
 // Integration performs integration Nexus with other EDP components
-func (n ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
+func (s ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
 
 	if instance.Spec.KeycloakSpec.Enabled {
-		keycloakClient, err := n.platformService.GetKeycloakClient(instance.Name, instance.Namespace)
+		keycloakClient, err := s.platformService.GetKeycloakClient(instance.Name, instance.Namespace)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get Keycloak client data!")
 		}
 
-		keycloakRealm, err := n.keycloakHelper.GetOwnerKeycloakRealm(keycloakClient.ObjectMeta)
+		keycloakRealm, err := s.keycloakHelper.GetOwnerKeycloakRealm(keycloakClient.ObjectMeta)
 		if err != nil {
 			return &instance, nil
 		}
@@ -118,7 +125,7 @@ func (n ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, erro
 			return &instance, errors.New("Keycloak Realm CR in not created yet!")
 		}
 
-		keycloak, err := n.keycloakHelper.GetOwnerKeycloak(keycloakRealm.ObjectMeta)
+		keycloak, err := s.keycloakHelper.GetOwnerKeycloak(keycloakRealm.ObjectMeta)
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to get owner for %s/%s", keycloakClient.Namespace, keycloakClient.Name)
 			return &instance, errors.Wrap(err, errMsg)
@@ -128,7 +135,7 @@ func (n ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, erro
 			return &instance, errors.New("Keycloak CR is not created yet")
 		}
 
-		_, host, scheme, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
+		_, host, scheme, err := s.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get route")
 		}
@@ -164,7 +171,7 @@ func (n ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, erro
 					strings.Join(instance.Spec.KeycloakSpec.Roles, ",")))
 		}
 
-		err = n.platformService.AddKeycloakProxyToDeployConf(instance, proxyConfig)
+		err = s.platformService.AddKeycloakProxyToDeployConf(instance, proxyConfig)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to add Keycloak proxy")
 		}
@@ -175,11 +182,11 @@ func (n ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, erro
 			Protocol:   coreV1Api.ProtocolTCP,
 			TargetPort: intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort},
 		}
-		if err = n.platformService.AddPortToService(instance, keyCloakProxyPort); err != nil {
+		if err = s.platformService.AddPortToService(instance, keyCloakProxyPort); err != nil {
 			return &instance, errors.Wrap(err, "failed to add Keycloak proxy port to service")
 		}
 
-		if err = n.platformService.UpdateExternalTargetPath(instance, intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort}); err != nil {
+		if err = s.platformService.UpdateExternalTargetPath(instance, intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort}); err != nil {
 			return &instance, errors.Wrap(err, "failed to update target port in Route")
 		}
 	} else {
@@ -190,20 +197,20 @@ func (n ServiceImpl) Integration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, erro
 }
 
 // ExposeConfiguration performs exposing Nexus configuration for other EDP components
-func (n ServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
-	u, err := n.getNexusRestApiUrl(instance)
+func (s ServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nexus, error) {
+	u, err := s.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to get Nexus REST API URL")
 	}
 
-	nexusPassword, err := n.getNexusAdminPassword(instance)
+	nexusPassword, err := s.getNexusAdminPassword(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to get Nexus admin password from secret")
 	}
 
 	nexusClient := nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 
-	nexusDefaultUsersToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix))
+	nexusDefaultUsersToCreate, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix))
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to get default tasks from Config Map")
 	}
@@ -224,17 +231,17 @@ func (n ServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nex
 		newUser["password"] = []byte(uniuri.New())
 		newUserSecretName = fmt.Sprintf("%s-%s", instance.Name, newUser["username"])
 
-		err = n.platformService.CreateSecret(instance, newUserSecretName, newUser)
+		err = s.platformService.CreateSecret(instance, newUserSecretName, newUser)
 		if err != nil {
 			return &instance, errors.Wrapf(err, "failed to create %s secret", newUserSecretName)
 		}
 
-		err = n.platformService.CreateJenkinsServiceAccount(instance.Namespace, newUserSecretName)
+		err = s.platformService.CreateJenkinsServiceAccount(instance.Namespace, newUserSecretName)
 		if err != nil {
 			return &instance, errors.Wrapf(err, "failed to create Jenkins service account %s", newUserSecretName)
 		}
 
-		data, err := n.platformService.GetSecretData(instance.Namespace, newUserSecretName)
+		data, err := s.platformService.GetSecretData(instance.Namespace, newUserSecretName)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get CI user credentials")
 		}
@@ -247,10 +254,10 @@ func (n ServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nex
 		}
 	}
 
-	_ = n.client.Update(context.TODO(), &instance)
+	_ = s.client.Update(context.TODO(), &instance)
 
 	if instance.Spec.KeycloakSpec.Enabled {
-		webURL, _, _, err := n.platformService.GetExternalUrl(instance.Namespace, instance.Name)
+		webURL, _, _, err := s.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return &instance, errors.Wrap(err, "failed to get route from cluster")
 		}
@@ -267,38 +274,38 @@ func (n ServiceImpl) ExposeConfiguration(instance v1alpha1.Nexus) (*v1alpha1.Nex
 			keycloakClient.Spec.TargetRealm = instance.Spec.KeycloakSpec.Realm
 		}
 
-		err = n.platformService.CreateKeycloakClient(&keycloakClient)
+		err = s.platformService.CreateKeycloakClient(&keycloakClient)
 		if err != nil {
 			return &instance, nil
 		}
 	}
 
-	err = n.createEDPComponent(instance)
+	err = s.createEDPComponent(instance)
 
 	return &instance, err
 }
 
-func (n ServiceImpl) createEDPComponent(nexus v1alpha1.Nexus) error {
-	url, err := n.getUrl(nexus)
+func (s ServiceImpl) createEDPComponent(nexus v1alpha1.Nexus) error {
+	url, err := s.getUrl(nexus)
 	if err != nil {
 		return err
 	}
-	icon, err := n.getIcon()
+	icon, err := s.getIcon()
 	if err != nil {
 		return err
 	}
-	return n.platformService.CreateEDPComponentIfNotExist(nexus, *url, *icon)
+	return s.platformService.CreateEDPComponentIfNotExist(nexus, *url, *icon)
 }
 
-func (n ServiceImpl) getUrl(nexus v1alpha1.Nexus) (*string, error) {
-	url, _, _, err := n.platformService.GetExternalUrl(nexus.Namespace, nexus.Name)
+func (s ServiceImpl) getUrl(nexus v1alpha1.Nexus) (*string, error) {
+	url, _, _, err := s.platformService.GetExternalUrl(nexus.Namespace, nexus.Name)
 	if err != nil {
 		return nil, err
 	}
 	return &url, nil
 }
 
-func (n ServiceImpl) getIcon() (*string, error) {
+func (s ServiceImpl) getIcon() (*string, error) {
 	p, err := platformHelper.CreatePathToTemplateDirectory(imgFolder)
 	if err != nil {
 		return nil, err
@@ -318,23 +325,23 @@ func (n ServiceImpl) getIcon() (*string, error) {
 }
 
 // Configure performs self-configuration of Nexus
-func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
+func (s ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, error) {
 	adminSecret := map[string][]byte{
 		"user":     []byte(nexusDefaultSpec.NexusDefaultAdminUser),
 		"password": []byte(nexusDefaultSpec.NexusDefaultAdminPassword),
 	}
 
-	err := n.platformService.CreateSecret(instance, instance.Name+"-admin-password", adminSecret)
+	err := s.platformService.CreateSecret(instance, instance.Name+"-admin-password", adminSecret)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to create Secret")
 	}
 
-	u, err := n.getNexusRestApiUrl(instance)
+	u, err := s.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get Nexus REST API URL")
 	}
 
-	nexusPassword, err := n.getNexusAdminPassword(instance)
+	nexusPassword, err := s.getNexusAdminPassword(instance)
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get Nexus admin password from secret")
 	}
@@ -349,7 +356,7 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 		return &instance, false, nil
 	}
 
-	nexusDefaultScriptsToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultScriptsConfigMapPrefix))
+	nexusDefaultScriptsToCreate, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultScriptsConfigMapPrefix))
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get default tasks from Config Map")
 	}
@@ -367,13 +374,13 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 	if nexusPassword == nexusDefaultSpec.NexusDefaultAdminPassword {
 		updatePasswordParameters := map[string]interface{}{"new_password": uniuri.New()}
 
-		nexusAdminPassword, err := n.platformService.GetSecret(instance.Namespace, instance.Name+"-admin-password")
+		nexusAdminPassword, err := s.platformService.GetSecret(instance.Namespace, instance.Name+"-admin-password")
 		if err != nil {
 			return &instance, false, errors.Wrap(err, "failed to get Nexus admin secret to update")
 		}
 
 		nexusAdminPassword.Data["password"] = []byte(updatePasswordParameters["new_password"].(string))
-		err = n.platformService.UpdateSecret(nexusAdminPassword)
+		err = s.platformService.UpdateSecret(nexusAdminPassword)
 		if err != nil {
 			return &instance, false, errors.Wrap(err, "failed to update Nexus admin secret with new password")
 		}
@@ -387,7 +394,7 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 
 		nexusClient = nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
 	}
-	nexusDefaultTasksToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
+	nexusDefaultTasksToCreate, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get default tasks from Config Map")
 	}
@@ -410,7 +417,7 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 		return &instance, false, errors.Wrap(err, "failed to run disable-outreach-capability scripts")
 	}
 
-	nexusCapabilities, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, "default-capabilities"))
+	nexusCapabilities, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, "default-capabilities"))
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get default tasks from Config Map")
 	}
@@ -438,7 +445,7 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 		}
 	}
 
-	nexusDefaultRolesToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix))
+	nexusDefaultRolesToCreate, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix))
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get default roles from Config Map")
 	}
@@ -458,7 +465,7 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 	}
 
 	// Creating blob storage configuration from config map
-	blobsConfig, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-blobs", instance.Name))
+	blobsConfig, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-blobs", instance.Name))
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "failed to get data from ConfigMap %v-blobs", instance.Name)
 	}
@@ -477,7 +484,7 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 	}
 
 	// Creating repositoriesToCreate from config map
-	reposToCreate, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix))
+	reposToCreate, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix))
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix)
 	}
@@ -497,7 +504,7 @@ func (n ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 		}
 	}
 
-	reposToDelete, err := n.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix))
+	reposToDelete, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix))
 	if err != nil {
 		return &instance, false, errors.Wrapf(err, "failed to get data from ConfigMap %v-%v", instance.Name, nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix)
 	}
