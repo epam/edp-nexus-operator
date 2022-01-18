@@ -6,10 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
-	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
-	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
 	routeV1Api "github.com/openshift/api/route/v1"
 	appsV1client "github.com/openshift/client-go/apps/clientset/versioned/typed/apps/v1"
 	routeV1Client "github.com/openshift/client-go/route/clientset/versioned/typed/route/v1"
@@ -23,17 +19,34 @@ import (
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
 )
 
 var log = ctrl.Log.WithName("platform")
+
+type OpenshiftClient interface {
+	appsV1client.AppsV1Interface
+}
+
+type RouteClient interface {
+	routeV1Client.RouteV1Interface
+}
+
+type SecurityClient interface {
+	securityV1Client.SecurityV1Interface
+}
 
 // OpenshiftService struct for Openshift platform service
 type OpenshiftService struct {
 	kubernetes.K8SService
 
-	appClient      appsV1client.AppsV1Client
-	routeClient    routeV1Client.RouteV1Client
-	securityClient securityV1Client.SecurityV1Client
+	appClient      OpenshiftClient
+	routeClient    RouteClient
+	securityClient SecurityClient
 }
 
 const (
@@ -52,19 +65,19 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize Apps V1 Client")
 	}
-	service.appClient = *appClient
+	service.appClient = appClient
 
 	routeClient, err := routeV1Client.NewForConfig(config)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize Route V1 Client")
 	}
-	service.routeClient = *routeClient
+	service.routeClient = routeClient
 
 	securityClient, err := securityV1Client.NewForConfig(config)
 	if err != nil {
 		return err
 	}
-	service.securityClient = *securityClient
+	service.securityClient = securityClient
 
 	return nil
 }
