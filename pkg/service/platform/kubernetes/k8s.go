@@ -11,9 +11,6 @@ import (
 	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1alpha1"
 	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1alpha1"
 	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
-	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
-	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	extensionsV1Api "k8s.io/api/extensions/v1beta1"
@@ -29,17 +26,33 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 )
+
+type CoreClient interface {
+	coreV1Client.CoreV1Interface
+}
+
+type K8SClient interface {
+	appsV1Client.AppsV1Interface
+}
+
+type ExtensionClient interface {
+	extensionsV1Client.ExtensionsV1beta1Interface
+}
 
 var log = ctrl.Log.WithName("platform")
 
 // K8SService struct for K8S platform service
 type K8SService struct {
 	Scheme             *runtime.Scheme
-	CoreClient         coreV1Client.CoreV1Client
+	CoreClient         CoreClient
 	client             client.Client
-	appClient          appsV1Client.AppsV1Client
-	extensionsV1Client extensionsV1Client.ExtensionsV1beta1Client
+	appClient          K8SClient
+	extensionsV1Client ExtensionClient
 }
 
 func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
@@ -141,11 +154,11 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient clie
 		return errors.New("extensionsV1beta1 client initialization failed")
 	}
 
-	s.CoreClient = *CoreClient
+	s.CoreClient = CoreClient
 	s.client = k8sClient
 	s.Scheme = Scheme
-	s.appClient = *ac
-	s.extensionsV1Client = *ec
+	s.appClient = ac
+	s.extensionsV1Client = ec
 	return nil
 }
 
@@ -169,7 +182,7 @@ func (s K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[
 
 	_, err := s.CoreClient.Secrets(secretObject.Namespace).Get(context.TODO(), secretObject.Name, metav1.GetOptions{})
 	if err == nil {
-		return err
+		return nil
 	}
 
 	if !k8serrors.IsNotFound(err) {
