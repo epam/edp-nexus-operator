@@ -1,6 +1,29 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Features
+
+- add nexus user to k8s roles [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
+- implement NexusUser custom resource [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
+
+### Code Refactoring
+
+- Remove undefined values from helm [EPMDEDP-6758](https://jiraeu.epam.com/browse/EPMDEDP-6758)
+
+### Testing
+
+- Add tests and mocks [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+- Add tests and mocks [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+- GitHub run test fix [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+- Add tests and mock [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+- Add tests and mocks [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+- Add tests [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+
+### Routine
+
+- Update release CI pipelines [EPMDEDP-7847](https://jiraeu.epam.com/browse/EPMDEDP-7847)
+- Fix CI for codecov report [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+
 
 <a name="v2.10.0"></a>
 ## [v2.10.0] - 2021-12-06
