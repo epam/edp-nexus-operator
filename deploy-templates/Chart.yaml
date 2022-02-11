@@ -1,11 +1,76 @@
 apiVersion: v2
 description: A Helm chart for EDP Nexus Operator
-home: https://solutionshub.epam.com/solution/epam-delivery-platform
+home: https://epam.github.io/edp-install/
 name: nexus-operator
 type: application
 version: 2.11.0-SNAPSHOT
 appVersion: 2.11.0-SNAPSHOT
+icon: https://epam.github.io/edp-install/assets/logo.png
+keywords:
+  - edp
+  - nexus
+  - operator
+  - artifact
+  - storage
 maintainers:
-    - name: EPAM EDP Team
+  - name: epmd-edp
+    email: SupportEPMD-EDP@epam.com
+    url: https://solutionshub.epam.com/solution/epam-delivery-platform
+  - name: sergk
+    url: https://github.com/SergK
 sources:
-    - https://github.com/epam/edp-nexus-operator
+  - https://github.com/epam/edp-nexus-operator
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/operator: "true"
+  artifacthub.io/images: |
+    - name: nexus-operator:2.10.0
+      image: epamedp/nexus-operator:2.10.0
+    - name: nexus-operator:2.9.0
+      image: epamedp/nexus-operator:2.9.0
+    - name: nexus3:3.36.0
+      image: sonatype/nexus3:3.36.0
+    - name: alpine:3.13.7
+      image: alpine:3.13.7
+  artifacthub.io/operatorCapabilities: Full Lifecycle
+  artifacthub.io/crds: |
+    - kind: Nexus
+      version: v2.edp.epam.com/v1alpha1
+      name: nexus
+      displayName: Nexus
+      description: Nexus server configuration
+    - kind: NexusUser
+      version: v2.edp.epam.com/v1alpha1
+      name: nexususer
+      displayName: NexusUser
+      description: Nexus user management
+  artifacthub.io/crdsExamples: |
+    - apiVersion: v2.edp.epam.com/v1alpha1
+      kind: Nexus
+      metadata:
+        name: nexus
+      spec:
+        basePath: 'blank'
+        edpSpec:
+          dnsWildcard: test.com
+        image: sonatype/nexus3
+        keycloakSpec:
+          enabled: true
+          proxyImage: quay.io/keycloak/keycloak-gatekeeper:10.0.0
+          roles:
+            - developer
+            - administrator
+        users:
+          - roles:
+              - nx-admin
+            username: test@test.com
+        version: 3.36.0
+        volumes:
+          - capacity: 20Gi
+            name: data
+            storage_class: gp2-retain
+  artifacthub.io/links: |
+    - name: EDP Documentation
+      url: https://epam.github.io/edp-install/
+    - name: EPAM SolutionHub
+      url: https://solutionshub.epam.com/solution/epam-delivery-platform
