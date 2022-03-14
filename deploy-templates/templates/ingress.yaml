@@ -18,6 +18,10 @@ spec:
   {{- if and $ingressSupportsIngressClassName .Values.nexus.ingress.ingressClassName }}
   ingressClassName: {{ .Values.nexus.ingress.ingressClassName }}
   {{- end }}
+{{- if .Values.nexus.ingress.tls }}
+  tls:
+{{ tpl (toYaml .Values.nexus.ingress.tls) $ | indent 4 }}
+{{- end }}
   rules:
     - host: {{if .Values.nexus.basePath}}{{ .Values.global.dnsWildCard }}{{else}}nexus-{{ .Values.global.edpName }}.{{ .Values.global.dnsWildCard }}{{end}}
       http:
