@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
+
 	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/pkg/errors"
@@ -741,6 +743,9 @@ func TestServiceImpl_Configure_IsNexusRestApiReadyErr(t *testing.T) {
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
 		runningInClusterFunc: ReturnTrue,
+		clientBuilder: func(url string, user string, password string) Client {
+			return nexus.Init(url, user, password)
+		},
 	}
 	configure, ok, err := nexusService.Configure(instance)
 	assert.Error(t, err)
@@ -816,4 +821,64 @@ func TestServiceImpl_ClientForNexusChild(t *testing.T) {
 	assert.NotNil(t, child)
 	assert.NoError(t, err)
 	platformMock.AssertExpectations(t)
+}
+
+func TestServiceImpl_Configure(t *testing.T) {
+	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	platformMock := pMock.PlatformService{}
+	secretData := createSecretData()
+
+	platformMock.On("CreateSecret", instance, instance.Name+"-admin-password").Return(nil)
+	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
+	platformMock.On("GetSecretData", namespace, secretName).Return(secretData, nil)
+
+	nexusClient := nexus.Mock{}
+	nexusClient.On("IsNexusRestApiReady").Return(true, 0, nil)
+	platformMock.On("GetConfigMapData", instance.Namespace, "name-scripts").Return(map[string]string{}, nil)
+	nexusClient.On("DeclareDefaultScripts", map[string]string{}).Return(nil)
+	nexusClient.On("AreDefaultScriptsDeclared", map[string]string{}).Return(true, nil)
+	platformMock.On("GetConfigMapData", instance.Namespace, "name-default-tasks").Return(map[string]string{
+		nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix: "[]",
+	}, nil)
+
+	var scriptData map[string]interface{}
+	nexusClient.On("RunScript", "disable-outreach-capability", scriptData).
+		Return([]byte{}, nil).Once()
+
+	platformMock.On("GetConfigMapData", instance.Namespace, "name-default-capabilities").
+		Return(map[string]string{
+			"default-capabilities": "[]",
+		}, nil)
+	nexusClient.On("RunScript", "enable-realm", map[string]interface{}{
+		"name": "NuGetApiKey",
+	}).
+		Return([]byte{}, nil).Once()
+	platformMock.On("GetConfigMapData", instance.Namespace, "name-default-roles").Return(map[string]string{
+		"default-roles": "[]",
+	}, nil)
+
+	platformMock.On("GetConfigMapData", instance.Namespace, "name-blobs").Return(map[string]string{
+		"blobs": "[]",
+	}, nil)
+	platformMock.On("GetConfigMapData", instance.Namespace, "name-repos-to-create").Return(map[string]string{
+		nexusDefaultSpec.NexusDefaultReposToCreateConfigMapPrefix: "[]",
+	}, nil)
+	platformMock.On("GetConfigMapData", instance.Namespace, "name-repos-to-delete").Return(map[string]string{
+		nexusDefaultSpec.NexusDefaultReposToDeleteConfigMapPrefix: "[]",
+	}, nil)
+	nexusClient.On("RunScript", "setup-anonymous-access",
+		map[string]interface{}{"anonymous_access": false}).
+		Return([]byte{}, nil).Once()
+
+	nexusService := ServiceImpl{
+		platformService:      &platformMock,
+		runningInClusterFunc: ReturnTrue,
+		clientBuilder: func(url string, user string, password string) Client {
+			return &nexusClient
+		},
+	}
+	_, _, err := nexusService.Configure(instance)
+	assert.NoError(t, err)
+	platformMock.AssertExpectations(t)
+	nexusClient.AssertExpectations(t)
 }

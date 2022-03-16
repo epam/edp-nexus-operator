@@ -44,6 +44,13 @@ type Service interface {
 	ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error)
 }
 
+type Client interface {
+	IsNexusRestApiReady() (bool, int, error)
+	DeclareDefaultScripts(listOfScripts map[string]string) error
+	AreDefaultScriptsDeclared(listOfScripts map[string]string) (bool, error)
+	RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error)
+}
+
 // NewNexusService function that returns NexusService implementation
 func NewService(platformService platform.PlatformService, client client.Client, scheme *runtime.Scheme) Service {
 	return ServiceImpl{
@@ -51,6 +58,9 @@ func NewService(platformService platform.PlatformService, client client.Client, 
 		client:               client,
 		keycloakHelper:       keycloakHelper.MakeHelper(client, scheme),
 		runningInClusterFunc: helper.RunningInCluster,
+		clientBuilder: func(url string, user string, password string) Client {
+			return nexus.Init(url, user, password)
+		},
 	}
 }
 
@@ -60,6 +70,7 @@ type ServiceImpl struct {
 	client               client.Client
 	keycloakHelper       *keycloakHelper.Helper
 	runningInClusterFunc func() bool
+	clientBuilder        func(url string, user string, password string) Client
 }
 
 // IsDeploymentReady check if deployment for Nexus is ready
@@ -346,7 +357,7 @@ func (s ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 		return &instance, false, errors.Wrap(err, "failed to get Nexus admin password from secret")
 	}
 
-	nexusClient := nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
+	nexusClient := s.clientBuilder(u, nexusDefaultSpec.NexusDefaultAdminUser, nexusPassword)
 
 	if nexusApiIsReady, _, err := nexusClient.IsNexusRestApiReady(); err != nil {
 		return &instance, false, errors.Wrap(err, "checking if Nexus REST API is ready has been failed")
@@ -356,7 +367,8 @@ func (s ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 		return &instance, false, nil
 	}
 
-	nexusDefaultScriptsToCreate, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultScriptsConfigMapPrefix))
+	nexusDefaultScriptsToCreate, err := s.platformService.GetConfigMapData(instance.Namespace,
+		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultScriptsConfigMapPrefix))
 	if err != nil {
 		return &instance, false, errors.Wrap(err, "failed to get default tasks from Config Map")
 	}
@@ -392,7 +404,7 @@ func (s ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 
 		passwordString := string(nexusAdminPassword.Data["password"])
 
-		nexusClient = nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
+		nexusClient = s.clientBuilder(u, nexusDefaultSpec.NexusDefaultAdminUser, passwordString)
 	}
 	nexusDefaultTasksToCreate, err := s.platformService.GetConfigMapData(instance.Namespace, fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultTasksConfigMapPrefix))
 	if err != nil {
@@ -536,6 +548,12 @@ func (s ServiceImpl) Configure(instance v1alpha1.Nexus) (*v1alpha1.Nexus, bool, 
 		if err != nil {
 			return &instance, false, errors.Wrapf(err, "failed to create user %v", user.Username)
 		}
+	}
+
+	if _, err := nexusClient.RunScript("setup-anonymous-access", map[string]interface{}{
+		"anonymous_access": false,
+	}); err != nil {
+		return nil, false, errors.Wrap(err, "unable to setup anon access for nexus")
 	}
 
 	return &instance, true, nil
