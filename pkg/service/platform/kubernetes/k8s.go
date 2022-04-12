@@ -13,7 +13,7 @@ import (
 	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
-	extensionsV1Api "k8s.io/api/extensions/v1beta1"
+	networkingV1 "k8s.io/api/networking/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -21,7 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	appsV1Client "k8s.io/client-go/kubernetes/typed/apps/v1"
 	coreV1Client "k8s.io/client-go/kubernetes/typed/core/v1"
-	extensionsV1Client "k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
+	networkingV1Client "k8s.io/client-go/kubernetes/typed/networking/v1"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -40,8 +40,8 @@ type K8SClient interface {
 	appsV1Client.AppsV1Interface
 }
 
-type ExtensionClient interface {
-	extensionsV1Client.ExtensionsV1beta1Interface
+type NetworkingClient interface {
+	networkingV1Client.NetworkingV1Interface
 }
 
 var log = ctrl.Log.WithName("platform")
@@ -52,7 +52,7 @@ type K8SService struct {
 	CoreClient         CoreClient
 	client             client.Client
 	appClient          K8SClient
-	extensionsV1Client ExtensionClient
+	networkingV1Client NetworkingClient
 }
 
 func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
@@ -103,7 +103,7 @@ func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args [
 }
 
 func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string, host string, scheme string, err error) {
-	i, err := s.extensionsV1Client.Ingresses(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	i, err := s.networkingV1Client.Ingresses(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
 			log.Info("Ingress not found", "Namespace", namespace, "Name", name)
@@ -125,15 +125,15 @@ func (s K8SService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort
 		return errors.Wrap(err, "couldn't get route")
 	}
 
-	if i.Spec.Rules[0].HTTP.Paths[0].Backend.ServicePort == targetPort {
+	if i.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number == int32(targetPort.IntValue()) {
 		log.V(1).Info("Target Port is already set",
 			"Namespace", instance.Namespace, "Name", instance.Name, "TargetPort", targetPort.StrVal, "IngressName", i.Name)
 		return nil
 	}
 
-	i.Spec.Rules[0].HTTP.Paths[0].Backend.ServicePort = targetPort
+	i.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number = int32(targetPort.IntValue())
 
-	_, err = s.extensionsV1Client.Ingresses(instance.Namespace).Update(context.TODO(), i, metav1.UpdateOptions{})
+	_, err = s.networkingV1Client.Ingresses(instance.Namespace).Update(context.TODO(), i, metav1.UpdateOptions{})
 	return err
 }
 
@@ -149,16 +149,16 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient clie
 		return errors.New("appsV1 client initialization failed")
 	}
 
-	ec, err := extensionsV1Client.NewForConfig(c)
+	ec, err := networkingV1Client.NewForConfig(c)
 	if err != nil {
-		return errors.New("extensionsV1beta1 client initialization failed")
+		return errors.New("networkingV1 client initialization failed")
 	}
 
 	s.CoreClient = CoreClient
 	s.client = k8sClient
 	s.Scheme = Scheme
 	s.appClient = ac
-	s.extensionsV1Client = ec
+	s.networkingV1Client = ec
 	return nil
 }
 
@@ -404,8 +404,8 @@ func (s K8SService) GetKeycloakClient(name string, namespace string) (keycloakV1
 	return out, nil
 }
 
-func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*extensionsV1Api.Ingress, error) {
-	i, err := s.extensionsV1Client.Ingresses(instance.Namespace).List(context.TODO(), metav1.ListOptions{})
+func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*networkingV1.Ingress, error) {
+	i, err := s.networkingV1Client.Ingresses(instance.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't retrieve ingresses list from the cluster")
 	}

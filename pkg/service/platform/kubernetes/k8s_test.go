@@ -15,7 +15,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/apps/v1"
 	coreV1Api "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	networkingV1 "k8s.io/api/networking/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -189,28 +189,28 @@ func TestK8SService_AddKeycloakProxyToDeployConf(t *testing.T) {
 
 func TestK8SService_GetExternalUrl_GetErr(t *testing.T) {
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 	errTest := errors.New("test")
 
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, errTest)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	_, _, _, err := service.GetExternalUrl(namespace, name)
 	assert.Equal(t, errTest, err)
 }
 
 func TestK8SService_GetExternalUrl(t *testing.T) {
-	value := v1beta1.IngressRuleValue{HTTP: &v1beta1.HTTPIngressRuleValue{
-		Paths: []v1beta1.HTTPIngressPath{{
+	value := networkingV1.IngressRuleValue{HTTP: &networkingV1.HTTPIngressRuleValue{
+		Paths: []networkingV1.HTTPIngressPath{{
 			Path: name,
 		}},
 	}}
-	ingressInstance := v1beta1.Ingress{
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+	ingressInstance := networkingV1.Ingress{
+		Spec: networkingV1.IngressSpec{
+			Rules: []networkingV1.IngressRule{{
 				IngressRuleValue: value,
 				Host:             host,
 			},
@@ -218,13 +218,13 @@ func TestK8SService_GetExternalUrl(t *testing.T) {
 		},
 	}
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&ingressInstance, nil)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	url, s, s2, err := service.GetExternalUrl(namespace, name)
 
@@ -240,12 +240,12 @@ func TestK8SService_GetIngressByCr_ListErr(t *testing.T) {
 	}
 	errTest := errors.New("test")
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(nil, errTest)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	cr, err := service.GetIngressByCr(instance)
 	assert.Error(t, err)
@@ -255,17 +255,17 @@ func TestK8SService_GetIngressByCr_ListErr(t *testing.T) {
 
 func TestK8SService_GetIngressByCr_InList(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
-	ingressInstance := v1beta1.Ingress{ObjectMeta: createObjectMeta()}
-	list := v1beta1.IngressList{
-		Items: []v1beta1.Ingress{ingressInstance},
+	ingressInstance := networkingV1.Ingress{ObjectMeta: createObjectMeta()}
+	list := networkingV1.IngressList{
+		Items: []networkingV1.Ingress{ingressInstance},
 	}
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	cr, err := service.GetIngressByCr(instance)
 	assert.NoError(t, err)
@@ -274,16 +274,16 @@ func TestK8SService_GetIngressByCr_InList(t *testing.T) {
 
 func TestK8SService_GetIngressByCr_NotInList(t *testing.T) {
 	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
-	list := v1beta1.IngressList{
-		Items: []v1beta1.Ingress{},
+	list := networkingV1.IngressList{
+		Items: []networkingV1.Ingress{},
 	}
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	cr, err := service.GetIngressByCr(instance)
 	assert.NoError(t, err)
@@ -406,12 +406,12 @@ func TestK8SService_UpdateExternalTargetPath_GetIngressByCr(t *testing.T) {
 	}
 	errTest := errors.New("test")
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(nil, errTest)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	orString := intstr.IntOrString{}
 	err := service.UpdateExternalTargetPath(instance, orString)
@@ -424,34 +424,38 @@ func TestK8SService_UpdateExternalTargetPath_GetIngressByCr(t *testing.T) {
 func TestK8SService_UpdateExternalTargetPath_AlreadyUpdated(t *testing.T) {
 	orString := intstr.IntOrString{}
 	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
-	path := v1beta1.HTTPIngressPath{
-		Backend: v1beta1.IngressBackend{
-			ServicePort: orString,
-		},
-	}
-	rule := v1beta1.IngressRule{
-		IngressRuleValue: v1beta1.IngressRuleValue{
-			HTTP: &v1beta1.HTTPIngressRuleValue{
-				Paths: []v1beta1.HTTPIngressPath{path},
+	path := networkingV1.HTTPIngressPath{
+		Backend: networkingV1.IngressBackend{
+			Service: &networkingV1.IngressServiceBackend{
+				Port: networkingV1.ServiceBackendPort{
+					Number: int32(orString.IntValue()),
+				},
 			},
 		},
 	}
-	ingressInstance := v1beta1.Ingress{
-		ObjectMeta: createObjectMeta(),
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{rule},
+	rule := networkingV1.IngressRule{
+		IngressRuleValue: networkingV1.IngressRuleValue{
+			HTTP: &networkingV1.HTTPIngressRuleValue{
+				Paths: []networkingV1.HTTPIngressPath{path},
+			},
 		},
 	}
-	list := v1beta1.IngressList{
-		Items: []v1beta1.Ingress{ingressInstance},
+	ingressInstance := networkingV1.Ingress{
+		ObjectMeta: createObjectMeta(),
+		Spec: networkingV1.IngressSpec{
+			Rules: []networkingV1.IngressRule{rule},
+		},
+	}
+	list := networkingV1.IngressList{
+		Items: []networkingV1.Ingress{ingressInstance},
 	}
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	err := service.UpdateExternalTargetPath(instance, orString)
 	assert.NoError(t, err)
@@ -467,29 +471,33 @@ func TestK8SService_UpdateExternalTargetPath_UpdateErr(t *testing.T) {
 		StrVal: "",
 	}
 	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
-	path := v1beta1.HTTPIngressPath{
-		Backend: v1beta1.IngressBackend{
-			ServicePort: intTwo,
-		},
-	}
-	rule := v1beta1.IngressRule{
-		IngressRuleValue: v1beta1.IngressRuleValue{
-			HTTP: &v1beta1.HTTPIngressRuleValue{
-				Paths: []v1beta1.HTTPIngressPath{path},
+	path := networkingV1.HTTPIngressPath{
+		Backend: networkingV1.IngressBackend{
+			Service: &networkingV1.IngressServiceBackend{
+				Port: networkingV1.ServiceBackendPort{
+					Number: int32(intTwo.IntValue()),
+				},
 			},
 		},
 	}
-	ingressInstance := v1beta1.Ingress{
-		ObjectMeta: createObjectMeta(),
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{rule},
+	rule := networkingV1.IngressRule{
+		IngressRuleValue: networkingV1.IngressRuleValue{
+			HTTP: &networkingV1.HTTPIngressRuleValue{
+				Paths: []networkingV1.HTTPIngressPath{path},
+			},
 		},
 	}
-	list := v1beta1.IngressList{
-		Items: []v1beta1.Ingress{ingressInstance},
+	ingressInstance := networkingV1.Ingress{
+		ObjectMeta: createObjectMeta(),
+		Spec: networkingV1.IngressSpec{
+			Rules: []networkingV1.IngressRule{rule},
+		},
+	}
+	list := networkingV1.IngressList{
+		Items: []networkingV1.Ingress{ingressInstance},
 	}
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 
 	errTest := errors.New("test")
 	extClient.On("Ingresses", namespace).Return(ingress)
@@ -497,7 +505,7 @@ func TestK8SService_UpdateExternalTargetPath_UpdateErr(t *testing.T) {
 	ingress.On("Update", context.TODO(), &ingressInstance, metav1.UpdateOptions{}).Return(nil, errTest)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	err := service.UpdateExternalTargetPath(instance, intOrString)
 	assert.Equal(t, errTest, err)
@@ -513,36 +521,40 @@ func TestK8SService_UpdateExternalTargetPath(t *testing.T) {
 		StrVal: "",
 	}
 	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
-	path := v1beta1.HTTPIngressPath{
-		Backend: v1beta1.IngressBackend{
-			ServicePort: intTwo,
-		},
-	}
-	rule := v1beta1.IngressRule{
-		IngressRuleValue: v1beta1.IngressRuleValue{
-			HTTP: &v1beta1.HTTPIngressRuleValue{
-				Paths: []v1beta1.HTTPIngressPath{path},
+	path := networkingV1.HTTPIngressPath{
+		Backend: networkingV1.IngressBackend{
+			Service: &networkingV1.IngressServiceBackend{
+				Port: networkingV1.ServiceBackendPort{
+					Number: int32(intTwo.IntValue()),
+				},
 			},
 		},
 	}
-	ingressInstance := v1beta1.Ingress{
-		ObjectMeta: createObjectMeta(),
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{rule},
+	rule := networkingV1.IngressRule{
+		IngressRuleValue: networkingV1.IngressRuleValue{
+			HTTP: &networkingV1.HTTPIngressRuleValue{
+				Paths: []networkingV1.HTTPIngressPath{path},
+			},
 		},
 	}
-	list := v1beta1.IngressList{
-		Items: []v1beta1.Ingress{ingressInstance},
+	ingressInstance := networkingV1.Ingress{
+		ObjectMeta: createObjectMeta(),
+		Spec: networkingV1.IngressSpec{
+			Rules: []networkingV1.IngressRule{rule},
+		},
+	}
+	list := networkingV1.IngressList{
+		Items: []networkingV1.Ingress{ingressInstance},
 	}
 	ingress := &kMock.Ingress{}
-	extClient := &kMock.ExtensionsClient{}
+	extClient := &kMock.NetworkingClient{}
 
 	extClient.On("Ingresses", namespace).Return(ingress)
 	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
 	ingress.On("Update", context.TODO(), &ingressInstance, metav1.UpdateOptions{}).Return(nil, nil)
 
 	service := K8SService{
-		extensionsV1Client: extClient,
+		networkingV1Client: extClient,
 	}
 	err := service.UpdateExternalTargetPath(instance, intOrString)
 	assert.NoError(t, err)
