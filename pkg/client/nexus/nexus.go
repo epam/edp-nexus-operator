@@ -22,7 +22,7 @@ func Init(url string, user string, password string) *Client {
 		resty: resty.SetHostURL(url).SetBasicAuth(user, password).SetHeaders(map[string]string{
 			"Content-Type": "application/json",
 			"Accept":       "application/json",
-		}),
+		}).SetDisableWarn(true),
 	}
 }
 

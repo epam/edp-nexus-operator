@@ -56,3 +56,28 @@ func (nc *Client) DeleteUser(ctx context.Context, ID string) error {
 
 	return nil
 }
+
+func (nc *Client) GetUsers(ctx context.Context) ([]User, error) {
+	var ret []User
+	rsp, err := nc.requestWithContext(ctx).SetResult(&ret).Get("/security/users")
+	if err := checkRestyResponse(rsp, err); err != nil {
+		return nil, errors.Wrap(err, "unable to get users")
+	}
+
+	return ret, nil
+}
+
+func (nc *Client) GetUser(ctx context.Context, email string) (*User, error) {
+	users, err := nc.GetUsers(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to get users")
+	}
+
+	for i, usr := range users {
+		if usr.Email == email || usr.ID == email {
+			return &users[i], nil
+		}
+	}
+
+	return nil, ErrNotFound("user not found")
+}

@@ -36,6 +36,7 @@ type NexusClient interface {
 	CreateUser(ctx context.Context, u *nexusClient.User) error
 	UpdateUser(ctx context.Context, u *nexusClient.User) error
 	DeleteUser(ctx context.Context, ID string) error
+	GetUser(ctx context.Context, email string) (*nexusClient.User, error)
 }
 
 func NewReconcile(k8sClient client.Client, scheme *runtime.Scheme, log logr.Logger, platformType string) (*Reconcile, error) {
@@ -115,23 +116,41 @@ func (r *Reconcile) tryReconcile(ctx context.Context, instance *v1alpha1.NexusUs
 		return errors.Wrap(err, "unable to create nexus client for child")
 	}
 
-	usr := instanceSpecToUser(&instance.Spec)
-	if instance.Status.ID == "" {
-		usr.Password = uniuri.New()
-		if err := nxCl.CreateUser(ctx, usr); err != nil {
-			return errors.Wrap(err, "unable to create user")
-		}
-		instance.Status.ID = usr.ID
-	} else {
-		usr.ID = instance.Status.ID
-		usr.Source = "default"
-		if err := nxCl.UpdateUser(ctx, usr); err != nil {
-			return errors.Wrap(err, "unable to update user")
-		}
+	if err := r.syncUser(ctx, instance, nxCl); err != nil {
+		return errors.Wrap(err, "unable to sync user")
 	}
 
 	if _, err := r.deleteResource(ctx, instance, nxCl); err != nil {
 		return errors.Wrap(err, "unable to delete resource")
+	}
+
+	return nil
+}
+
+func (r *Reconcile) syncUser(ctx context.Context, instance *v1alpha1.NexusUser, nxCl NexusClient) error {
+	specUsr := instanceSpecToUser(&instance.Spec)
+
+	if instance.Status.ID == "" {
+		usr, err := nxCl.GetUser(ctx, specUsr.Email)
+		if nexusClient.IsErrNotFound(err) {
+			specUsr.Password = uniuri.New()
+			if err := nxCl.CreateUser(ctx, specUsr); err != nil {
+				return errors.Wrap(err, "unable to create user")
+			}
+			instance.Status.ID = specUsr.ID
+
+			return nil
+		} else if err != nil {
+			return errors.Wrap(err, "unknown error")
+		}
+
+		instance.Status.ID = usr.ID
+	}
+
+	specUsr.ID = instance.Status.ID
+	specUsr.Source = "default"
+	if err := nxCl.UpdateUser(ctx, specUsr); err != nil {
+		return errors.Wrap(err, "unable to update user")
 	}
 
 	return nil

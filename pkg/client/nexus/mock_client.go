@@ -108,3 +108,12 @@ func (_m *Mock) RunScript(scriptName string, parameters map[string]interface{}) 
 
 	return r0, r1
 }
+
+func (_m *Mock) GetUser(ctx context.Context, email string) (*User, error) {
+	called := _m.Called(email)
+	if err := called.Error(1); err != nil {
+		return nil, err
+	}
+
+	return called.Get(0).(*User), nil
+}
