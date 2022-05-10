@@ -8,7 +8,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
-	v1alpha1 "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 
 	v1v1alpha1 "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
 )
@@ -19,11 +19,11 @@ type PlatformService struct {
 }
 
 // AddKeycloakProxyToDeployConf provides a mock function with given fields: instance, args
-func (_m *PlatformService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
+func (_m *PlatformService) AddKeycloakProxyToDeployConf(instance nexusApi.Nexus, args []string) error {
 	ret := _m.Called(instance, args)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(v1alpha1.Nexus, []string) error); ok {
+	if rf, ok := ret.Get(0).(func(nexusApi.Nexus, []string) error); ok {
 		r0 = rf(instance, args)
 	} else {
 		r0 = ret.Error(0)
@@ -33,11 +33,11 @@ func (_m *PlatformService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus,
 }
 
 // AddPortToService provides a mock function with given fields: instance, newPortSpec
-func (_m *PlatformService) AddPortToService(instance v1alpha1.Nexus, newPortSpec v1.ServicePort) error {
+func (_m *PlatformService) AddPortToService(instance nexusApi.Nexus, newPortSpec v1.ServicePort) error {
 	ret := _m.Called(instance, newPortSpec)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(v1alpha1.Nexus, v1.ServicePort) error); ok {
+	if rf, ok := ret.Get(0).(func(nexusApi.Nexus, v1.ServicePort) error); ok {
 		r0 = rf(instance, newPortSpec)
 	} else {
 		r0 = ret.Error(0)
@@ -47,11 +47,11 @@ func (_m *PlatformService) AddPortToService(instance v1alpha1.Nexus, newPortSpec
 }
 
 // CreateConfigMapFromFile provides a mock function with given fields: instance, configMapName, filePath
-func (_m *PlatformService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error {
+func (_m *PlatformService) CreateConfigMapFromFile(instance nexusApi.Nexus, configMapName string, filePath string) error {
 	ret := _m.Called(instance, configMapName, filePath)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(v1alpha1.Nexus, string, string) error); ok {
+	if rf, ok := ret.Get(0).(func(nexusApi.Nexus, string, string) error); ok {
 		r0 = rf(instance, configMapName, filePath)
 	} else {
 		r0 = ret.Error(0)
@@ -61,11 +61,11 @@ func (_m *PlatformService) CreateConfigMapFromFile(instance v1alpha1.Nexus, conf
 }
 
 // CreateEDPComponentIfNotExist provides a mock function with given fields: instance, url, icon
-func (_m *PlatformService) CreateEDPComponentIfNotExist(instance v1alpha1.Nexus, url string, icon string) error {
+func (_m *PlatformService) CreateEDPComponentIfNotExist(instance nexusApi.Nexus, url string, icon string) error {
 	ret := _m.Called(instance, url, icon)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(v1alpha1.Nexus, string, string) error); ok {
+	if rf, ok := ret.Get(0).(func(nexusApi.Nexus, string, string) error); ok {
 		r0 = rf(instance, url, icon)
 	} else {
 		r0 = ret.Error(0)
@@ -103,11 +103,11 @@ func (_m *PlatformService) CreateKeycloakClient(kc *v1v1alpha1.KeycloakClient) e
 }
 
 // CreateSecret provides a mock function with given fields: instance, name, data
-func (_m *PlatformService) CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error {
+func (_m *PlatformService) CreateSecret(instance nexusApi.Nexus, name string, data map[string][]byte) error {
 	ret := _m.Called(instance, name)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(v1alpha1.Nexus, string, map[string][]byte) error); ok {
+	if rf, ok := ret.Get(0).(func(nexusApi.Nexus, string, map[string][]byte) error); ok {
 		r0 = rf(instance, name, data)
 	} else {
 		r0 = ret.Error(0)
@@ -265,11 +265,11 @@ func (_m *PlatformService) GetServiceByCr(name string, namespace string) (*v1.Se
 }
 
 // IsDeploymentReady provides a mock function with given fields: instance
-func (_m *PlatformService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error) {
+func (_m *PlatformService) IsDeploymentReady(instance nexusApi.Nexus) (*bool, error) {
 	ret := _m.Called(instance)
 
 	var r0 *bool
-	if rf, ok := ret.Get(0).(func(v1alpha1.Nexus) *bool); ok {
+	if rf, ok := ret.Get(0).(func(nexusApi.Nexus) *bool); ok {
 		r0 = rf(instance)
 	} else {
 		if ret.Get(0) != nil {
@@ -278,7 +278,7 @@ func (_m *PlatformService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, er
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(v1alpha1.Nexus) error); ok {
+	if rf, ok := ret.Get(1).(func(nexusApi.Nexus) error); ok {
 		r1 = rf(instance)
 	} else {
 		r1 = ret.Error(1)
@@ -288,11 +288,11 @@ func (_m *PlatformService) IsDeploymentReady(instance v1alpha1.Nexus) (*bool, er
 }
 
 // UpdateExternalTargetPath provides a mock function with given fields: instance, targetPort
-func (_m *PlatformService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
+func (_m *PlatformService) UpdateExternalTargetPath(instance nexusApi.Nexus, targetPort intstr.IntOrString) error {
 	ret := _m.Called(instance, targetPort)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(v1alpha1.Nexus, intstr.IntOrString) error); ok {
+	if rf, ok := ret.Get(0).(func(nexusApi.Nexus, intstr.IntOrString) error); ok {
 		r0 = rf(instance, targetPort)
 	} else {
 		r0 = ret.Error(0)

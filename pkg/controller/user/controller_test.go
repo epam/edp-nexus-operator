@@ -15,15 +15,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	nexusClient "github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
 )
 
 type ControllerTestSuite struct {
 	suite.Suite
-	nx         *v1alpha1.Nexus
-	nxUser     *v1alpha1.NexusUser
+	nx         *v1.Nexus
+	nxUser     *v1.NexusUser
 	logger     *commonMock.Logger
 	clientMock *nexusClient.Mock
 	rec        *Reconcile
@@ -36,13 +36,14 @@ func TestClientTestSuite(t *testing.T) {
 }
 
 func (s *ControllerTestSuite) SetupTest() {
-	s.nx = &v1alpha1.Nexus{ObjectMeta: metav1.ObjectMeta{Name: "nx1", Namespace: "ns1"}}
-	s.nxUser = &v1alpha1.NexusUser{ObjectMeta: metav1.ObjectMeta{Namespace: s.nx.Namespace, Name: "user1"},
-		Spec: v1alpha1.NexusUserSpec{OwnerName: s.nx.Name, Email: "mktest@example.com"}}
+	s.nx = &v1.Nexus{ObjectMeta: metav1.ObjectMeta{Name: "nx1", Namespace: "ns1"}}
+	s.nxUser = &v1.NexusUser{ObjectMeta: metav1.ObjectMeta{Namespace: s.nx.Namespace, Name: "user1"},
+		Spec: v1.NexusUserSpec{OwnerName: s.nx.Name, Email: "mktest@example.com"}}
 	s.clientUser = instanceSpecToUser(&s.nxUser.Spec)
 
 	s.scheme = runtime.NewScheme()
-	v1alpha1.RegisterTypes(s.scheme)
+	err := v1.AddToScheme(s.scheme)
+	assert.NoError(s.T(), err)
 
 	s.logger = &commonMock.Logger{}
 	fakeK8sClient := fake.NewClientBuilder().WithScheme(s.scheme).WithRuntimeObjects(s.nx, s.nxUser).Build()

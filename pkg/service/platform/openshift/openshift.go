@@ -20,7 +20,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
@@ -82,7 +82,7 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 	return nil
 }
 
-func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
+func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1.Nexus, args []string) error {
 	if os.Getenv(deploymentTypeEnvName) == deploymentConfigsDeploymentType {
 		containerSpec := coreV1Api.Container{
 			Name:            "keycloak-proxy",
@@ -142,7 +142,7 @@ func (service OpenshiftService) GetExternalUrl(namespace string, name string) (w
 }
 
 // IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
-func (service OpenshiftService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
+func (service OpenshiftService) IsDeploymentReady(instance v1.Nexus) (res *bool, err error) {
 	if os.Getenv(deploymentTypeEnvName) == deploymentConfigsDeploymentType {
 		deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
 		if err != nil {
@@ -161,7 +161,7 @@ func getBoolP(val bool) *bool {
 }
 
 // GetRouteByCr return Route object with instance as a reference owner
-func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1Api.Route, error) {
+func (service OpenshiftService) GetRouteByCr(instance v1.Nexus) (*routeV1Api.Route, error) {
 	rl, err := service.routeClient.Routes(instance.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't retrieve services list from the cluster")
@@ -175,7 +175,7 @@ func (service OpenshiftService) GetRouteByCr(instance v1alpha1.Nexus) (*routeV1A
 }
 
 // UpdateExternalTargetPath performs updating route target port
-func (service OpenshiftService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
+func (service OpenshiftService) UpdateExternalTargetPath(instance v1.Nexus, targetPort intstr.IntOrString) error {
 	instanceRoute, err := service.GetRouteByCr(instance)
 	if err != nil || instanceRoute == nil {
 		return errors.Wrap(err, "couldn't get route")

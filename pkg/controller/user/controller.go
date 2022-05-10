@@ -16,7 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	nexusClient "github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
@@ -65,13 +65,13 @@ func (r *Reconcile) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.NexusUser{}, builder.WithPredicates(pred)).
+		For(&v1.NexusUser{}, builder.WithPredicates(pred)).
 		Complete(r)
 }
 
 func isSpecUpdated(e event.UpdateEvent) bool {
-	oo := e.ObjectOld.(*v1alpha1.NexusUser)
-	no := e.ObjectNew.(*v1alpha1.NexusUser)
+	oo := e.ObjectOld.(*v1.NexusUser)
+	no := e.ObjectNew.(*v1.NexusUser)
 
 	return !reflect.DeepEqual(oo.Spec, no.Spec) ||
 		(oo.GetDeletionTimestamp().IsZero() && !no.GetDeletionTimestamp().IsZero())
@@ -81,7 +81,7 @@ func (r *Reconcile) Reconcile(ctx context.Context, request reconcile.Request) (r
 	log := r.log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	log.Info("Reconciling Nexus User")
 
-	var instance v1alpha1.NexusUser
+	var instance v1.NexusUser
 	if err := r.k8sClient.Get(ctx, request.NamespacedName, &instance); err != nil {
 		if k8sErrors.IsNotFound(err) {
 			log.Info("instance not found")
@@ -110,7 +110,7 @@ func (r *Reconcile) Reconcile(ctx context.Context, request reconcile.Request) (r
 	return
 }
 
-func (r *Reconcile) tryReconcile(ctx context.Context, instance *v1alpha1.NexusUser) error {
+func (r *Reconcile) tryReconcile(ctx context.Context, instance *v1.NexusUser) error {
 	nxCl, err := r.getNexusClient(ctx, instance)
 	if err != nil {
 		return errors.Wrap(err, "unable to create nexus client for child")
@@ -127,7 +127,7 @@ func (r *Reconcile) tryReconcile(ctx context.Context, instance *v1alpha1.NexusUs
 	return nil
 }
 
-func (r *Reconcile) syncUser(ctx context.Context, instance *v1alpha1.NexusUser, nxCl NexusClient) error {
+func (r *Reconcile) syncUser(ctx context.Context, instance *v1.NexusUser, nxCl NexusClient) error {
 	specUsr := instanceSpecToUser(&instance.Spec)
 
 	if instance.Status.ID == "" {
@@ -156,7 +156,7 @@ func (r *Reconcile) syncUser(ctx context.Context, instance *v1alpha1.NexusUser, 
 	return nil
 }
 
-func instanceSpecToUser(spec *v1alpha1.NexusUserSpec) *nexusClient.User {
+func instanceSpecToUser(spec *v1.NexusUserSpec) *nexusClient.User {
 	return &nexusClient.User{
 		Roles:     spec.Roles,
 		FirstName: spec.FirstName,
@@ -167,7 +167,7 @@ func instanceSpecToUser(spec *v1alpha1.NexusUserSpec) *nexusClient.User {
 	}
 }
 
-func (r *Reconcile) deleteResource(ctx context.Context, instance *v1alpha1.NexusUser,
+func (r *Reconcile) deleteResource(ctx context.Context, instance *v1.NexusUser,
 	nxCl NexusClient) (bool, error) {
 	finalizers := instance.GetFinalizers()
 

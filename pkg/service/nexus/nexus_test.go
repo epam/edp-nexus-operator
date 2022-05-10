@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	pMock "github.com/epam/edp-nexus-operator/v2/mocks/platform"
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 )
@@ -52,7 +52,7 @@ func ReturnFalse() bool {
 }
 
 func TestServiceImpl_IsDeploymentReadyError(t *testing.T) {
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	platformMock := pMock.PlatformService{}
 	ok := false
 	errTest := errors.New("test")
@@ -66,8 +66,8 @@ func TestServiceImpl_IsDeploymentReadyError(t *testing.T) {
 }
 
 func TestServiceImpl_Integration_GetKeycloakClientErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}}}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}}}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{platformService: &platformMock}
 	errTest := errors.New("test")
@@ -82,8 +82,8 @@ func TestServiceImpl_Integration_GetKeycloakClientErr(t *testing.T) {
 }
 
 func TestServiceImpl_Integration_CantGetOwnerKeycloakRealm(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}},
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}},
 	}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{platformService: &platformMock}
@@ -97,8 +97,8 @@ func TestServiceImpl_Integration_CantGetOwnerKeycloakRealm(t *testing.T) {
 }
 
 func TestServiceImpl_Integration_GetOwnerKeycloakErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}},
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}},
 	}
 	platformMock := pMock.PlatformService{}
 	scheme := runtime.NewScheme()
@@ -143,8 +143,8 @@ func TestServiceImpl_Integration_GetExternalUrlErr(t *testing.T) {
 		Name: name,
 	}
 
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}}}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}}}
 	platformMock := pMock.PlatformService{}
 	scheme := runtime.NewScheme()
 	scheme.AddKnownTypes(v1.SchemeGroupVersion, &keycloakApi.KeycloakRealm{}, &keycloakApi.Keycloak{})
@@ -197,8 +197,8 @@ func TestServiceImpl_Integration_AddKeycloakProxyToDeployConfErr(t *testing.T) {
 		Name: name,
 	}
 
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}}}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}}}
 	platformMock := pMock.PlatformService{}
 	scheme := runtime.NewScheme()
 	scheme.AddKnownTypes(v1.SchemeGroupVersion, &keycloakApi.KeycloakRealm{}, &keycloakApi.Keycloak{})
@@ -254,9 +254,9 @@ func TestServiceImpl_Integration_AddPortToServiceErr(t *testing.T) {
 		Name: name,
 	}
 
-	instance := v1alpha1.Nexus{
+	instance := nexusApi.Nexus{
 		ObjectMeta: ObjectMeta(),
-		Spec:       v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}},
+		Spec:       nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}},
 	}
 	platformMock := pMock.PlatformService{}
 	scheme := runtime.NewScheme()
@@ -316,8 +316,8 @@ func TestServiceImpl_Integration_UpdateExternalTargetPathErr(t *testing.T) {
 		Name: name,
 	}
 
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}}}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}}}
 	platformMock := pMock.PlatformService{}
 	scheme := runtime.NewScheme()
 	scheme.AddKnownTypes(v1.SchemeGroupVersion, &keycloakApi.KeycloakRealm{}, &keycloakApi.Keycloak{})
@@ -373,7 +373,7 @@ func TestServiceImpl_Integration_UpdateExternalTargetPathErr(t *testing.T) {
 }
 
 func TestServiceImpl_Integration(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	nexusService := ServiceImpl{}
 
 	_, err := nexusService.Integration(instance)
@@ -381,7 +381,7 @@ func TestServiceImpl_Integration(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_LocalGetNexusRestApiUrlErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -397,7 +397,7 @@ func TestServiceImpl_ExposeConfiguration_LocalGetNexusRestApiUrlErr(t *testing.T
 }
 
 func TestServiceImpl_ExposeConfiguration_LocalGetSecretDataErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -416,7 +416,7 @@ func TestServiceImpl_ExposeConfiguration_LocalGetSecretDataErr(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_GetConfigMapDataErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -437,7 +437,7 @@ func TestServiceImpl_ExposeConfiguration_GetConfigMapDataErr(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_UnmarshalErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -458,7 +458,7 @@ func TestServiceImpl_ExposeConfiguration_UnmarshalErr(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_CreateSecretErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -487,7 +487,7 @@ func TestServiceImpl_ExposeConfiguration_CreateSecretErr(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -517,7 +517,7 @@ func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testi
 }
 
 func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -549,7 +549,7 @@ func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_RunScriptErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
@@ -580,9 +580,9 @@ func TestServiceImpl_ExposeConfiguration_RunScriptErr(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_createEDPComponentErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&instance).Build()
 
@@ -614,10 +614,10 @@ func TestServiceImpl_ExposeConfiguration_createEDPComponentErr(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_GetExternalUrlErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}}}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}}}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&instance).Build()
 
@@ -650,10 +650,10 @@ func TestServiceImpl_ExposeConfiguration_GetExternalUrlErr(t *testing.T) {
 }
 
 func TestServiceImpl_ExposeConfiguration_CantCreateKeycloakClient(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta(),
-		Spec: v1alpha1.NexusSpec{KeycloakSpec: v1alpha1.KeycloakSpec{Enabled: true}}}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta(),
+		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}}}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&instance).Build()
 
@@ -694,7 +694,7 @@ func TestServiceImpl_ExposeConfiguration_CantCreateKeycloakClient(t *testing.T) 
 }
 
 func TestServiceImpl_Configure_CreateSecretErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	errTest := errors.New("test")
 
@@ -710,7 +710,7 @@ func TestServiceImpl_Configure_CreateSecretErr(t *testing.T) {
 }
 
 func TestServiceImpl_Configure_getNexusAdminPasswordErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	errTest := errors.New("test")
 
@@ -731,7 +731,7 @@ func TestServiceImpl_Configure_getNexusAdminPasswordErr(t *testing.T) {
 }
 
 func TestServiceImpl_Configure_IsNexusRestApiReadyErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	secretData := createSecretData()
 
@@ -756,9 +756,9 @@ func TestServiceImpl_Configure_IsNexusRestApiReadyErr(t *testing.T) {
 
 func TestServiceImpl_ClientForNexusChild_ClientErr(t *testing.T) {
 	ctx := context.Background()
-	nexusUser := v1alpha1.NexusUser{ObjectMeta: ObjectMeta()}
+	nexusUser := nexusApi.NexusUser{ObjectMeta: ObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
 	client := fake.NewClientBuilder().WithScheme(scheme).Build()
 	nexusService := ServiceImpl{client: client}
 	child, err := nexusService.ClientForNexusChild(ctx, &nexusUser)
@@ -769,14 +769,14 @@ func TestServiceImpl_ClientForNexusChild_ClientErr(t *testing.T) {
 
 func TestServiceImpl_ClientForNexusChild_getNexusAdminPasswordErr(t *testing.T) {
 	ctx := context.Background()
-	nexusUser := v1alpha1.NexusUser{
+	nexusUser := nexusApi.NexusUser{
 		ObjectMeta: ObjectMeta(),
-		Spec:       v1alpha1.NexusUserSpec{OwnerName: name},
+		Spec:       nexusApi.NexusUserSpec{OwnerName: name},
 	}
-	nexus := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	nexusCR := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
-	client := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(&nexus).Build()
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
+	client := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(&nexusCR).Build()
 
 	errTest := errors.New("test")
 	secretName := fmt.Sprintf("%v-admin-password", nexusUser.Name)
@@ -796,14 +796,14 @@ func TestServiceImpl_ClientForNexusChild_getNexusAdminPasswordErr(t *testing.T) 
 
 func TestServiceImpl_ClientForNexusChild(t *testing.T) {
 	ctx := context.Background()
-	nexusUser := v1alpha1.NexusUser{
+	nexusUser := nexusApi.NexusUser{
 		ObjectMeta: ObjectMeta(),
-		Spec:       v1alpha1.NexusUserSpec{OwnerName: name},
+		Spec:       nexusApi.NexusUserSpec{OwnerName: name},
 	}
-	nexus := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	nexusCR := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
-	client := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(&nexus).Build()
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
+	client := fake.NewClientBuilder().WithScheme(scheme).WithRuntimeObjects(&nexusCR).Build()
 
 	secretName := fmt.Sprintf("%v-admin-password", nexusUser.Name)
 	secretData := createSecretData()
@@ -823,7 +823,7 @@ func TestServiceImpl_ClientForNexusChild(t *testing.T) {
 }
 
 func TestServiceImpl_Configure(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: ObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	secretData := createSecretData()
 

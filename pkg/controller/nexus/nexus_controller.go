@@ -8,6 +8,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -16,7 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
@@ -186,7 +187,7 @@ func (r *ReconcileNexus) updateStatus(ctx context.Context, instance *nexusApi.Ne
 		WithName("status_update")
 	currentStatus := instance.Status.Status
 	instance.Status.Status = newStatus
-	instance.Status.LastTimeUpdated = time.Now()
+	instance.Status.LastTimeUpdated = metav1.NewTime(time.Now())
 	if err := r.client.Status().Update(ctx, instance); err != nil {
 		if err := r.client.Update(ctx, instance); err != nil {
 			return errors.Wrapf(err, "couldn't update status from '%v' to '%v'", currentStatus, newStatus)
@@ -201,7 +202,7 @@ func (r ReconcileNexus) updateAvailableStatus(ctx context.Context, instance *nex
 		WithName("status_update")
 	if instance.Status.Available != value {
 		instance.Status.Available = value
-		instance.Status.LastTimeUpdated = time.Now()
+		instance.Status.LastTimeUpdated = metav1.NewTime(time.Now())
 		if err := r.client.Status().Update(ctx, instance); err != nil {
 			if err := r.client.Update(ctx, instance); err != nil {
 				return errors.Wrapf(err, "couldn't update availability status to %v", value)

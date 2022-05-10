@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 )
@@ -17,7 +17,7 @@ type Child interface {
 }
 
 func (s ServiceImpl) ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error) {
-	var nx v1alpha1.Nexus
+	var nx v1.Nexus
 	if err := s.client.Get(ctx, types.NamespacedName{
 		Namespace: child.GetNamespace(),
 		Name:      child.OwnerName(),

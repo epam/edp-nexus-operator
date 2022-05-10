@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/openshift"
@@ -24,22 +24,22 @@ const (
 
 // PlatformService interface
 type PlatformService interface {
-	AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error
+	AddKeycloakProxyToDeployConf(instance v1.Nexus, args []string) error
 	GetExternalUrl(namespace string, name string) (webURL string, host string, scheme string, err error)
-	UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error
+	UpdateExternalTargetPath(instance v1.Nexus, targetPort intstr.IntOrString) error
 	GetConfigMapData(namespace string, name string) (map[string]string, error)
-	IsDeploymentReady(instance v1alpha1.Nexus) (*bool, error)
+	IsDeploymentReady(instance v1.Nexus) (*bool, error)
 	GetSecretData(namespace string, name string) (map[string][]byte, error)
-	CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error
+	CreateSecret(instance v1.Nexus, name string, data map[string][]byte) error
 	GetServiceByCr(name, namespace string) (*coreV1Api.Service, error)
-	AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error
-	CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, filePath string) error
+	AddPortToService(instance v1.Nexus, newPortSpec coreV1Api.ServicePort) error
+	CreateConfigMapFromFile(instance v1.Nexus, configMapName string, filePath string) error
 	GetSecret(namespace string, name string) (*coreV1Api.Secret, error)
 	UpdateSecret(secret *coreV1Api.Secret) error
 	CreateJenkinsServiceAccount(namespace string, secretName string) error
 	CreateKeycloakClient(kc *keycloakV1Api.KeycloakClient) error
 	GetKeycloakClient(name string, namespace string) (keycloakV1Api.KeycloakClient, error)
-	CreateEDPComponentIfNotExist(instance v1alpha1.Nexus, url string, icon string) error
+	CreateEDPComponentIfNotExist(instance v1.Nexus, url string, icon string) error
 }
 
 // NewPlatformService returns platform service interface implementation

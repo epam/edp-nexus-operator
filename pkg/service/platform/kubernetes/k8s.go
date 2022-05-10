@@ -27,7 +27,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 )
@@ -55,7 +55,7 @@ type K8SService struct {
 	networkingV1Client NetworkingClient
 }
 
-func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err error) {
+func (s K8SService) IsDeploymentReady(instance v1.Nexus) (res *bool, err error) {
 	dc, err := s.appClient.Deployments(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
 	if err != nil {
 		return
@@ -66,7 +66,7 @@ func (s K8SService) IsDeploymentReady(instance v1alpha1.Nexus) (res *bool, err e
 	return
 }
 
-func (s K8SService) AddKeycloakProxyToDeployConf(instance v1alpha1.Nexus, args []string) error {
+func (s K8SService) AddKeycloakProxyToDeployConf(instance v1.Nexus, args []string) error {
 	c := coreV1Api.Container{
 		Name:            "keycloak-proxy",
 		Image:           instance.Spec.KeycloakSpec.ProxyImage,
@@ -119,7 +119,7 @@ func (s K8SService) GetExternalUrl(namespace string, name string) (webURL string
 	return fmt.Sprintf("%s://%s%s", sc, h, p), h, sc, nil
 }
 
-func (s K8SService) UpdateExternalTargetPath(instance v1alpha1.Nexus, targetPort intstr.IntOrString) error {
+func (s K8SService) UpdateExternalTargetPath(instance v1.Nexus, targetPort intstr.IntOrString) error {
 	i, err := s.GetIngressByCr(instance)
 	if err != nil {
 		return errors.Wrap(err, "couldn't get route")
@@ -163,7 +163,7 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient clie
 }
 
 //CreateSecret creates secret object in K8s cluster
-func (s K8SService) CreateSecret(instance v1alpha1.Nexus, name string, data map[string][]byte) error {
+func (s K8SService) CreateSecret(instance v1.Nexus, name string, data map[string][]byte) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	secretObject := &coreV1Api.Secret{
@@ -211,7 +211,7 @@ func (s K8SService) GetServiceByCr(name, namespace string) (*coreV1Api.Service, 
 }
 
 // AddPortToService performs adding new port in Service in K8S
-func (s K8SService) AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1Api.ServicePort) error {
+func (s K8SService) AddPortToService(instance v1.Nexus, newPortSpec coreV1Api.ServicePort) error {
 	svc, err := s.GetServiceByCr(instance.Name, instance.Namespace)
 	if err != nil || svc == nil {
 		return errors.Wrap(err, "couldn't get s")
@@ -232,7 +232,7 @@ func (s K8SService) AddPortToService(instance v1alpha1.Nexus, newPortSpec coreV1
 }
 
 // CreateConfigMapFromFile performs creating ConfigMap in K8S
-func (s K8SService) CreateConfigMapFromFile(instance v1alpha1.Nexus, configMapName string, path string) error {
+func (s K8SService) CreateConfigMapFromFile(instance v1.Nexus, configMapName string, path string) error {
 	configMapData := make(map[string]string)
 	pathInfo, err := os.Stat(path)
 	if err != nil {
@@ -404,7 +404,7 @@ func (s K8SService) GetKeycloakClient(name string, namespace string) (keycloakV1
 	return out, nil
 }
 
-func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*networkingV1.Ingress, error) {
+func (s K8SService) GetIngressByCr(instance v1.Nexus) (*networkingV1.Ingress, error) {
 	i, err := s.networkingV1Client.Ingresses(instance.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't retrieve ingresses list from the cluster")
@@ -417,7 +417,7 @@ func (s K8SService) GetIngressByCr(instance v1alpha1.Nexus) (*networkingV1.Ingre
 	return nil, nil
 }
 
-func (s K8SService) CreateEDPComponentIfNotExist(nexus v1alpha1.Nexus, url string, icon string) error {
+func (s K8SService) CreateEDPComponentIfNotExist(nexus v1.Nexus, url string, icon string) error {
 	if _, err := s.getEDPComponent(nexus.Name, nexus.Namespace); err != nil {
 		if k8serrors.IsNotFound(err) {
 			return s.createEDPComponent(nexus, url, icon)
@@ -440,7 +440,7 @@ func (s K8SService) getEDPComponent(name, namespace string) (*edpCompApi.EDPComp
 	return c, nil
 }
 
-func (s K8SService) createEDPComponent(nexus v1alpha1.Nexus, url string, icon string) error {
+func (s K8SService) createEDPComponent(nexus v1.Nexus, url string, icon string) error {
 	obj := &edpCompApi.EDPComponent{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      nexus.Name,

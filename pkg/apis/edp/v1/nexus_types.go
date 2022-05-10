@@ -1,15 +1,11 @@
-package v1alpha1
+package v1
 
 import (
 	coreV1Api "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // NexusSpec defines the desired state of Nexus
-// +k8s:openapi-gen=true
 type NexusSpec struct {
 	KeycloakSpec     KeycloakSpec                     `json:"keycloakSpec,omitempty"`
 	ImagePullSecrets []coreV1Api.LocalObjectReference `json:"imagePullSecrets,omitempty"`
@@ -19,8 +15,6 @@ type NexusSpec struct {
 	Volumes          []NexusVolumes                   `json:"volumes,omitempty"`
 	Users            []NexusUsers                     `json:"users,omitempty"`
 	EdpSpec          EdpSpec                          `json:"edpSpec"`
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 }
 
 type EdpSpec struct {
@@ -42,13 +36,10 @@ type NexusUsers struct {
 }
 
 // NexusStatus defines the observed state of Nexus
-// +k8s:openapi-gen=true
 type NexusStatus struct {
 	Available       bool        `json:"available,omitempty"`
 	LastTimeUpdated metav1.Time `json:"lastTimeUpdated,omitempty"`
 	Status          string      `json:"status,omitempty"`
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 }
 
 type KeycloakSpec struct {
@@ -59,11 +50,12 @@ type KeycloakSpec struct {
 	ProxyImage string   `json:"proxyImage,omitempty"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+//+kubebuilder:storageversion
+//+kubebuilder:resource:path=nexuses
 
-// Nexus is the Schema for the nexus API
-// +k8s:openapi-gen=true
-// +kubebuilder:deprecatedversion
+// Nexus is the Schema for the nexuses API
 type Nexus struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -72,7 +64,7 @@ type Nexus struct {
 	Status NexusStatus `json:"status,omitempty"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // NexusList contains a list of Nexus
 type NexusList struct {

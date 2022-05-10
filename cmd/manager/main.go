@@ -11,7 +11,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/rest"
 
-	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusApiV1 "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
+	nexusApiV1Alpha1 "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/user"
@@ -41,7 +42,9 @@ const nexusOperatorLock = "edp-nexus-operator-lock"
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	nexusApi.RegisterTypes(scheme)
+	utilruntime.Must(nexusApiV1Alpha1.AddToScheme(scheme))
+
+	utilruntime.Must(nexusApiV1.AddToScheme(scheme))
 
 	utilruntime.Must(edpCompApi.AddToScheme(scheme))
 

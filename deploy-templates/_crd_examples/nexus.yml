@@ -1,0 +1,24 @@
+apiVersion: v2.edp.epam.com/v1
+kind: Nexus
+metadata:
+  name: nexus1
+spec:
+  basePath: ''
+  edpSpec:
+    dnsWildcard: localhost.com
+  image: sonatype/nexus3
+  keycloakSpec:
+    enabled: true
+    proxyImage: quay.io/keycloak/keycloak-gatekeeper:10.0.0
+    roles:
+      - developer
+      - administrator
+  users:
+    - roles:
+        - nx-admin
+      username: nx@example.com
+  version: 3.38.1
+  volumes:
+    - capacity: 30Gi
+      name: data
+      storage_class: gp2

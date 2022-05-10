@@ -19,7 +19,7 @@ import (
 
 	"github.com/epam/edp-nexus-operator/v2/mocks"
 	sMock "github.com/epam/edp-nexus-operator/v2/mocks/nexus"
-	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 )
 
 const name = "name"

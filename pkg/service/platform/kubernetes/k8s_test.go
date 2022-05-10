@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	kMock "github.com/epam/edp-nexus-operator/v2/mocks/kubernetes"
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 )
@@ -47,7 +47,7 @@ func createObjectMeta() metav1.ObjectMeta {
 func TestK8SService_IsDeploymentReadyErr(t *testing.T) {
 	ctx := context.TODO()
 	errTest := errors.New("test")
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	appV1Client := kMock.AppsV1Client{}
 	deployment := &kMock.Deployment{}
 	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
@@ -63,7 +63,7 @@ func TestK8SService_IsDeploymentReadyErr(t *testing.T) {
 
 func TestK8SService_IsDeploymentReadyFalse(t *testing.T) {
 	ctx := context.TODO()
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	deploymentInstance := &appsv1.Deployment{}
 	appV1Client := kMock.AppsV1Client{}
 	deployment := &kMock.Deployment{}
@@ -80,7 +80,7 @@ func TestK8SService_IsDeploymentReadyFalse(t *testing.T) {
 
 func TestK8SService_IsDeploymentReadyTrue(t *testing.T) {
 	ctx := context.TODO()
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	deploymentInstance := &appsv1.Deployment{
 		Status: appsv1.DeploymentStatus{
 			UpdatedReplicas:   1,
@@ -101,7 +101,7 @@ func TestK8SService_IsDeploymentReadyTrue(t *testing.T) {
 
 func TestK8SService_AddKeycloakProxyToDeployConf_GetErr(t *testing.T) {
 	ctx := context.TODO()
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	deploymentInstance := &appsv1.Deployment{}
 	appV1Client := kMock.AppsV1Client{}
 	deployment := &kMock.Deployment{}
@@ -118,7 +118,7 @@ func TestK8SService_AddKeycloakProxyToDeployConf_GetErr(t *testing.T) {
 
 func TestK8SService_AddKeycloakProxyToDeployConf_UpdateErr(t *testing.T) {
 	ctx := context.TODO()
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	c := coreV1Api.Container{
 		Name:            "keycloak-proxy",
 		Image:           instance.Spec.KeycloakSpec.ProxyImage,
@@ -154,7 +154,7 @@ func TestK8SService_AddKeycloakProxyToDeployConf_UpdateErr(t *testing.T) {
 
 func TestK8SService_AddKeycloakProxyToDeployConf(t *testing.T) {
 	ctx := context.TODO()
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	c := coreV1Api.Container{
 		Name:            "keycloak-proxy",
 		Image:           instance.Spec.KeycloakSpec.ProxyImage,
@@ -235,7 +235,7 @@ func TestK8SService_GetExternalUrl(t *testing.T) {
 }
 
 func TestK8SService_GetIngressByCr_ListErr(t *testing.T) {
-	instance := v1alpha1.Nexus{
+	instance := nexusApi.Nexus{
 		ObjectMeta: metav1.ObjectMeta{Namespace: namespace},
 	}
 	errTest := errors.New("test")
@@ -254,7 +254,7 @@ func TestK8SService_GetIngressByCr_ListErr(t *testing.T) {
 }
 
 func TestK8SService_GetIngressByCr_InList(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	ingressInstance := networkingV1.Ingress{ObjectMeta: createObjectMeta()}
 	list := networkingV1.IngressList{
 		Items: []networkingV1.Ingress{ingressInstance},
@@ -273,7 +273,7 @@ func TestK8SService_GetIngressByCr_InList(t *testing.T) {
 }
 
 func TestK8SService_GetIngressByCr_NotInList(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	list := networkingV1.IngressList{
 		Items: []networkingV1.Ingress{},
 	}
@@ -333,7 +333,7 @@ func TestK8SService_GetKeycloakClient(t *testing.T) {
 }
 
 func TestK8SService_CreateEDPComponentIfNotExist_GetErr(t *testing.T) {
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	client := fake.NewClientBuilder().Build()
 
 	service := K8SService{client: client}
@@ -343,7 +343,7 @@ func TestK8SService_CreateEDPComponentIfNotExist_GetErr(t *testing.T) {
 }
 
 func TestK8SService_CreateEDPComponentIfNotExist_AlreadyExist(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	EDPComponent := edpCompApi.EDPComponent{ObjectMeta: createObjectMeta()}
 	scheme := runtime.NewScheme()
 	scheme.AddKnownTypes(v1.SchemeGroupVersion, &edpCompApi.EDPComponent{})
@@ -356,9 +356,9 @@ func TestK8SService_CreateEDPComponentIfNotExist_AlreadyExist(t *testing.T) {
 }
 
 func TestK8SService_CreateEDPComponentIfNotExist(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &edpCompApi.EDPComponent{}, &v1alpha1.Nexus{})
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &edpCompApi.EDPComponent{}, &nexusApi.Nexus{})
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects().Build()
 
@@ -401,7 +401,7 @@ func TestK8SService_CreateJenkinsServiceAccount_AlreadyExist(t *testing.T) {
 }
 
 func TestK8SService_UpdateExternalTargetPath_GetIngressByCr(t *testing.T) {
-	instance := v1alpha1.Nexus{
+	instance := nexusApi.Nexus{
 		ObjectMeta: metav1.ObjectMeta{Namespace: namespace},
 	}
 	errTest := errors.New("test")
@@ -423,7 +423,7 @@ func TestK8SService_UpdateExternalTargetPath_GetIngressByCr(t *testing.T) {
 
 func TestK8SService_UpdateExternalTargetPath_AlreadyUpdated(t *testing.T) {
 	orString := intstr.IntOrString{}
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	path := networkingV1.HTTPIngressPath{
 		Backend: networkingV1.IngressBackend{
 			Service: &networkingV1.IngressServiceBackend{
@@ -470,7 +470,7 @@ func TestK8SService_UpdateExternalTargetPath_UpdateErr(t *testing.T) {
 		IntVal: 2,
 		StrVal: "",
 	}
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	path := networkingV1.HTTPIngressPath{
 		Backend: networkingV1.IngressBackend{
 			Service: &networkingV1.IngressServiceBackend{
@@ -520,7 +520,7 @@ func TestK8SService_UpdateExternalTargetPath(t *testing.T) {
 		IntVal: 2,
 		StrVal: "",
 	}
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	path := networkingV1.HTTPIngressPath{
 		Backend: networkingV1.IngressBackend{
 			Service: &networkingV1.IngressServiceBackend{
@@ -710,7 +710,7 @@ func TestK8SService_GetServiceByCr(t *testing.T) {
 }
 
 func TestK8SService_AddPortToService_GetServiceByCrErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	portSpec := coreV1Api.ServicePort{}
 	coreClient := kMock.CoreV1Interface{}
 	services := &kMock.ServiceInterface{}
@@ -728,7 +728,7 @@ func TestK8SService_AddPortToService_GetServiceByCrErr(t *testing.T) {
 }
 
 func TestK8SService_AddPortToService_PortInService(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	portSpec := coreV1Api.ServicePort{Name: name}
 
 	coreClient := kMock.CoreV1Interface{}
@@ -749,7 +749,7 @@ func TestK8SService_AddPortToService_PortInService(t *testing.T) {
 }
 
 func TestK8SService_AddPortToService_UpdateErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	portSpec := coreV1Api.ServicePort{Name: name}
 
 	coreClient := kMock.CoreV1Interface{}
@@ -769,7 +769,7 @@ func TestK8SService_AddPortToService_UpdateErr(t *testing.T) {
 }
 
 func TestK8SService_AddPortToService(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	portSpec := coreV1Api.ServicePort{Name: name}
 
 	coreClient := kMock.CoreV1Interface{}
@@ -789,7 +789,7 @@ func TestK8SService_AddPortToService(t *testing.T) {
 
 func TestK8SService_CreateSecret_SetControllerReferenceErr(t *testing.T) {
 	scheme := runtime.NewScheme()
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	data := map[string][]byte{"str": []byte("str")}
 	service := K8SService{Scheme: scheme}
 	err := service.CreateSecret(instance, name, data)
@@ -799,8 +799,8 @@ func TestK8SService_CreateSecret_SetControllerReferenceErr(t *testing.T) {
 
 func TestK8SService_CreateSecret_AlreadyExist(t *testing.T) {
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 
 	coreClient := kMock.CoreV1Interface{}
 	secrets := &kMock.SecretInterface{}
@@ -821,8 +821,8 @@ func TestK8SService_CreateSecret_AlreadyExist(t *testing.T) {
 
 func TestK8SService_CreateSecret_GetSecretErr(t *testing.T) {
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	errTest := errors.New("test")
 
 	coreClient := kMock.CoreV1Interface{}
@@ -845,8 +845,8 @@ func TestK8SService_CreateSecret_GetSecretErr(t *testing.T) {
 func TestK8SService_CreateSecret_CreateSecretErr(t *testing.T) {
 	data := map[string][]byte{"str": []byte("str")}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	secretObject := &coreV1Api.Secret{
@@ -884,8 +884,8 @@ func TestK8SService_CreateSecret_CreateSecretErr(t *testing.T) {
 func TestK8SService_CreateSecret(t *testing.T) {
 	data := map[string][]byte{"str": []byte("str")}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &v1alpha1.Nexus{})
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	labels := platformHelper.GenerateLabels(instance.Name)
 
 	secretObject := &coreV1Api.Secret{

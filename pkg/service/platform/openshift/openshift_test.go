@@ -21,7 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	oMock "github.com/epam/edp-nexus-operator/v2/mocks/openshift"
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1alpha1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 )
 
@@ -42,7 +42,7 @@ func createDeploymentConfInstance(container []coreV1Api.Container) appv1.Deploym
 	}
 }
 
-func createContainer(instance v1alpha1.Nexus) coreV1Api.Container {
+func createContainer(instance nexusApi.Nexus) coreV1Api.Container {
 	return coreV1Api.Container{
 		Name:            "keycloak-proxy",
 		Image:           instance.Spec.KeycloakSpec.ProxyImage,
@@ -85,7 +85,7 @@ func TestOpenshiftService_Init(t *testing.T) {
 }
 
 func TestOpenshiftService_GetRouteByCr_ListErr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	routeClient := oMock.RouteV1Client{}
 	routes := &oMock.Route{}
 	routeClient.On("Routes", namespace).Return(routes)
@@ -101,7 +101,7 @@ func TestOpenshiftService_GetRouteByCr_ListErr(t *testing.T) {
 }
 
 func TestOpenshiftService_GetRouteByCr_NotInList(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	route := v1.Route{}
 	list := v1.RouteList{Items: []v1.Route{route}}
 	routeClient := oMock.RouteV1Client{}
@@ -118,7 +118,7 @@ func TestOpenshiftService_GetRouteByCr_NotInList(t *testing.T) {
 }
 
 func TestOpenshiftService_GetRouteByCr(t *testing.T) {
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	route := v1.Route{ObjectMeta: createObjectMeta()}
 	list := v1.RouteList{Items: []v1.Route{route}}
 	routeClient := oMock.RouteV1Client{}
@@ -188,7 +188,7 @@ func TestOpenshiftService_GetExternalUrl(t *testing.T) {
 
 func TestOpenshiftService_UpdateExternalTargetPath_GetRouteByCr(t *testing.T) {
 	orString := intstr.IntOrString{}
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	routeClient := oMock.RouteV1Client{}
 	routes := &oMock.Route{}
 	routeClient.On("Routes", namespace).Return(routes)
@@ -205,7 +205,7 @@ func TestOpenshiftService_UpdateExternalTargetPath_GetRouteByCr(t *testing.T) {
 
 func TestOpenshiftService_UpdateExternalTargetPath_AlreadyUpdated(t *testing.T) {
 	intOrString := intstr.IntOrString{}
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	route := v1.Route{
 		ObjectMeta: createObjectMeta(),
 		Spec: v1.RouteSpec{
@@ -235,7 +235,7 @@ func TestOpenshiftService_UpdateExternalTargetPath(t *testing.T) {
 		IntVal: 2,
 		StrVal: "",
 	}
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	route := v1.Route{
 		ObjectMeta: createObjectMeta(),
 		Spec: v1.RouteSpec{
@@ -287,7 +287,7 @@ func (s *TestOpenShiftAlternativeSuite) AfterTest(suiteName, testName string) {
 
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyErr() {
 	t := s.T()
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	appClient := &oMock.AppsV1Client{}
 	deploymentConf := &oMock.DeploymentConfig{}
 	errTest := errors.New("test")
@@ -307,7 +307,7 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyEr
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyFalse() {
 	t := s.T()
 	deploymentConfInstance := appv1.DeploymentConfig{}
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	appClient := &oMock.AppsV1Client{}
 	deploymentConf := &oMock.DeploymentConfig{}
 
@@ -332,7 +332,7 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyTr
 			AvailableReplicas: 1,
 		}}
 
-	instance := v1alpha1.Nexus{}
+	instance := nexusApi.Nexus{}
 	appClient := &oMock.AppsV1Client{}
 	deploymentConf := &oMock.DeploymentConfig{}
 
@@ -350,7 +350,7 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyTr
 
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToDeployConf_GetErr() {
 	t := s.T()
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	appClient := oMock.AppsV1Client{}
 	deploymentConfig := &oMock.DeploymentConfig{}
 	errTest := errors.New("test")
@@ -367,7 +367,7 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToD
 
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToDeployConf_AlreadyExist() {
 	t := s.T()
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 
 	containerSpec := createContainer(instance)
 	deploymentConfInstance := createDeploymentConfInstance([]coreV1Api.Container{containerSpec})
@@ -387,7 +387,7 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToD
 
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToDeployConf_UpdateErr() {
 	t := s.T()
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 
 	containerSpec := createContainer(instance)
 
@@ -411,7 +411,7 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToD
 
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToDeployConf() {
 	t := s.T()
-	instance := v1alpha1.Nexus{ObjectMeta: createObjectMeta()}
+	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	containerSpec := createContainer(instance)
 
 	deploymentConfInstance := createDeploymentConfInstance([]coreV1Api.Container{})

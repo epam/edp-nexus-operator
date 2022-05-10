@@ -1,15 +1,6 @@
-package v1alpha1
+package v1
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// +kubebuilder:deprecatedversion
-type NexusUser struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              NexusUserSpec   `json:"spec,omitempty"`
-	Status            NexusUserStatus `json:"status,omitempty"`
-}
 
 type NexusUserSpec struct {
 	OwnerName string   `json:"ownerName"`
@@ -30,7 +21,21 @@ type NexusUserStatus struct {
 	Value string `json:"value"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+//+kubebuilder:storageversion
+
+// NexusUser is the Schema for the nexususers API
+type NexusUser struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Spec              NexusUserSpec   `json:"spec,omitempty"`
+	Status            NexusUserStatus `json:"status,omitempty"`
+}
+
+//+kubebuilder:object:root=true
+
+// NexusUserList contains a list of NexusUser
 type NexusUserList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
