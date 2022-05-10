@@ -5,6 +5,15 @@
 
 - add nexus user to k8s roles [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
 - implement NexusUser custom resource [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
+- Update Makefile changelog target [EPMDEDP-8218](https://jiraeu.epam.com/browse/EPMDEDP-8218)
+- Add ingress tls certificate option when using ingress controller [EPMDEDP-8377](https://jiraeu.epam.com/browse/EPMDEDP-8377)
+- Generate CRDs and helm docs automatically [EPMDEDP-8385](https://jiraeu.epam.com/browse/EPMDEDP-8385)
+- Check nexus user exists before creation [EPMDEDP-8941](https://jiraeu.epam.com/browse/EPMDEDP-8941)
+
+### Bug Fixes
+
+- Fix changelog generation in GH Release Action [EPMDEDP-8468](https://jiraeu.epam.com/browse/EPMDEDP-8468)
+- Disable anon access to admin ui [EPMDEDP-8606](https://jiraeu.epam.com/browse/EPMDEDP-8606)
 
 ### Code Refactoring
 
@@ -21,8 +30,13 @@
 
 ### Routine
 
+- Update Ingress resources to the newest API version [EPMDEDP-7476](https://jiraeu.epam.com/browse/EPMDEDP-7476)
 - Update release CI pipelines [EPMDEDP-7847](https://jiraeu.epam.com/browse/EPMDEDP-7847)
 - Fix CI for codecov report [EPMDEDP-7995](https://jiraeu.epam.com/browse/EPMDEDP-7995)
+- Populate chart with Artifacthub annotations [EPMDEDP-8049](https://jiraeu.epam.com/browse/EPMDEDP-8049)
+- Update changelog [EPMDEDP-8227](https://jiraeu.epam.com/browse/EPMDEDP-8227)
+- Update Nexus image version [EPMDEDP-8839](https://jiraeu.epam.com/browse/EPMDEDP-8839)
+- Update base docker image to alpine 3.15.4 [EPMDEDP-8853](https://jiraeu.epam.com/browse/EPMDEDP-8853)
 
 
 <a name="v2.10.0"></a>
