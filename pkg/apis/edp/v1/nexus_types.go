@@ -7,28 +7,28 @@ import (
 
 // NexusSpec defines the desired state of Nexus
 type NexusSpec struct {
-	KeycloakSpec     KeycloakSpec                     `json:"keycloakSpec,omitempty"`
+	KeycloakSpec     KeycloakSpec                     `json:"keycloakSpec"`
 	ImagePullSecrets []coreV1Api.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	Image            string                           `json:"image"`
 	Version          string                           `json:"version"`
-	BasePath         string                           `json:"basePath"`
-	Volumes          []NexusVolumes                   `json:"volumes,omitempty"`
+	BasePath         string                           `json:"basePath,omitempty"`
+	Volumes          []NexusVolumes                   `json:"volumes"`
 	Users            []NexusUsers                     `json:"users,omitempty"`
-	EdpSpec          EdpSpec                          `json:"edpSpec"`
+	EdpSpec          EdpSpec                          `json:"edpSpec,omitempty"`
 }
 
 type EdpSpec struct {
-	DnsWildcard string `json:"dnsWildcard"`
+	DnsWildcard string `json:"dnsWildcard,omitempty"`
 }
 
 type NexusVolumes struct {
-	Name         string `json:"name"`
-	StorageClass string `json:"storage_class"`
-	Capacity     string `json:"capacity"`
+	Name         string `json:"name,omitempty"`
+	StorageClass string `json:"storage_class,omitempty"`
+	Capacity     string `json:"capacity,omitempty"`
 }
 
 type NexusUsers struct {
-	Username  string   `json:"username"`
+	Username  string   `json:"username,omitempty"`
 	FirstName string   `json:"first_name,omitempty"`
 	LastName  string   `json:"last_name,omitempty"`
 	Email     string   `json:"email,omitempty"`
@@ -43,7 +43,7 @@ type NexusStatus struct {
 }
 
 type KeycloakSpec struct {
-	Enabled    bool     `json:"enabled,omitempty"`
+	Enabled    bool     `json:"enabled"`
 	Url        string   `json:"url,omitempty"`
 	Realm      string   `json:"realm,omitempty"`
 	Roles      []string `json:"roles,omitempty"`

@@ -87,22 +87,15 @@ NexusSpec defines the desired state of Nexus
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>basePath</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#nexusspecedpspec">edpSpec</a></b></td>
-        <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>image</b></td>
         <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusspeckeycloakspec">keycloakSpec</a></b></td>
+        <td>object</td>
         <td>
           <br/>
         </td>
@@ -115,15 +108,29 @@ NexusSpec defines the desired state of Nexus
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#nexusspecimagepullsecretsindex">imagePullSecrets</a></b></td>
+        <td><b><a href="#nexusspecvolumesindex">volumes</a></b></td>
         <td>[]object</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>basePath</b></td>
+        <td>string</td>
         <td>
           <br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#nexusspeckeycloakspec">keycloakSpec</a></b></td>
+        <td><b><a href="#nexusspecedpspec">edpSpec</a></b></td>
         <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusspecimagepullsecretsindex">imagePullSecrets</a></b></td>
+        <td>[]object</td>
         <td>
           <br/>
         </td>
@@ -133,67 +140,6 @@ NexusSpec defines the desired state of Nexus
         <td>[]object</td>
         <td>
           <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#nexusspecvolumesindex">volumes</a></b></td>
-        <td>[]object</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### Nexus.spec.edpSpec
-<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>dnsWildcard</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### Nexus.spec.imagePullSecrets[index]
-<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
-
-
-
-LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -222,7 +168,7 @@ LocalObjectReference contains enough information to let you locate the reference
         <td>
           <br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr><tr>
         <td><b>proxyImage</b></td>
         <td>string</td>
@@ -255,6 +201,101 @@ LocalObjectReference contains enough information to let you locate the reference
 </table>
 
 
+### Nexus.spec.volumes[index]
+<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>capacity</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>storage_class</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### Nexus.spec.edpSpec
+<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>dnsWildcard</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### Nexus.spec.imagePullSecrets[index]
+<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
+
+
+
+LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
 ### Nexus.spec.users[index]
 <sup><sup>[↩ Parent](#nexusspec)</sup></sup>
 
@@ -272,13 +313,6 @@ LocalObjectReference contains enough information to let you locate the reference
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>email</b></td>
         <td>string</td>
         <td>
@@ -306,47 +340,13 @@ LocalObjectReference contains enough information to let you locate the reference
           <br/>
         </td>
         <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### Nexus.spec.volumes[index]
-<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>capacity</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
       </tr><tr>
-        <td><b>name</b></td>
+        <td><b>username</b></td>
         <td>string</td>
         <td>
           <br/>
         </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>storage_class</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -631,22 +631,15 @@ NexusSpec defines the desired state of Nexus
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>basePath</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#nexusspecedpspec-1">edpSpec</a></b></td>
-        <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>image</b></td>
         <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusspeckeycloakspec-1">keycloakSpec</a></b></td>
+        <td>object</td>
         <td>
           <br/>
         </td>
@@ -659,15 +652,29 @@ NexusSpec defines the desired state of Nexus
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#nexusspecimagepullsecretsindex-1">imagePullSecrets</a></b></td>
+        <td><b><a href="#nexusspecvolumesindex-1">volumes</a></b></td>
         <td>[]object</td>
+        <td>
+          <br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>basePath</b></td>
+        <td>string</td>
         <td>
           <br/>
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#nexusspeckeycloakspec-1">keycloakSpec</a></b></td>
+        <td><b><a href="#nexusspecedpspec-1">edpSpec</a></b></td>
         <td>object</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusspecimagepullsecretsindex-1">imagePullSecrets</a></b></td>
+        <td>[]object</td>
         <td>
           <br/>
         </td>
@@ -677,67 +684,6 @@ NexusSpec defines the desired state of Nexus
         <td>[]object</td>
         <td>
           <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#nexusspecvolumesindex-1">volumes</a></b></td>
-        <td>[]object</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### Nexus.spec.edpSpec
-<sup><sup>[↩ Parent](#nexusspec-1)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>dnsWildcard</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr></tbody>
-</table>
-
-
-### Nexus.spec.imagePullSecrets[index]
-<sup><sup>[↩ Parent](#nexusspec-1)</sup></sup>
-
-
-
-LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -766,7 +712,7 @@ LocalObjectReference contains enough information to let you locate the reference
         <td>
           <br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr><tr>
         <td><b>proxyImage</b></td>
         <td>string</td>
@@ -799,6 +745,101 @@ LocalObjectReference contains enough information to let you locate the reference
 </table>
 
 
+### Nexus.spec.volumes[index]
+<sup><sup>[↩ Parent](#nexusspec-1)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>capacity</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>storage_class</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### Nexus.spec.edpSpec
+<sup><sup>[↩ Parent](#nexusspec-1)</sup></sup>
+
+
+
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>dnsWildcard</b></td>
+        <td>string</td>
+        <td>
+          <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### Nexus.spec.imagePullSecrets[index]
+<sup><sup>[↩ Parent](#nexusspec-1)</sup></sup>
+
+
+
+LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
 ### Nexus.spec.users[index]
 <sup><sup>[↩ Parent](#nexusspec-1)</sup></sup>
 
@@ -816,13 +857,6 @@ LocalObjectReference contains enough information to let you locate the reference
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>email</b></td>
         <td>string</td>
         <td>
@@ -850,47 +884,13 @@ LocalObjectReference contains enough information to let you locate the reference
           <br/>
         </td>
         <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### Nexus.spec.volumes[index]
-<sup><sup>[↩ Parent](#nexusspec-1)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>capacity</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
       </tr><tr>
-        <td><b>name</b></td>
+        <td><b>username</b></td>
         <td>string</td>
         <td>
           <br/>
         </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>storage_class</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
+        <td>false</td>
       </tr></tbody>
 </table>
 

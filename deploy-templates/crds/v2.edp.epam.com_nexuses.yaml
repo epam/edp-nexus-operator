@@ -41,8 +41,6 @@ spec:
                 properties:
                   dnsWildcard:
                     type: string
-                required:
-                - dnsWildcard
                 type: object
               image:
                 type: string
@@ -71,6 +69,8 @@ spec:
                     type: array
                   url:
                     type: string
+                required:
+                - enabled
                 type: object
               users:
                 items:
@@ -87,8 +87,6 @@ spec:
                       type: array
                     username:
                       type: string
-                  required:
-                  - username
                   type: object
                 type: array
               version:
@@ -102,17 +100,13 @@ spec:
                       type: string
                     storage_class:
                       type: string
-                  required:
-                  - capacity
-                  - name
-                  - storage_class
                   type: object
                 type: array
             required:
-            - basePath
-            - edpSpec
             - image
+            - keycloakSpec
             - version
+            - volumes
             type: object
           status:
             description: NexusStatus defines the observed state of Nexus
@@ -157,8 +151,6 @@ spec:
                 properties:
                   dnsWildcard:
                     type: string
-                required:
-                - dnsWildcard
                 type: object
               image:
                 type: string
@@ -187,6 +179,8 @@ spec:
                     type: array
                   url:
                     type: string
+                required:
+                - enabled
                 type: object
               users:
                 items:
@@ -203,8 +197,6 @@ spec:
                       type: array
                     username:
                       type: string
-                  required:
-                  - username
                   type: object
                 type: array
               version:
@@ -218,17 +210,13 @@ spec:
                       type: string
                     storage_class:
                       type: string
-                  required:
-                  - capacity
-                  - name
-                  - storage_class
                   type: object
                 type: array
             required:
-            - basePath
-            - edpSpec
             - image
+            - keycloakSpec
             - version
+            - volumes
             type: object
           status:
             description: NexusStatus defines the observed state of Nexus
