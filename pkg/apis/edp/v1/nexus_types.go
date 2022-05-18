@@ -7,7 +7,8 @@ import (
 
 // NexusSpec defines the desired state of Nexus
 type NexusSpec struct {
-	KeycloakSpec     KeycloakSpec                     `json:"keycloakSpec"`
+	KeycloakSpec KeycloakSpec `json:"keycloakSpec"`
+	// +nullable
 	ImagePullSecrets []coreV1Api.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	Image            string                           `json:"image"`
 	Version          string                           `json:"version"`

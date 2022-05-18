@@ -11,7 +11,8 @@ import (
 // NexusSpec defines the desired state of Nexus
 // +k8s:openapi-gen=true
 type NexusSpec struct {
-	KeycloakSpec     KeycloakSpec                     `json:"keycloakSpec"`
+	KeycloakSpec KeycloakSpec `json:"keycloakSpec"`
+	// +nullable
 	ImagePullSecrets []coreV1Api.LocalObjectReference `json:"imagePullSecrets,omitempty"`
 	Image            string                           `json:"image"`
 	Version          string                           `json:"version"`
