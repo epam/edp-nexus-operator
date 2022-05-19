@@ -1,6 +1,6 @@
 # nexus-operator
 
-![Version: 2.11.0-SNAPSHOT](https://img.shields.io/badge/Version-2.11.0--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.11.0-SNAPSHOT](https://img.shields.io/badge/AppVersion-2.11.0--SNAPSHOT-informational?style=flat-square)
+![Version: 2.12.0-SNAPSHOT](https://img.shields.io/badge/Version-2.12.0--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.12.0-SNAPSHOT](https://img.shields.io/badge/AppVersion-2.12.0--SNAPSHOT-informational?style=flat-square)
 
 A Helm chart for EDP Nexus Operator
 
