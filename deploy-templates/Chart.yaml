@@ -24,14 +24,12 @@ annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/operator: "true"
   artifacthub.io/images: |
-    - name: nexus-operator:2.10.0
-      image: epamedp/nexus-operator:2.10.0
-    - name: nexus-operator:2.9.0
-      image: epamedp/nexus-operator:2.9.0
-    - name: nexus3:3.36.0
-      image: sonatype/nexus3:3.36.0
-    - name: alpine:3.13.7
-      image: alpine:3.13.7
+    - name: nexus-operator:2.11.0
+      image: epamedp/nexus-operator:2.11.0
+    - name: nexus3:3.38.1
+      image: sonatype/nexus3:3.38.1
+    - name: alpine:3.15.4
+      image: alpine:3.15.4
   artifacthub.io/operatorCapabilities: Full Lifecycle
   artifacthub.io/crds: |
     - kind: Nexus
@@ -52,7 +50,7 @@ annotations:
       spec:
         basePath: 'blank'
         edpSpec:
-          dnsWildcard: test.com
+          dnsWildcard: localhost.com
         image: sonatype/nexus3
         keycloakSpec:
           enabled: true
@@ -63,12 +61,24 @@ annotations:
         users:
           - roles:
               - nx-admin
-            username: test@test.com
-        version: 3.36.0
+            username: nx@example.com
+        version: 3.38.1
         volumes:
-          - capacity: 20Gi
+          - capacity: 30Gi
             name: data
-            storage_class: gp2-retain
+            storage_class: gp2
+    - apiVersion: v2.edp.epam.com/v1
+      kind: NexusUser
+      metadata:
+        name: test
+      spec:
+        ownerName: nexus
+        firstName: John
+        lastName: Doe
+        email: john.doe@example.com
+        userId: jondoe14
+        roles: ["edp-admin"]
+        status: "active"
   artifacthub.io/links: |
     - name: EDP Documentation
       url: https://epam.github.io/edp-install/
