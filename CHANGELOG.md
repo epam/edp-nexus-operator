@@ -1,6 +1,9 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+<a name="v2.11.0"></a>
+## [v2.11.0] - 2022-05-10
 ### Features
 
 - add nexus user to k8s roles [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
@@ -37,6 +40,7 @@
 - Update changelog [EPMDEDP-8227](https://jiraeu.epam.com/browse/EPMDEDP-8227)
 - Update Nexus image version [EPMDEDP-8839](https://jiraeu.epam.com/browse/EPMDEDP-8839)
 - Update base docker image to alpine 3.15.4 [EPMDEDP-8853](https://jiraeu.epam.com/browse/EPMDEDP-8853)
+- Update changelog [EPMDEDP-9185](https://jiraeu.epam.com/browse/EPMDEDP-9185)
 
 
 <a name="v2.10.0"></a>
@@ -90,7 +94,8 @@
 - test
 
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.10.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.11.0...HEAD
+[v2.11.0]: https://github.com/epam/edp-nexus-operator/compare/v2.10.0...v2.11.0
 [v2.10.0]: https://github.com/epam/edp-nexus-operator/compare/v2.9.0...v2.10.0
 [v2.9.0]: https://github.com/epam/edp-nexus-operator/compare/v2.8.1...v2.9.0
 [v2.8.1]: https://github.com/epam/edp-nexus-operator/compare/v2.8.0...v2.8.1
