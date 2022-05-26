@@ -56,7 +56,7 @@ func NewService(platformService platform.PlatformService, client client.Client, 
 	return ServiceImpl{
 		platformService:      platformService,
 		client:               client,
-		keycloakHelper:       keycloakHelper.MakeHelper(client, scheme),
+		keycloakHelper:       keycloakHelper.MakeHelper(client, scheme, ctrl.Log.WithName("nexus_service")),
 		runningInClusterFunc: helper.RunningInCluster,
 		clientBuilder: func(url string, user string, password string) Client {
 			return nexus.Init(url, user, password)
@@ -279,7 +279,7 @@ func (s ServiceImpl) ExposeConfiguration(instance v1.Nexus) (*v1.Nexus, error) {
 		keycloakClient.Spec.ClientId = instance.Name
 		keycloakClient.Spec.Public = true
 		keycloakClient.Spec.WebUrl = webURL
-		keycloakClient.Spec.AudRequired = true
+		keycloakClient.Spec.DefaultClientScopes = []string{"edp"}
 
 		if instance.Spec.KeycloakSpec.Realm != "" {
 			keycloakClient.Spec.TargetRealm = instance.Spec.KeycloakSpec.Realm

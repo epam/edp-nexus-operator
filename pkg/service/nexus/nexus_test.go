@@ -9,6 +9,7 @@ import (
 
 	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
+	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	coreV1Api "k8s.io/api/core/v1"
@@ -106,7 +107,7 @@ func TestServiceImpl_Integration_GetOwnerKeycloakErr(t *testing.T) {
 
 	realm := keycloakApi.KeycloakRealm{ObjectMeta: ObjectMeta()}
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&realm).Build()
-	helper := keycloakHelper.MakeHelper(client, scheme)
+	helper := keycloakHelper.MakeHelper(client, scheme, logr.Discard())
 	nexusService := ServiceImpl{
 		platformService: &platformMock,
 		keycloakHelper:  helper,
@@ -163,7 +164,7 @@ func TestServiceImpl_Integration_GetExternalUrlErr(t *testing.T) {
 		},
 	}
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&realm, &keycloak).Build()
-	helper := keycloakHelper.MakeHelper(client, scheme)
+	helper := keycloakHelper.MakeHelper(client, scheme, logr.Discard())
 	nexusService := ServiceImpl{
 		platformService: &platformMock,
 		keycloakHelper:  helper,
@@ -217,7 +218,7 @@ func TestServiceImpl_Integration_AddKeycloakProxyToDeployConfErr(t *testing.T) {
 		},
 	}
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&realm, &keycloak).Build()
-	helper := keycloakHelper.MakeHelper(client, scheme)
+	helper := keycloakHelper.MakeHelper(client, scheme, logr.Discard())
 	nexusService := ServiceImpl{
 		platformService: &platformMock,
 		keycloakHelper:  helper}
@@ -271,7 +272,7 @@ func TestServiceImpl_Integration_AddPortToServiceErr(t *testing.T) {
 	}
 	keycloak := keycloakApi.Keycloak{ObjectMeta: ObjectMeta()}
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&realm, &keycloak).Build()
-	helper := keycloakHelper.MakeHelper(client, scheme)
+	helper := keycloakHelper.MakeHelper(client, scheme, logr.Discard())
 	nexusService := ServiceImpl{
 		platformService: &platformMock,
 		keycloakHelper:  helper}
@@ -336,7 +337,7 @@ func TestServiceImpl_Integration_UpdateExternalTargetPathErr(t *testing.T) {
 		},
 	}
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&realm, &keycloak).Build()
-	helper := keycloakHelper.MakeHelper(client, scheme)
+	helper := keycloakHelper.MakeHelper(client, scheme, logr.Discard())
 	nexusService := ServiceImpl{
 		platformService: &platformMock,
 		keycloakHelper:  helper}
@@ -674,10 +675,10 @@ func TestServiceImpl_ExposeConfiguration_CantCreateKeycloakClient(t *testing.T) 
 
 	keycloakClient := keycloakApi.KeycloakClient{ObjectMeta: ObjectMeta(),
 		Spec: keycloakApi.KeycloakClientSpec{
-			ClientId:    instance.Name,
-			Public:      true,
-			WebUrl:      host,
-			AudRequired: true,
+			ClientId:            instance.Name,
+			Public:              true,
+			WebUrl:              host,
+			DefaultClientScopes: []string{"edp"},
 		}}
 
 	errTest := errors.New("test")
