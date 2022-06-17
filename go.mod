@@ -14,11 +14,10 @@ replace (
 require (
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
 	github.com/epam/edp-common v0.0.0-20211206180607-3e1ca60d6e4a
-	github.com/epam/edp-component-operator v0.1.1-0.20210712140516-09b8bb3a4cff
-	github.com/epam/edp-jenkins-operator/v2 v2.3.0-130.0.20210719110425-d2d190f7bff9
-	github.com/epam/edp-keycloak-operator v1.3.0-alpha-81.0.20220525093654-3cbb2d919d39
+	github.com/epam/edp-component-operator v0.1.1-0.20220520092339-3063cc593800
+	github.com/epam/edp-jenkins-operator/v2 v2.3.0-130.0.20220615130453-41c49930569c
+	github.com/epam/edp-keycloak-operator v1.3.0-alpha-81.0.20220617080245-63019405d6db
 	github.com/go-logr/logr v0.4.0
-	github.com/go-openapi/spec v0.19.5
 	github.com/jarcoal/httpmock v1.0.8
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openshift/client-go v3.9.0+incompatible
@@ -54,18 +53,19 @@ require (
 	github.com/go-logr/zapr v0.2.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.3 // indirect
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
+	github.com/go-openapi/spec v0.19.5 // indirect
 	github.com/go-openapi/swag v0.19.5 // indirect
 	github.com/go-resty/resty/v2 v2.6.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
-	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/imdario/mergo v0.3.10 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect

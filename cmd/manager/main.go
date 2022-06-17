@@ -5,9 +5,9 @@ import (
 	"os"
 
 	buildInfo "github.com/epam/edp-common/pkg/config"
-	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1alpha1"
-	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1alpha1"
-	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
+	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1"
+	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
+	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/rest"
 

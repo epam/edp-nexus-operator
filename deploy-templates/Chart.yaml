@@ -33,17 +33,17 @@ annotations:
   artifacthub.io/operatorCapabilities: Full Lifecycle
   artifacthub.io/crds: |
     - kind: Nexus
-      version: v2.edp.epam.com/v1alpha1
+      version: v2.edp.epam.com/v1
       name: nexus
       displayName: Nexus
       description: Nexus server configuration
     - kind: NexusUser
-      version: v2.edp.epam.com/v1alpha1
+      version: v2.edp.epam.com/v1
       name: nexususer
       displayName: NexusUser
       description: Nexus user management
   artifacthub.io/crdsExamples: |
-    - apiVersion: v2.edp.epam.com/v1alpha1
+    - apiVersion: v2.edp.epam.com/v1
       kind: Nexus
       metadata:
         name: nexus

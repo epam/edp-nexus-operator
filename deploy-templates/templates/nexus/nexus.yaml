@@ -1,5 +1,5 @@
 {{- if .Values.nexus.deploy -}}
-apiVersion: v2.edp.epam.com/v1alpha1
+apiVersion: v2.edp.epam.com/v1
 kind: Nexus
 metadata:
   name: {{.Values.nexus.name}}

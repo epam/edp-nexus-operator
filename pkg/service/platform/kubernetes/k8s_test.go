@@ -7,9 +7,9 @@ import (
 
 	"k8s.io/client-go/tools/clientcmd"
 
-	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1alpha1"
-	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1alpha1"
-	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
+	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1"
+	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
+	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"

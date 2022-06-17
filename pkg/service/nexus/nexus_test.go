@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
+	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"

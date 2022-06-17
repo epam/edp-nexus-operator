@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
+	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"

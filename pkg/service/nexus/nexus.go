@@ -12,7 +12,7 @@ import (
 
 	"github.com/dchest/uniuri"
 	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
-	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1alpha1"
+	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
