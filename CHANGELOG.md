@@ -3,20 +3,35 @@
 
 ### Features
 
-- implement NexusUser custom resource [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
+- Set default client scopes for keycloak nexus client [EPMDEDP-8323](https://jiraeu.epam.com/browse/EPMDEDP-8323)
+- Switch all CRDs to V1 [EPMDEDP-9005](https://jiraeu.epam.com/browse/EPMDEDP-9005)
+
+### Bug Fixes
+
+- CRD set nullable fields [EPMDEDP-9005](https://jiraeu.epam.com/browse/EPMDEDP-9005)
+- Set not required fields [EPMDEDP-9005](https://jiraeu.epam.com/browse/EPMDEDP-9005)
+
+### Routine
+
+- Update current development version [EPMDEDP-8832](https://jiraeu.epam.com/browse/EPMDEDP-8832)
+- Update chart annotation [EPMDEDP-9515](https://jiraeu.epam.com/browse/EPMDEDP-9515)
+
+
+<a name="v2.11.0"></a>
+## [v2.11.0] - 2022-05-25
+### Features
+
 - add nexus user to k8s roles [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
+- implement NexusUser custom resource [EPMDEDP-8086](https://jiraeu.epam.com/browse/EPMDEDP-8086)
 - Update Makefile changelog target [EPMDEDP-8218](https://jiraeu.epam.com/browse/EPMDEDP-8218)
 - Add ingress tls certificate option when using ingress controller [EPMDEDP-8377](https://jiraeu.epam.com/browse/EPMDEDP-8377)
 - Generate CRDs and helm docs automatically [EPMDEDP-8385](https://jiraeu.epam.com/browse/EPMDEDP-8385)
 - Check nexus user exists before creation [EPMDEDP-8941](https://jiraeu.epam.com/browse/EPMDEDP-8941)
-- Switch all CRDs to V1 [EPMDEDP-9005](https://jiraeu.epam.com/browse/EPMDEDP-9005)
 
 ### Bug Fixes
 
 - Fix changelog generation in GH Release Action [EPMDEDP-8468](https://jiraeu.epam.com/browse/EPMDEDP-8468)
 - Disable anon access to admin ui [EPMDEDP-8606](https://jiraeu.epam.com/browse/EPMDEDP-8606)
-- CRD set nullable fields [EPMDEDP-9005](https://jiraeu.epam.com/browse/EPMDEDP-9005)
-- Set not required fields [EPMDEDP-9005](https://jiraeu.epam.com/browse/EPMDEDP-9005)
 
 ### Code Refactoring
 
@@ -94,7 +109,8 @@
 - test
 
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.10.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.11.0...HEAD
+[v2.11.0]: https://github.com/epam/edp-nexus-operator/compare/v2.10.0...v2.11.0
 [v2.10.0]: https://github.com/epam/edp-nexus-operator/compare/v2.9.0...v2.10.0
 [v2.9.0]: https://github.com/epam/edp-nexus-operator/compare/v2.8.1...v2.9.0
 [v2.8.1]: https://github.com/epam/edp-nexus-operator/compare/v2.8.0...v2.8.1
