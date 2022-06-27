@@ -18,12 +18,5 @@ spec:
       roles:
         - nx-admin
   {{- end }}
-  image: {{.Values.nexus.image}}
-  version: {{.Values.nexus.version}}
   basePath: "{{.Values.nexus.basePath}}"
-  imagePullSecrets: {{.Values.nexus.imagePullSecrets}}
-  volumes:
-    - capacity: {{.Values.nexus.storage.size}}
-      name: data
-      storage_class: {{.Values.nexus.storage.class}}
 {{end}}

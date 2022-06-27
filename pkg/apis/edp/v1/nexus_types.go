@@ -1,7 +1,6 @@
 package v1
 
 import (
-	coreV1Api "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -9,13 +8,9 @@ import (
 type NexusSpec struct {
 	KeycloakSpec KeycloakSpec `json:"keycloakSpec"`
 	// +nullable
-	ImagePullSecrets []coreV1Api.LocalObjectReference `json:"imagePullSecrets,omitempty"`
-	Image            string                           `json:"image"`
-	Version          string                           `json:"version"`
-	BasePath         string                           `json:"basePath,omitempty"`
-	Volumes          []NexusVolumes                   `json:"volumes"`
-	Users            []NexusUsers                     `json:"users,omitempty"`
-	EdpSpec          EdpSpec                          `json:"edpSpec,omitempty"`
+	BasePath string       `json:"basePath,omitempty"`
+	Users    []NexusUsers `json:"users,omitempty"`
+	EdpSpec  EdpSpec      `json:"edpSpec,omitempty"`
 }
 
 type EdpSpec struct {

@@ -6,7 +6,6 @@
 package v1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -108,16 +107,6 @@ func (in *NexusList) DeepCopyObject() runtime.Object {
 func (in *NexusSpec) DeepCopyInto(out *NexusSpec) {
 	*out = *in
 	in.KeycloakSpec.DeepCopyInto(&out.KeycloakSpec)
-	if in.ImagePullSecrets != nil {
-		in, out := &in.ImagePullSecrets, &out.ImagePullSecrets
-		*out = make([]corev1.LocalObjectReference, len(*in))
-		copy(*out, *in)
-	}
-	if in.Volumes != nil {
-		in, out := &in.Volumes, &out.Volumes
-		*out = make([]NexusVolumes, len(*in))
-		copy(*out, *in)
-	}
 	if in.Users != nil {
 		in, out := &in.Users, &out.Users
 		*out = make([]NexusUsers, len(*in))

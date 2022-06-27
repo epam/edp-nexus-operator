@@ -51,7 +51,6 @@ annotations:
         basePath: 'blank'
         edpSpec:
           dnsWildcard: localhost.com
-        image: sonatype/nexus3
         keycloakSpec:
           enabled: true
           proxyImage: quay.io/keycloak/keycloak-gatekeeper:10.0.0
@@ -62,11 +61,6 @@ annotations:
           - roles:
               - nx-admin
             username: nx@example.com
-        version: 3.38.1
-        volumes:
-          - capacity: 30Gi
-            name: data
-            storage_class: gp2
     - apiVersion: v2.edp.epam.com/v1
       kind: NexusUser
       metadata:

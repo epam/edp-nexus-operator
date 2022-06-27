@@ -42,20 +42,6 @@ spec:
                   dnsWildcard:
                     type: string
                 type: object
-              image:
-                type: string
-              imagePullSecrets:
-                items:
-                  description: LocalObjectReference contains enough information to
-                    let you locate the referenced object inside the same namespace.
-                  properties:
-                    name:
-                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                        TODO: Add other useful fields. apiVersion, kind, uid?'
-                      type: string
-                  type: object
-                nullable: true
-                type: array
               keycloakSpec:
                 properties:
                   enabled:
@@ -90,24 +76,8 @@ spec:
                       type: string
                   type: object
                 type: array
-              version:
-                type: string
-              volumes:
-                items:
-                  properties:
-                    capacity:
-                      type: string
-                    name:
-                      type: string
-                    storage_class:
-                      type: string
-                  type: object
-                type: array
             required:
-            - image
             - keycloakSpec
-            - version
-            - volumes
             type: object
           status:
             description: NexusStatus defines the observed state of Nexus

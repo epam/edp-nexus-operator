@@ -87,29 +87,8 @@ NexusSpec defines the desired state of Nexus
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>image</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b><a href="#nexusspeckeycloakspec">keycloakSpec</a></b></td>
         <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>version</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b><a href="#nexusspecvolumesindex">volumes</a></b></td>
-        <td>[]object</td>
         <td>
           <br/>
         </td>
@@ -124,13 +103,6 @@ NexusSpec defines the desired state of Nexus
       </tr><tr>
         <td><b><a href="#nexusspecedpspec">edpSpec</a></b></td>
         <td>object</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b><a href="#nexusspecimagepullsecretsindex">imagePullSecrets</a></b></td>
-        <td>[]object</td>
         <td>
           <br/>
         </td>
@@ -201,47 +173,6 @@ NexusSpec defines the desired state of Nexus
 </table>
 
 
-### Nexus.spec.volumes[index]
-<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
-
-
-
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>capacity</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>storage_class</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
 ### Nexus.spec.edpSpec
 <sup><sup>[↩ Parent](#nexusspec)</sup></sup>
 
@@ -263,33 +194,6 @@ NexusSpec defines the desired state of Nexus
         <td>string</td>
         <td>
           <br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### Nexus.spec.imagePullSecrets[index]
-<sup><sup>[↩ Parent](#nexusspec)</sup></sup>
-
-
-
-LocalObjectReference contains enough information to let you locate the referenced object inside the same namespace.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>name</b></td>
-        <td>string</td>
-        <td>
-          Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -652,7 +556,7 @@ NexusSpec defines the desired state of Nexus
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#nexusspecvolumesindex-1">volumes</a></b></td>
+        <td><b><a href="#nexusspecvolumesindex">volumes</a></b></td>
         <td>[]object</td>
         <td>
           <br/>
@@ -673,7 +577,7 @@ NexusSpec defines the desired state of Nexus
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b><a href="#nexusspecimagepullsecretsindex-1">imagePullSecrets</a></b></td>
+        <td><b><a href="#nexusspecimagepullsecretsindex">imagePullSecrets</a></b></td>
         <td>[]object</td>
         <td>
           <br/>

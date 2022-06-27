@@ -9,11 +9,7 @@ skinparam class {
 package nexus-operator {
     class Nexus {
         -- spec --
-        String image
-        String version
         String basePath
-        []LocalObjectReference imagePullSecrets
-        []NexusVolumes volumes
         []NexusUsers users
         EdpSpec edpSpec
         KeycloakSpec keycloakSpec
@@ -56,7 +52,6 @@ package nexus-operator {
 class LocalObjectReference {
     String name
 }
-Nexus -l-> LocalObjectReference : imagePullSecrets
 JenkinsServiceAccount <-d- Nexus : creates nexus-ci.user
 EDPComponent <-d- Nexus : creates
 KeycloakClient <-d- Nexus : creates
