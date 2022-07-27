@@ -5,7 +5,7 @@ global:
     - "stub_user_one@example.com"
   dnsWildCard:
   openshift:
-    deploymentType: "deploymentConfigs"
+    deploymentType: "deployments"
 
 name: nexus-operator
 annotations: {}

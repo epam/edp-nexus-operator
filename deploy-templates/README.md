@@ -26,7 +26,7 @@ A Helm chart for EDP Nexus Operator
 | global.admins[0] | string | `"stub_user_one@example.com"` |  |
 | global.dnsWildCard | string | `nil` |  |
 | global.edpName | string | `""` |  |
-| global.openshift.deploymentType | string | `"deploymentConfigs"` |  |
+| global.openshift.deploymentType | string | `"deployments"` |  |
 | global.platform | string | `"openshift"` |  |
 | image.name | string | `"epamedp/nexus-operator"` |  |
 | image.version | string | `nil` |  |
