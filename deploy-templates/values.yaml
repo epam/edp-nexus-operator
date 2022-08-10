@@ -29,7 +29,7 @@ nexus:
   deploy: true
   name: "nexus"
   image: "sonatype/nexus3"
-  version: "3.38.1"
+  version: "3.41.0"
   imagePullPolicy: "IfNotPresent"
   basePath: ""
   imagePullSecrets:

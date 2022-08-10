@@ -51,7 +51,7 @@ A Helm chart for EDP Nexus Operator
 | nexus.storage.class | string | `"gp2"` |  |
 | nexus.storage.size | string | `"10Gi"` |  |
 | nexus.tolerations | list | `[]` |  |
-| nexus.version | string | `"3.38.1"` |  |
+| nexus.version | string | `"3.41.0"` |  |
 | nodeSelector | object | `{}` |  |
 | resources.limits.memory | string | `"192Mi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |

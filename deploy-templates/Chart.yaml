@@ -26,8 +26,8 @@ annotations:
   artifacthub.io/images: |
     - name: nexus-operator:2.11.0
       image: epamedp/nexus-operator:2.11.0
-    - name: nexus3:3.38.1
-      image: sonatype/nexus3:3.38.1
+    - name: nexus3:3.41.0
+      image: sonatype/nexus3:3.41.0
     - name: alpine:3.16.1
       image: alpine:3.16.1
   artifacthub.io/operatorCapabilities: Full Lifecycle
