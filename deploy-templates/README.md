@@ -28,8 +28,8 @@ A Helm chart for EDP Nexus Operator
 | global.edpName | string | `""` |  |
 | global.openshift.deploymentType | string | `"deployments"` |  |
 | global.platform | string | `"openshift"` |  |
-| image.name | string | `"epamedp/nexus-operator"` |  |
-| image.version | string | `nil` |  |
+| image.repository | string | `"epamedp/nexus-operator"` |  |
+| image.tag | string | `nil` |  |
 | imagePullPolicy | string | `"IfNotPresent"` |  |
 | name | string | `"nexus-operator"` |  |
 | nexus.affinity | object | `{}` |  |
