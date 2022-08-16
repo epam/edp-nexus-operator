@@ -1,20 +1,28 @@
 global:
+  # -- namespace or a project name (in case of OpenShift)
   edpName: ""
+  # -- platform type that can be "kubernetes" or "openshift"
   platform: "openshift"
+  # -- Administrators of your tenant
   admins:
     - "stub_user_one@example.com"
+  # -- a cluster DNS wildcard name
   dnsWildCard:
   openshift:
+    # -- Wich type of kind will be deployed to Openshift (values: deployments/deploymentConfigs)
     deploymentType: "deployments"
 
+# -- component name
 name: nexus-operator
 annotations: {}
 nodeSelector: {}
 tolerations: []
 affinity: {}
 image:
+   # -- EDP nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator)
   repository: epamedp/nexus-operator
   # if not defined then .Chart.AppVersion is used
+  # -- EDP nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags)
   tag:
 imagePullPolicy: "IfNotPresent"
 
@@ -26,15 +34,23 @@ resources:
     memory: 64Mi
 
 nexus:
+  # -- Flag to enable/disable Nexus deploy
   deploy: true
+  # -- Nexus name
   name: "nexus"
+  # --  Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3)
   image: "sonatype/nexus3"
+  # --  Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags)
   version: "3.41.0"
   imagePullPolicy: "IfNotPresent"
+  # --  Base path for Nexus URL
   basePath: ""
+  # --  Secrets to pull from private Docker registry
   imagePullSecrets:
   storage:
+    # --  Storageclass for Nexus data volume
     class: gp2
+    # -- Nexus data volume capacity
     size: 10Gi
   annotations: {}
   nodeSelector: {}
@@ -42,10 +58,10 @@ nexus:
   affinity: {}
   ingress:
     annotations: {}
-    # pathType is only for k8s >= 1.1=
+    # -- pathType is only for k8s >= 1.1=
     pathType: Prefix
-    # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
-    # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+    # -- For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+    # -- See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
     # ingressClassName: nginx
     tls: []
     #  - secretName: chart-example-tls
