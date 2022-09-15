@@ -54,6 +54,30 @@
     "write_policy": "allow"
   },
   {
+    "name": "edp-python-proxy",
+    "repositoryType": "python-proxy",
+    "blob_store": "edp-python",
+    "remote_url": "https://pypi.org",
+    "layout_policy": "strict",
+    "strict_content_validation": "true",
+    "version_policy": "mixed",
+    "write_policy": "allow"
+  },
+  {
+    "name": "edp-python-group",
+    "repositoryType": "python-group",
+    "blob_store": "edp-python",
+    "layout_policy": "strict",
+    "strict_content_validation": "true",
+    "version_policy": "mixed",
+    "write_policy": "allow",
+    "member_repos": [
+      "edp-python-proxy",
+      "edp-python-releases",
+      "edp-python-snapshots"
+    ]
+  },
+  {
     "name": "edp-maven-snapshots",
     "repositoryType": "maven-hosted",
     "blob_store": "edp-maven",
