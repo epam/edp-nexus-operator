@@ -55,7 +55,7 @@
   },
   {
     "name": "edp-python-proxy",
-    "repositoryType": "python-proxy",
+    "repositoryType": "pypi-proxy",
     "blob_store": "edp-python",
     "remote_url": "https://pypi.org",
     "layout_policy": "strict",
@@ -65,7 +65,7 @@
   },
   {
     "name": "edp-python-group",
-    "repositoryType": "python-group",
+    "repositoryType": "pypi-group",
     "blob_store": "edp-python",
     "layout_policy": "strict",
     "strict_content_validation": "true",

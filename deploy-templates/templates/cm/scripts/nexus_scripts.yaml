@@ -193,7 +193,13 @@ data:
 
     parsed_args = new JsonSlurper().parseText(args)
 
-    configuration = repository.createHosted(parsed_args.name,
+    authentication = parsed_args.remote_username == null ? null : [
+            type: 'username',
+            username: parsed_args.remote_username,
+            password: parsed_args.remote_password
+    ]
+
+    configuration = repository.createProxy(parsed_args.name,
                        'pypi-proxy',
                         parsed_args.remote_url,
                         parsed_args.blob_store,
@@ -255,7 +261,7 @@ data:
 
     parsed_args = new JsonSlurper().parseText(args)
 
-    configuration = repository.createHosted(parsed_args.name,
+    configuration = repository.createGroup(parsed_args.name,
                        'pypi-group',
                         parsed_args.blob_store,
                         "")
