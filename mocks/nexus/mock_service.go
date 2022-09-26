@@ -73,12 +73,12 @@ func (_m *Service) Configure(instance v1.Nexus) (*v1.Nexus, bool, error) {
 }
 
 // ExposeConfiguration provides a mock function with given fields: instance
-func (_m *Service) ExposeConfiguration(instance v1.Nexus) (*v1.Nexus, error) {
-	ret := _m.Called(instance)
+func (_m *Service) ExposeConfiguration(ctx context.Context, instance v1.Nexus) (*v1.Nexus, error) {
+	ret := _m.Called(ctx, instance)
 
 	var r0 *v1.Nexus
-	if rf, ok := ret.Get(0).(func(v1.Nexus) *v1.Nexus); ok {
-		r0 = rf(instance)
+	if rf, ok := ret.Get(0).(func(context.Context, v1.Nexus) *v1.Nexus); ok {
+		r0 = rf(ctx, instance)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v1.Nexus)
@@ -86,8 +86,8 @@ func (_m *Service) ExposeConfiguration(instance v1.Nexus) (*v1.Nexus, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(v1.Nexus) error); ok {
-		r1 = rf(instance)
+	if rf, ok := ret.Get(1).(func(context.Context, v1.Nexus) error); ok {
+		r1 = rf(ctx, instance)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
 	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/go-logr/logr"
@@ -391,7 +392,7 @@ func TestServiceImpl_ExposeConfiguration_LocalGetNexusRestApiUrlErr(t *testing.T
 	errTest := errors.New("test")
 	platformMock.On("GetExternalUrl", namespace, name).Return("", "", "", errTest)
 
-	_, err := nexusService.ExposeConfiguration(instance)
+	_, err := nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to get Nexus REST API URL"))
 	platformMock.AssertExpectations(t)
@@ -410,7 +411,7 @@ func TestServiceImpl_ExposeConfiguration_LocalGetSecretDataErr(t *testing.T) {
 	platformMock.On("GetExternalUrl", namespace, name).Return("", "", "", nil)
 	platformMock.On("GetSecretData", namespace, secretName).Return(nil, errTest)
 
-	_, err := nexusService.ExposeConfiguration(instance)
+	_, err := nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to get Secret"))
 	platformMock.AssertExpectations(t)
@@ -431,7 +432,7 @@ func TestServiceImpl_ExposeConfiguration_GetConfigMapDataErr(t *testing.T) {
 	platformMock.On("GetConfigMapData", namespace,
 		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(nil, errTest)
 
-	_, err := nexusService.ExposeConfiguration(instance)
+	_, err := nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to get default tasks from Config Map"))
 	platformMock.AssertExpectations(t)
@@ -452,7 +453,7 @@ func TestServiceImpl_ExposeConfiguration_UnmarshalErr(t *testing.T) {
 	platformMock.On("GetConfigMapData", namespace,
 		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(configData, nil)
 
-	_, err := nexusService.ExposeConfiguration(instance)
+	_, err := nexusService.ExposeConfiguration(context.Background(), instance)
 	errJSON := &json.SyntaxError{}
 	assert.ErrorAs(t, err, &errJSON)
 	platformMock.AssertExpectations(t)
@@ -481,18 +482,34 @@ func TestServiceImpl_ExposeConfiguration_CreateSecretErr(t *testing.T) {
 		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(configData, nil)
 	platformMock.On("CreateSecret", instance, fmt.Sprintf("%s-%s", name, name)).Return(errTest)
 
-	_, err = nexusService.ExposeConfiguration(instance)
+	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "secret"))
 	platformMock.AssertExpectations(t)
 }
 
 func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testing.T) {
+	scheme := runtime.NewScheme()
+	err := jenkinsV1Api.AddToScheme(scheme)
+	assert.NoError(t, err)
+	k8sClient := fake.NewClientBuilder().
+		WithScheme(scheme).
+		WithObjects(
+			&jenkinsV1Api.Jenkins{
+				ObjectMeta: v1.ObjectMeta{
+					Namespace: namespace,
+					Name:      "jenkins",
+				},
+			},
+		).
+		Build()
+
 	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
 		runningInClusterFunc: ReturnTrue,
+		client:               k8sClient,
 	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
@@ -511,18 +528,34 @@ func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testi
 	platformMock.On("CreateSecret", instance, fmt.Sprintf("%s-%s", name, name)).Return(nil)
 	platformMock.On("CreateJenkinsServiceAccount", namespace, fmt.Sprintf("%s-%s", name, name)).Return(errTest)
 
-	_, err = nexusService.ExposeConfiguration(instance)
+	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to create Jenkins service account"))
 	platformMock.AssertExpectations(t)
 }
 
 func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
+	scheme := runtime.NewScheme()
+	err := jenkinsV1Api.AddToScheme(scheme)
+	assert.NoError(t, err)
+	k8sClient := fake.NewClientBuilder().
+		WithScheme(scheme).
+		WithObjects(
+			&jenkinsV1Api.Jenkins{
+				ObjectMeta: v1.ObjectMeta{
+					Namespace: namespace,
+					Name:      "jenkins",
+				},
+			},
+		).
+		Build()
+
 	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
 		runningInClusterFunc: ReturnTrue,
+		client:               k8sClient,
 	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
@@ -543,18 +576,34 @@ func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
 	platformMock.On("CreateJenkinsServiceAccount", namespace, newName).Return(nil)
 	platformMock.On("GetSecretData", namespace, newName).Return(nil, errTest)
 
-	_, err = nexusService.ExposeConfiguration(instance)
+	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to get CI user credentials"))
 	platformMock.AssertExpectations(t)
 }
 
 func TestServiceImpl_ExposeConfiguration_RunScriptErr(t *testing.T) {
+	scheme := runtime.NewScheme()
+	err := jenkinsV1Api.AddToScheme(scheme)
+	assert.NoError(t, err)
+	k8sClient := fake.NewClientBuilder().
+		WithScheme(scheme).
+		WithObjects(
+			&jenkinsV1Api.Jenkins{
+				ObjectMeta: v1.ObjectMeta{
+					Namespace: namespace,
+					Name:      "jenkins",
+				},
+			},
+		).
+		Build()
+
 	instance := nexusApi.Nexus{ObjectMeta: ObjectMeta()}
 	platformMock := pMock.PlatformService{}
 	nexusService := ServiceImpl{
 		platformService:      &platformMock,
 		runningInClusterFunc: ReturnTrue,
+		client:               k8sClient,
 	}
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	secretData := createSecretData()
@@ -574,7 +623,7 @@ func TestServiceImpl_ExposeConfiguration_RunScriptErr(t *testing.T) {
 	platformMock.On("CreateJenkinsServiceAccount", namespace, newName).Return(nil)
 	platformMock.On("GetSecretData", namespace, newName).Return(secretData, nil)
 
-	_, err = nexusService.ExposeConfiguration(instance)
+	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to create user name"))
 	platformMock.AssertExpectations(t)
@@ -609,7 +658,7 @@ func TestServiceImpl_ExposeConfiguration_createEDPComponentErr(t *testing.T) {
 	platformMock.On("GetConfigMapData", namespace,
 		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(configData, nil)
 
-	_, err = nexusService.ExposeConfiguration(instance)
+	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	platformMock.AssertExpectations(t)
 }
@@ -644,7 +693,7 @@ func TestServiceImpl_ExposeConfiguration_GetExternalUrlErr(t *testing.T) {
 		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(configData, nil)
 	platformMock.On("GetExternalUrl", namespace, name).Return(host, "", "", errTest).Once()
 
-	_, err = nexusService.ExposeConfiguration(instance)
+	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "failed to get route from cluster"))
 	platformMock.AssertExpectations(t)
@@ -689,7 +738,7 @@ func TestServiceImpl_ExposeConfiguration_CantCreateKeycloakClient(t *testing.T) 
 		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(configData, nil)
 	platformMock.On("CreateKeycloakClient", &keycloakClient).Return(errTest)
 
-	_, err = nexusService.ExposeConfiguration(instance)
+	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
 	assert.NoError(t, err)
 	platformMock.AssertExpectations(t)
 }

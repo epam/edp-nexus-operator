@@ -377,7 +377,7 @@ func TestReconcileNexus_Reconcile_ExposeConfigurationErr(t *testing.T) {
 	ok := true
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", *instance).Return(instance, errTest)
+	service.On("ExposeConfiguration", ctx, *instance).Return(instance, errTest)
 
 	reconcileNexus := ReconcileNexus{
 		client:  client,
@@ -414,7 +414,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusExposeStartErr(t *testing.T) {
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,
@@ -452,7 +452,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusExposeFinishErr(t *testing.T) {
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,
@@ -482,7 +482,7 @@ func TestReconcileNexus_Reconcile_IntegrationErr(t *testing.T) {
 	ok := true
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
 	service.On("Integration", *instance).Return(instance, errTest)
 
 	reconcileNexus := ReconcileNexus{
@@ -520,7 +520,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusIntegrationStartErr(t *testing.T) 
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
 	service.On("Integration", *instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
@@ -558,7 +558,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusReadyErr(t *testing.T) {
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
 	service.On("Integration", *instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
@@ -594,7 +594,7 @@ func TestReconcileNexus_Reconcile(t *testing.T) {
 	statusWriter.On("Update").Return(nil)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
 	service.On("Integration", *instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{

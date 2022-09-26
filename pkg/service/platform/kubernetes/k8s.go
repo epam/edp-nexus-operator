@@ -162,7 +162,7 @@ func (s *K8SService) Init(c *rest.Config, Scheme *runtime.Scheme, k8sClient clie
 	return nil
 }
 
-//CreateSecret creates secret object in K8s cluster
+// CreateSecret creates secret object in K8s cluster
 func (s K8SService) CreateSecret(instance v1.Nexus, name string, data map[string][]byte) error {
 	labels := platformHelper.GenerateLabels(instance.Name)
 

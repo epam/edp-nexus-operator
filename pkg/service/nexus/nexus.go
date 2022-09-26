@@ -21,7 +21,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
+	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
+	v1 "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
@@ -38,7 +39,7 @@ const (
 // NexusService interface for Nexus EDP component
 type Service interface {
 	Configure(instance v1.Nexus) (*v1.Nexus, bool, error)
-	ExposeConfiguration(instance v1.Nexus) (*v1.Nexus, error)
+	ExposeConfiguration(ctx context.Context, instance v1.Nexus) (*v1.Nexus, error)
 	Integration(instance v1.Nexus) (*v1.Nexus, error)
 	IsDeploymentReady(instance v1.Nexus) (*bool, error)
 	ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error)
@@ -208,7 +209,7 @@ func (s ServiceImpl) Integration(instance v1.Nexus) (*v1.Nexus, error) {
 }
 
 // ExposeConfiguration performs exposing Nexus configuration for other EDP components
-func (s ServiceImpl) ExposeConfiguration(instance v1.Nexus) (*v1.Nexus, error) {
+func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance v1.Nexus) (*v1.Nexus, error) {
 	u, err := s.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to get Nexus REST API URL")
@@ -230,7 +231,7 @@ func (s ServiceImpl) ExposeConfiguration(instance v1.Nexus) (*v1.Nexus, error) {
 	var parsedUsers []map[string]interface{}
 	err = json.Unmarshal([]byte(nexusDefaultUsersToCreate[nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix]), &parsedUsers)
 	if err != nil {
-		return &instance, errors.Wrapf(err, "cant umarshal %v", []byte(nexusDefaultUsersToCreate[nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix]))
+		return &instance, errors.Wrapf(err, "cant unmarshal %v", []byte(nexusDefaultUsersToCreate[nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix]))
 	}
 
 	newUser := map[string][]byte{}
@@ -247,9 +248,11 @@ func (s ServiceImpl) ExposeConfiguration(instance v1.Nexus) (*v1.Nexus, error) {
 			return &instance, errors.Wrapf(err, "failed to create %s secret", newUserSecretName)
 		}
 
-		err = s.platformService.CreateJenkinsServiceAccount(instance.Namespace, newUserSecretName)
-		if err != nil {
-			return &instance, errors.Wrapf(err, "failed to create Jenkins service account %s", newUserSecretName)
+		if s.jenkinsEnabled(ctx, instance.Namespace) {
+			err = s.platformService.CreateJenkinsServiceAccount(instance.Namespace, newUserSecretName)
+			if err != nil {
+				return &instance, errors.Wrapf(err, "failed to create Jenkins service account %s", newUserSecretName)
+			}
 		}
 
 		data, err := s.platformService.GetSecretData(instance.Namespace, newUserSecretName)
@@ -557,4 +560,12 @@ func (s ServiceImpl) Configure(instance v1.Nexus) (*v1.Nexus, bool, error) {
 	}
 
 	return &instance, true, nil
+}
+
+func (s ServiceImpl) jenkinsEnabled(ctx context.Context, namespace string) bool {
+	jenkinsList := &jenkinsApi.JenkinsList{}
+	if err := s.client.List(ctx, jenkinsList, &client.ListOptions{Namespace: namespace}); err != nil {
+		return false
+	}
+	return len(jenkinsList.Items) != 0
 }

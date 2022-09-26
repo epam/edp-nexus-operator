@@ -138,7 +138,7 @@ func (r *ReconcileNexus) Reconcile(ctx context.Context, request reconcile.Reques
 		}
 	}
 
-	instance, err = r.service.ExposeConfiguration(*instance)
+	instance, err = r.service.ExposeConfiguration(ctx, *instance)
 	if err != nil {
 		return reconcile.Result{RequeueAfter: 10 * time.Second}, errors.Wrap(err, "Exposing configuration failed")
 	}
