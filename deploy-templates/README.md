@@ -45,9 +45,9 @@ A Helm chart for EDP Nexus Operator
 | nexus.name | string | `"nexus"` | Nexus name |
 | nexus.nodeSelector | object | `{}` |  |
 | nexus.proxyImage | string | `"quay.io/keycloak/keycloak-gatekeeper:10.0.0"` |  |
-| nexus.resources.limits.memory | string | `"3Gi"` |  |
+| nexus.resources.limits.memory | string | `"6Gi"` |  |
 | nexus.resources.requests.cpu | string | `"100m"` |  |
-| nexus.resources.requests.memory | string | `"1.5Gi"` |  |
+| nexus.resources.requests.memory | string | `"2Gi"` |  |
 | nexus.storage.class | string | `"gp2"` | Storageclass for Nexus data volume |
 | nexus.storage.size | string | `"10Gi"` | Nexus data volume capacity |
 | nexus.tolerations | list | `[]` |  |
