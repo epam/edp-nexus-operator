@@ -35,6 +35,7 @@ spec:
         - env:
             - name: NEXUS_CONTEXT
               value: "{{if .Values.nexus.basePath}}{{.Values.nexus.basePath}}{{.Values.nexus.basePath}}{{else}}/{{end}}"
+            {{- toYaml .Values.nexus.env | nindent 12 }}
           image: "{{.Values.nexus.image}}:{{.Values.nexus.version}}"
           imagePullPolicy: "{{ .Values.nexus.imagePullPolicy }}"
           livenessProbe:

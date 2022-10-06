@@ -26,7 +26,7 @@ A Helm chart for EDP Nexus Operator
 | global.admins | list | `["stub_user_one@example.com"]` | Administrators of your tenant |
 | global.dnsWildCard | string | `nil` | a cluster DNS wildcard name |
 | global.edpName | string | `""` | namespace or a project name (in case of OpenShift) |
-| global.openshift.deploymentType | string | `"deployments"` | Wich type of kind will be deployed to Openshift (values: deployments/deploymentConfigs) |
+| global.openshift.deploymentType | string | `"deployments"` | Which type of kind will be deployed to Openshift (values: deployments/deploymentConfigs) |
 | global.platform | string | `"openshift"` | platform type that can be "kubernetes" or "openshift" |
 | image.repository | string | `"epamedp/nexus-operator"` | EDP nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator) |
 | image.tag | string | `nil` | EDP nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags) |
@@ -36,6 +36,7 @@ A Helm chart for EDP Nexus Operator
 | nexus.annotations | object | `{}` |  |
 | nexus.basePath | string | `""` | Base path for Nexus URL |
 | nexus.deploy | bool | `true` | Flag to enable/disable Nexus deploy |
+| nexus.env | list | `[{"name":"INSTALL4J_ADD_VM_PARAMS","value":"-Xms2703M -Xmx2703M\n-XX:MaxDirectMemorySize=2703M\n-XX:+UnlockExperimentalVMOptions\n-XX:+UseCGroupMemoryLimitForHeap\n-Djava.util.prefs.userRoot=/nexus-data/javaprefs"}]` | Custom environment variables to be used by nexus pod |
 | nexus.image | string | `"sonatype/nexus3"` | Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3) |
 | nexus.imagePullPolicy | string | `"IfNotPresent"` |  |
 | nexus.imagePullSecrets | string | `nil` | Secrets to pull from private Docker registry |
@@ -51,7 +52,7 @@ A Helm chart for EDP Nexus Operator
 | nexus.storage.class | string | `"gp2"` | Storageclass for Nexus data volume |
 | nexus.storage.size | string | `"10Gi"` | Nexus data volume capacity |
 | nexus.tolerations | list | `[]` |  |
-| nexus.version | string | `"3.41.0"` | Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags) |
+| nexus.version | string | `"3.42.0"` | Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags) |
 | nodeSelector | object | `{}` |  |
 | resources.limits.memory | string | `"192Mi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |

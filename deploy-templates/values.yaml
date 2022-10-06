@@ -9,7 +9,7 @@ global:
   # -- a cluster DNS wildcard name
   dnsWildCard:
   openshift:
-    # -- Wich type of kind will be deployed to Openshift (values: deployments/deploymentConfigs)
+    # -- Which type of kind will be deployed to Openshift (values: deployments/deploymentConfigs)
     deploymentType: "deployments"
 
 # -- component name
@@ -41,12 +41,22 @@ nexus:
   # --  Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3)
   image: "sonatype/nexus3"
   # --  Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags)
-  version: "3.41.0"
+  version: "3.42.0"
   imagePullPolicy: "IfNotPresent"
   # --  Base path for Nexus URL
   basePath: ""
   # --  Secrets to pull from private Docker registry
   imagePullSecrets:
+  # -- Custom environment variables to be used by nexus pod
+  env:
+    # see recommendation https://help.sonatype.com/repomanager3/product-information/system-requirements
+    - name: INSTALL4J_ADD_VM_PARAMS
+      value: |-
+        -Xms2703M -Xmx2703M
+        -XX:MaxDirectMemorySize=2703M
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+UseCGroupMemoryLimitForHeap
+        -Djava.util.prefs.userRoot=/nexus-data/javaprefs
   storage:
     # --  Storageclass for Nexus data volume
     class: gp2
