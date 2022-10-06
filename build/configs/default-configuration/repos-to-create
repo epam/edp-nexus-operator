@@ -137,7 +137,7 @@
     "name": "edp-dotnet-proxy",
     "repositoryType": "nuget-proxy",
     "blob_store": "edp-dotnet",
-    "remote_url": "https://www.nuget.org/api/v2/",
+    "remote_url": "https://api.nuget.org/v3/index.json",
     "layout_policy": "strict",
     "strict_content_validation": "true",
     "version_policy": "mixed",
