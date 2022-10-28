@@ -2,8 +2,15 @@
 ## [Unreleased]
 
 
+<a name="v2.12.1"></a>
+## [v2.12.1] - 2022-10-19
+### Bug Fixes
+
+- Increase request header size to avoid 431 error [EPMDEDP-10758](https://jiraeu.epam.com/browse/EPMDEDP-10758)
+
+
 <a name="v2.12.0"></a>
-## [v2.12.0] - 2022-08-23
+## [v2.12.0] - 2022-08-26
 ### Features
 
 - Switch to use V1 apis of EDP components [EPMDEDP-10086](https://jiraeu.epam.com/browse/EPMDEDP-10086)
@@ -133,7 +140,8 @@
 - test
 
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.12.1...HEAD
+[v2.12.1]: https://github.com/epam/edp-nexus-operator/compare/v2.12.0...v2.12.1
 [v2.12.0]: https://github.com/epam/edp-nexus-operator/compare/v2.11.0...v2.12.0
 [v2.11.0]: https://github.com/epam/edp-nexus-operator/compare/v2.10.0...v2.11.0
 [v2.10.0]: https://github.com/epam/edp-nexus-operator/compare/v2.9.0...v2.10.0

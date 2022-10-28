@@ -3,8 +3,8 @@ description: A Helm chart for EDP Nexus Operator
 home: https://epam.github.io/edp-install/
 name: nexus-operator
 type: application
-version: 2.12.0
-appVersion: 2.12.0
+version: 2.12.1
+appVersion: 2.12.1
 icon: https://epam.github.io/edp-install/assets/logo.png
 keywords:
   - edp
