@@ -1,6 +1,32 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Features
+
+- Added a stub linter [EPMDEDP-10536](https://jiraeu.epam.com/browse/EPMDEDP-10536)
+- Add python-proxy and python-group repos [EPMDEDP-10601](https://jiraeu.epam.com/browse/EPMDEDP-10601)
+- Disable jenkins configuration when not found [EPMDEDP-10644](https://jiraeu.epam.com/browse/EPMDEDP-10644)
+
+### Bug Fixes
+
+- Fix pypi-group and pypi-proxy creation [EPMDEDP-10601](https://jiraeu.epam.com/browse/EPMDEDP-10601)
+- Fix python proxy and group creation [EPMDEDP-10601](https://jiraeu.epam.com/browse/EPMDEDP-10601)
+
+### Routine
+
+- Update current development version [EPMDEDP-10274](https://jiraeu.epam.com/browse/EPMDEDP-10274)
+- Move script from edp-library-pipelines to the repository [EPMDEDP-10652](https://jiraeu.epam.com/browse/EPMDEDP-10652)
+- Upgrade nexus to the 3.42.0 version [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
+- Increase memory request and limits for nexus [EPMDEDP-10775](https://jiraeu.epam.com/browse/EPMDEDP-10775)
+- Update nuget proxy url endpoint [EPMDEDP-10776](https://jiraeu.epam.com/browse/EPMDEDP-10776)
+
+
+<a name="v2.12.1"></a>
+## [v2.12.1] - 2022-10-28
+### Bug Fixes
+
+- Increase request header size to avoid 431 error [EPMDEDP-10758](https://jiraeu.epam.com/browse/EPMDEDP-10758)
+
 
 <a name="v2.12.0"></a>
 ## [v2.12.0] - 2022-08-26
@@ -133,7 +159,8 @@
 - test
 
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.12.1...HEAD
+[v2.12.1]: https://github.com/epam/edp-nexus-operator/compare/v2.12.0...v2.12.1
 [v2.12.0]: https://github.com/epam/edp-nexus-operator/compare/v2.11.0...v2.12.0
 [v2.11.0]: https://github.com/epam/edp-nexus-operator/compare/v2.10.0...v2.11.0
 [v2.10.0]: https://github.com/epam/edp-nexus-operator/compare/v2.9.0...v2.10.0
