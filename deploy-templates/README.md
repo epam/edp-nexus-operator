@@ -52,7 +52,7 @@ A Helm chart for EDP Nexus Operator
 | nexus.storage.class | string | `"gp2"` | Storageclass for Nexus data volume |
 | nexus.storage.size | string | `"10Gi"` | Nexus data volume capacity |
 | nexus.tolerations | list | `[]` |  |
-| nexus.version | string | `"3.42.0"` | Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags) |
+| nexus.version | string | `"3.43.0"` | Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags) |
 | nodeSelector | object | `{}` |  |
 | resources.limits.memory | string | `"192Mi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |
