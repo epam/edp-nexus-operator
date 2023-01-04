@@ -59,7 +59,7 @@ nexus:
         -Djava.util.prefs.userRoot=/nexus-data/javaprefs
   storage:
     # --  Storageclass for Nexus data volume
-    class: gp2
+    # class: gp2
     # -- Nexus data volume capacity
     size: 10Gi
   annotations: {}
