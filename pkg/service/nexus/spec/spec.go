@@ -1,49 +1,49 @@
 package spec
 
 const (
-	//NexusDefaultPropertiesConfigMapPrefix
+	// NexusDefaultPropertiesConfigMapPrefix is a default prefix of the properties config map.
 	NexusDefaultPropertiesConfigMapPrefix = "nexus-default.properties"
 
-	//NexusDefaultTasksConfigMapPrefix
+	// NexusDefaultTasksConfigMapPrefix is a default prefix of the tasks config map.
 	NexusDefaultTasksConfigMapPrefix = "default-tasks"
 
-	//NexusDefaultTasksConfigMapPrefix
+	// NexusDefaultScriptsConfigMapPrefix is a default prefix of the scripts config map.
 	NexusDefaultScriptsConfigMapPrefix = "scripts"
 
-	//NexusDefaultRolesConfigMapPrefix
+	// NexusDefaultRolesConfigMapPrefix is a default prefix of the roles config map.
 	NexusDefaultRolesConfigMapPrefix = "default-roles"
 
-	//NexusDefaultReposToCreateConfigMapPrefix
+	// NexusDefaultReposToCreateConfigMapPrefix is a default prefix of the config map of repos staged for creation.
 	NexusDefaultReposToCreateConfigMapPrefix = "repos-to-create"
 
-	//NexusDefaultReposToDeleteConfigMapPrefix
+	// NexusDefaultReposToDeleteConfigMapPrefix is a default prefix of the config map of repos staged for deletion.
 	NexusDefaultReposToDeleteConfigMapPrefix = "repos-to-delete"
 
-	//NexusDefaultUsersConfigMapPrefix key for ConfigMap entry with default users list
+	// NexusDefaultUsersConfigMapPrefix is a default key for ConfigMap entry with default users list.
 	NexusDefaultUsersConfigMapPrefix = "default-users"
 
-	//EdpAnnotationsPrefix general prefix for all annotation made by EDP team
+	// EdpAnnotationsPrefix is a general prefix for all annotation made by EDP team.
 	EdpAnnotationsPrefix = "edp.epam.com"
 
-	//IdentityServiceCredentialsSecretPostfix
+	// IdentityServiceCredentialsSecretPostfix is a default identity service  secret postfix.
 	IdentityServiceCredentialsSecretPostfix = "is-credentials"
 
-	//NexusPort - default Nexus port
+	// NexusPort is a default Nexus port.
 	NexusPort = 8081
 
-	//NexusMemoryRequest - default request value for memory request for deployment config
+	// NexusMemoryRequest is a default request value for memory request for deployment config.
 	NexusMemoryRequest = "500Mi"
 
-	//NexusDefaultAdminUser - default admin username in Nexus
+	// NexusDefaultAdminUser is a default admin username in Nexus.
 	NexusDefaultAdminUser string = "admin"
 
-	//NexusDefaultAdminPassword - default admin password in Nexus
+	// NexusDefaultAdminPassword is a default admin password in Nexus.
 	NexusDefaultAdminPassword string = "admin123"
 
-	//NexusRestApiUrlPath - Nexus relative REST API path
+	// NexusRestApiUrlPath is the Nexus relative REST API path.
 	NexusRestApiUrlPath = "service/rest/v1"
 
-	//EdpCiUserSuffix entity prefix for integration functionality
+	// EdpCiUserSuffix is the entity prefix for integration functionality.
 	EdpCiUserSuffix string = "ci-credentials"
 
 	NexusKeycloakProxyPort int32 = 3000

@@ -20,8 +20,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
 	oMock "github.com/epam/edp-nexus-operator/v2/mocks/openshift"
-	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 )
 
@@ -86,13 +86,13 @@ func TestOpenshiftService_Init(t *testing.T) {
 
 func TestOpenshiftService_GetRouteByCr_ListErr(t *testing.T) {
 	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
 	errTest := errors.New("test")
-	routes.On("List", context.TODO(), metav1.ListOptions{}).Return(nil, errTest)
+	routes.On("List", context.Background(), metav1.ListOptions{}).Return(nil, errTest)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	_, err := service.GetRouteByCr(instance)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "couldn't retrieve services list from the cluster"))
@@ -104,12 +104,12 @@ func TestOpenshiftService_GetRouteByCr_NotInList(t *testing.T) {
 	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	route := v1.Route{}
 	list := v1.RouteList{Items: []v1.Route{route}}
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
-	routes.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+	routes.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	result, err := service.GetRouteByCr(instance)
 	assert.NoError(t, err)
 	assert.Nil(t, result)
@@ -121,12 +121,12 @@ func TestOpenshiftService_GetRouteByCr(t *testing.T) {
 	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	route := v1.Route{ObjectMeta: createObjectMeta()}
 	list := v1.RouteList{Items: []v1.Route{route}}
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
-	routes.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+	routes.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	result, err := service.GetRouteByCr(instance)
 	assert.NoError(t, err)
 	assert.Equal(t, &route, result)
@@ -135,12 +135,12 @@ func TestOpenshiftService_GetRouteByCr(t *testing.T) {
 }
 
 func TestOpenshiftService_GetExternalUrl_NotFound(t *testing.T) {
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
-	routes.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
+	routes.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	_, _, _, err := service.GetExternalUrl(namespace, name)
 	assert.NoError(t, err)
 	routes.AssertExpectations(t)
@@ -148,13 +148,13 @@ func TestOpenshiftService_GetExternalUrl_NotFound(t *testing.T) {
 }
 
 func TestOpenshiftService_GetExternalUrl_GetErr(t *testing.T) {
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
 	errTest := errors.New("test")
-	routes.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, errTest)
+	routes.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, errTest)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	_, _, _, err := service.GetExternalUrl(namespace, name)
 	assert.Equal(t, errTest, err)
 	routes.AssertExpectations(t)
@@ -171,12 +171,12 @@ func TestOpenshiftService_GetExternalUrl(t *testing.T) {
 			},
 		},
 	}
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
-	routes.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&route, nil)
+	routes.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&route, nil)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	url, s, s2, err := service.GetExternalUrl(namespace, name)
 	assert.NoError(t, err)
 	assert.Equal(t, "https://domain", url)
@@ -189,13 +189,13 @@ func TestOpenshiftService_GetExternalUrl(t *testing.T) {
 func TestOpenshiftService_UpdateExternalTargetPath_GetRouteByCr(t *testing.T) {
 	orString := intstr.IntOrString{}
 	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
 	errTest := errors.New("test")
-	routes.On("List", context.TODO(), metav1.ListOptions{}).Return(nil, errTest)
+	routes.On("List", context.Background(), metav1.ListOptions{}).Return(nil, errTest)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	err := service.UpdateExternalTargetPath(instance, orString)
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "couldn't get route"))
@@ -216,12 +216,12 @@ func TestOpenshiftService_UpdateExternalTargetPath_AlreadyUpdated(t *testing.T) 
 	}
 
 	list := v1.RouteList{Items: []v1.Route{route}}
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
-	routes.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+	routes.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	err := service.UpdateExternalTargetPath(instance, intOrString)
 	assert.NoError(t, err)
 	routes.AssertExpectations(t)
@@ -254,13 +254,13 @@ func TestOpenshiftService_UpdateExternalTargetPath(t *testing.T) {
 	}
 
 	list := v1.RouteList{Items: []v1.Route{route}}
-	routeClient := oMock.RouteV1Client{}
-	routes := &oMock.Route{}
+	routeClient := oMock.NewRouteV1Interface(t)
+	routes := oMock.NewRouteInterface(t)
 	routeClient.On("Routes", namespace).Return(routes)
-	routes.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
-	routes.On("Update", context.TODO(), &expectedRoute, metav1.UpdateOptions{}).Return(nil, nil)
+	routes.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
+	routes.On("Update", context.Background(), &expectedRoute, metav1.UpdateOptions{}).Return(nil, nil)
 
-	service := OpenshiftService{routeClient: &routeClient}
+	service := OpenshiftService{routeClient: routeClient}
 	err := service.UpdateExternalTargetPath(instance, intOrString)
 	assert.NoError(t, err)
 	routes.AssertExpectations(t)
@@ -288,11 +288,11 @@ func (s *TestOpenShiftAlternativeSuite) AfterTest(suiteName, testName string) {
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyErr() {
 	t := s.T()
 	instance := nexusApi.Nexus{}
-	appClient := &oMock.AppsV1Client{}
-	deploymentConf := &oMock.DeploymentConfig{}
+	appClient := oMock.NewAppsV1Interface(t)
+	deploymentConf := oMock.NewDeploymentConfigInterface(t)
 	errTest := errors.New("test")
 	appClient.On("DeploymentConfigs", "").Return(deploymentConf)
-	deploymentConf.On("Get", context.TODO(), instance.Name, metav1.GetOptions{}).Return(nil, errTest)
+	deploymentConf.On("Get", context.Background(), instance.Name, metav1.GetOptions{}).Return(nil, errTest)
 
 	service := OpenshiftService{appClient: appClient}
 
@@ -308,11 +308,11 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyFa
 	t := s.T()
 	deploymentConfInstance := appv1.DeploymentConfig{}
 	instance := nexusApi.Nexus{}
-	appClient := &oMock.AppsV1Client{}
-	deploymentConf := &oMock.DeploymentConfig{}
+	appClient := oMock.NewAppsV1Interface(t)
+	deploymentConf := oMock.NewDeploymentConfigInterface(t)
 
 	appClient.On("DeploymentConfigs", "").Return(deploymentConf)
-	deploymentConf.On("Get", context.TODO(), instance.Name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
+	deploymentConf.On("Get", context.Background(), instance.Name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
 
 	service := OpenshiftService{appClient: appClient}
 
@@ -333,11 +333,11 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyTr
 		}}
 
 	instance := nexusApi.Nexus{}
-	appClient := &oMock.AppsV1Client{}
-	deploymentConf := &oMock.DeploymentConfig{}
+	appClient := oMock.NewAppsV1Interface(t)
+	deploymentConf := oMock.NewDeploymentConfigInterface(t)
 
 	appClient.On("DeploymentConfigs", "").Return(deploymentConf)
-	deploymentConf.On("Get", context.TODO(), instance.Name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
+	deploymentConf.On("Get", context.Background(), instance.Name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
 
 	service := OpenshiftService{appClient: appClient}
 
@@ -351,14 +351,14 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_IsDeploymentReadyTr
 func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToDeployConf_GetErr() {
 	t := s.T()
 	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	appClient := oMock.AppsV1Client{}
-	deploymentConfig := &oMock.DeploymentConfig{}
+	appClient := oMock.NewAppsV1Interface(t)
+	deploymentConfig := oMock.NewDeploymentConfigInterface(t)
 	errTest := errors.New("test")
 
 	appClient.On("DeploymentConfigs", namespace).Return(deploymentConfig)
-	deploymentConfig.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, errTest)
+	deploymentConfig.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, errTest)
 
-	service := OpenshiftService{appClient: &appClient}
+	service := OpenshiftService{appClient: appClient}
 	err := service.AddKeycloakProxyToDeployConf(instance, nil)
 	assert.Error(t, err)
 	appClient.AssertExpectations(t)
@@ -372,13 +372,13 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToD
 	containerSpec := createContainer(instance)
 	deploymentConfInstance := createDeploymentConfInstance([]coreV1Api.Container{containerSpec})
 
-	appClient := oMock.AppsV1Client{}
-	deploymentConfig := &oMock.DeploymentConfig{}
+	appClient := oMock.NewAppsV1Interface(t)
+	deploymentConfig := oMock.NewDeploymentConfigInterface(t)
 
 	appClient.On("DeploymentConfigs", namespace).Return(deploymentConfig)
-	deploymentConfig.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
+	deploymentConfig.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
 
-	service := OpenshiftService{appClient: &appClient}
+	service := OpenshiftService{appClient: appClient}
 	err := service.AddKeycloakProxyToDeployConf(instance, nil)
 	assert.NoError(t, err)
 	appClient.AssertExpectations(t)
@@ -395,14 +395,14 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToD
 	expectedDeploymentConfInstance := createDeploymentConfInstance([]coreV1Api.Container{containerSpec})
 	errTest := errors.New("test")
 
-	appClient := oMock.AppsV1Client{}
-	deploymentConfig := &oMock.DeploymentConfig{}
+	appClient := oMock.NewAppsV1Interface(t)
+	deploymentConfig := oMock.NewDeploymentConfigInterface(t)
 
 	appClient.On("DeploymentConfigs", namespace).Return(deploymentConfig)
-	deploymentConfig.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
-	deploymentConfig.On("Update", context.TODO(), &expectedDeploymentConfInstance, metav1.UpdateOptions{}).Return(nil, errTest)
+	deploymentConfig.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
+	deploymentConfig.On("Update", context.Background(), &expectedDeploymentConfInstance, metav1.UpdateOptions{}).Return(nil, errTest)
 
-	service := OpenshiftService{appClient: &appClient}
+	service := OpenshiftService{appClient: appClient}
 	err := service.AddKeycloakProxyToDeployConf(instance, nil)
 	assert.Equal(t, errTest, err)
 	appClient.AssertExpectations(t)
@@ -417,14 +417,14 @@ func (s *TestOpenShiftAlternativeSuite) TestOpenshiftService_AddKeycloakProxyToD
 	deploymentConfInstance := createDeploymentConfInstance([]coreV1Api.Container{})
 	expectedDeploymentConfInstance := createDeploymentConfInstance([]coreV1Api.Container{containerSpec})
 
-	appClient := oMock.AppsV1Client{}
-	deploymentConfig := &oMock.DeploymentConfig{}
+	appClient := oMock.NewAppsV1Interface(t)
+	deploymentConfig := oMock.NewDeploymentConfigInterface(t)
 
 	appClient.On("DeploymentConfigs", namespace).Return(deploymentConfig)
-	deploymentConfig.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
-	deploymentConfig.On("Update", context.TODO(), &expectedDeploymentConfInstance, metav1.UpdateOptions{}).Return(nil, nil)
+	deploymentConfig.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&deploymentConfInstance, nil)
+	deploymentConfig.On("Update", context.Background(), &expectedDeploymentConfInstance, metav1.UpdateOptions{}).Return(nil, nil)
 
-	service := OpenshiftService{appClient: &appClient}
+	service := OpenshiftService{appClient: appClient}
 	err := service.AddKeycloakProxyToDeployConf(instance, nil)
 	assert.NoError(t, err)
 	appClient.AssertExpectations(t)

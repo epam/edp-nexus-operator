@@ -1,0 +1,27 @@
+# permissions for end users to view nexus.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: nexus-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: controller-operator
+    app.kubernetes.io/part-of: controller-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: nexus-viewer-role
+rules:
+- apiGroups:
+  - v1.edp.epam.com
+  resources:
+  - nexus
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - v1.edp.epam.com
+  resources:
+  - nexus/status
+  verbs:
+  - get

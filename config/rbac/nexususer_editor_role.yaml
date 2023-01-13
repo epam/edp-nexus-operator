@@ -1,0 +1,31 @@
+# permissions for end users to edit nexususers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: nexususer-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: controller-operator
+    app.kubernetes.io/part-of: controller-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: nexususer-editor-role
+rules:
+- apiGroups:
+  - v1.edp.epam.com
+  resources:
+  - nexususers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - v1.edp.epam.com
+  resources:
+  - nexususers/status
+  verbs:
+  - get

@@ -1,0 +1,28 @@
+domain: edp.epam.com
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: controller-operator
+repo: github.com/epam/edp-nexus-operator/v2
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: edp.epam.com
+  group: edp
+  kind: Nexus
+  path: github.com/epam/edp-nexus-operator/v2/api/edp/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: edp.epam.com
+  group: edp
+  kind: NexusUser
+  path: github.com/epam/edp-nexus-operator/v2/api/edp/v1
+  version: v1
+version: "3"

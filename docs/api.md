@@ -24,7 +24,7 @@ Resource Types:
 
 
 
-Nexus is the Schema for the nexuses API
+Nexus is the Schema for the nexuses API.
 
 <table>
     <thead>
@@ -56,14 +56,14 @@ Nexus is the Schema for the nexuses API
         <td><b><a href="#nexusspec">spec</a></b></td>
         <td>object</td>
         <td>
-          NexusSpec defines the desired state of Nexus<br/>
+          NexusSpec defines the desired state of Nexus.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b><a href="#nexusstatus">status</a></b></td>
         <td>object</td>
         <td>
-          NexusStatus defines the observed state of Nexus<br/>
+          NexusStatus defines the observed state of Nexus.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -75,7 +75,7 @@ Nexus is the Schema for the nexuses API
 
 
 
-NexusSpec defines the desired state of Nexus
+NexusSpec defines the desired state of Nexus.
 
 <table>
     <thead>
@@ -260,7 +260,7 @@ NexusSpec defines the desired state of Nexus
 
 
 
-NexusStatus defines the observed state of Nexus
+NexusStatus defines the observed state of Nexus.
 
 <table>
     <thead>
@@ -305,7 +305,7 @@ NexusStatus defines the observed state of Nexus
 
 
 
-NexusUser is the Schema for the nexususers API
+NexusUser is the Schema for the nexususers API.
 
 <table>
     <thead>

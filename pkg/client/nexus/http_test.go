@@ -2,9 +2,10 @@ package nexus
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHTTPError_Error(t *testing.T) {

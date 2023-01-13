@@ -1,0 +1,12 @@
+apiVersion: v1.edp.epam.com/v1
+kind: Nexus
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus
+    app.kubernetes.io/instance: nexus-sample
+    app.kubernetes.io/part-of: controller-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: controller-operator
+  name: nexus-sample
+spec:
+  # TODO(user): Add fields here

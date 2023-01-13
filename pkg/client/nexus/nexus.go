@@ -16,7 +16,7 @@ type Client struct {
 	resty *resty.Client
 }
 
-// Init performs initialization of Nexus connection
+// Init performs initialization of Nexus connection.
 func Init(url string, user string, password string) *Client {
 	return &Client{
 		resty: resty.SetHostURL(url).SetBasicAuth(user, password).SetHeaders(map[string]string{
@@ -26,7 +26,7 @@ func Init(url string, user string, password string) *Client {
 	}
 }
 
-// WaitForStatusIsUp waits for Nexus to be up
+// WaitForStatusIsUp waits for Nexus to be up.
 func (nc Client) IsNexusRestApiReady() (bool, int, error) {
 	nexusIsReady := true
 	resp, err := nc.resty.
@@ -41,7 +41,7 @@ func (nc Client) IsNexusRestApiReady() (bool, int, error) {
 	return nexusIsReady, resp.StatusCode(), nil
 }
 
-// CheckScriptExist checks if script is already uploaded
+// CheckScriptExist checks if script is already uploaded.
 func (nc Client) CheckScriptExist(scriptName string) (bool, error) {
 	resp, err := nc.resty.R().
 		SetHeader("accept", "application/json").
@@ -63,7 +63,7 @@ func (nc Client) CheckScriptExist(scriptName string) (bool, error) {
 	return false, nil
 }
 
-// UploadScript uploads script to Nexus
+// UploadScript uploads script to Nexus.
 func (nc Client) UploadScript(scriptName string, scriptType string, scriptContent string) error {
 	formattedContent := nexusClientHelper.FormateNexusScript(scriptContent)
 	resp, err := nc.resty.R().
@@ -76,7 +76,7 @@ func (nc Client) UploadScript(scriptName string, scriptType string, scriptConten
 	return nil
 }
 
-// AreDefaultScriptsDeclared checks if default scripts are already declared in Nexus
+// AreDefaultScriptsDeclared checks if default scripts are already declared in Nexus.
 func (nc Client) AreDefaultScriptsDeclared(listOfScripts map[string]string) (bool, error) {
 	defaultScriptsAreDeclared := true
 
@@ -93,7 +93,7 @@ func (nc Client) AreDefaultScriptsDeclared(listOfScripts map[string]string) (boo
 	return defaultScriptsAreDeclared, nil
 }
 
-// DeclareDefaultScripts declares default scripts in Nexus
+// DeclareDefaultScripts declares default scripts in Nexus.
 func (nc Client) DeclareDefaultScripts(listOfScripts map[string]string) error {
 	for scriptFullName, scriptContent := range listOfScripts {
 		scriptName := strings.Split(scriptFullName, ".")[0]
@@ -112,7 +112,7 @@ func (nc Client) DeclareDefaultScripts(listOfScripts map[string]string) error {
 	return nil
 }
 
-// CheckTaskExist checks if task is already uploaded
+// CheckTaskExist checks if task is already uploaded.
 func (nc Client) CheckTaskExist(taskName string) (bool, error) {
 	resp, err := nc.resty.R().
 		SetHeader("accept", "application/json").
@@ -134,7 +134,7 @@ func (nc Client) CheckTaskExist(taskName string) (bool, error) {
 	return false, nil
 }
 
-// RunScript runs script in Nexus
+// RunScript runs script in Nexus.
 func (nc Client) RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error) {
 	body, err := json.Marshal(parameters)
 	if err != nil {
@@ -150,7 +150,7 @@ func (nc Client) RunScript(scriptName string, parameters map[string]interface{})
 	return resp.Body(), nil
 }
 
-// CheckRoleExist checks if role is already exist
+// CheckRoleExist checks if role is already exist.
 func (nc Client) CheckRoleExist(roleName interface{}) (bool, error) {
 	resp, err := nc.RunScript("get-role", map[string]interface{}{"id": roleName})
 	if err != nil {
@@ -172,7 +172,7 @@ func (nc Client) CheckRoleExist(roleName interface{}) (bool, error) {
 	return false, nil
 }
 
-// CheckRepositoryExist checks if repository name is present in Nexus repository list
+// CheckRepositoryExist checks if repository name is present in Nexus repository list.
 func (nc Client) CheckRepositoryExist(repositoryName string) (bool, error) {
 	serverRepoList, err := nc.GetRepositoryList()
 	if err != nil {
@@ -187,7 +187,7 @@ func (nc Client) CheckRepositoryExist(repositoryName string) (bool, error) {
 	return false, nil
 }
 
-// GetRepositoryList takes list of repositories from Nexus server
+// GetRepositoryList takes list of repositories from Nexus server.
 func (nc Client) GetRepositoryList() ([]map[string]interface{}, error) {
 	var out []map[string]interface{}
 

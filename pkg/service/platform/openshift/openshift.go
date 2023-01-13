@@ -20,7 +20,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
@@ -40,7 +40,7 @@ type SecurityClient interface {
 	securityV1Client.SecurityV1Interface
 }
 
-// OpenshiftService struct for Openshift platform service
+// OpenshiftService struct for Openshift platform service.
 type OpenshiftService struct {
 	kubernetes.K8SService
 
@@ -54,7 +54,7 @@ const (
 	deploymentConfigsDeploymentType = "deploymentConfigs"
 )
 
-// Init initializes OpenshiftService
+// Init initializes OpenshiftService.
 func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Scheme, k8sClient client.Client) error {
 	err := service.K8SService.Init(config, scheme, k8sClient)
 	if err != nil {
@@ -82,7 +82,7 @@ func (service *OpenshiftService) Init(config *rest.Config, scheme *runtime.Schem
 	return nil
 }
 
-func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1.Nexus, args []string) error {
+func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance nexusApi.Nexus, args []string) error {
 	if os.Getenv(deploymentTypeEnvName) == deploymentConfigsDeploymentType {
 		containerSpec := coreV1Api.Container{
 			Name:            "keycloak-proxy",
@@ -121,7 +121,7 @@ func (service OpenshiftService) AddKeycloakProxyToDeployConf(instance v1.Nexus, 
 	return service.K8SService.AddKeycloakProxyToDeployConf(instance, args)
 }
 
-// GetExternalUrl returns Web URL for object and scheme from Openshift Route
+// GetExternalUrl returns Web URL for object and scheme from Openshift Route.
 func (service OpenshiftService) GetExternalUrl(namespace string, name string) (webURL, host string, scheme string, err error) {
 	route, err := service.routeClient.Routes(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
@@ -141,8 +141,8 @@ func (service OpenshiftService) GetExternalUrl(namespace string, name string) (w
 	return fmt.Sprintf("%s://%s%s", routeScheme, route.Spec.Host, p), route.Spec.Host, routeScheme, nil
 }
 
-// IsDeploymentReady verifies that DeploymentConfig is ready in Openshift
-func (service OpenshiftService) IsDeploymentReady(instance v1.Nexus) (res *bool, err error) {
+// IsDeploymentReady verifies that DeploymentConfig is ready in Openshift.
+func (service OpenshiftService) IsDeploymentReady(instance nexusApi.Nexus) (res *bool, err error) {
 	if os.Getenv(deploymentTypeEnvName) == deploymentConfigsDeploymentType {
 		deploymentConfig, err := service.appClient.DeploymentConfigs(instance.Namespace).Get(context.TODO(), instance.Name, metav1.GetOptions{})
 		if err != nil {
@@ -160,8 +160,8 @@ func getBoolP(val bool) *bool {
 	return &val
 }
 
-// GetRouteByCr return Route object with instance as a reference owner
-func (service OpenshiftService) GetRouteByCr(instance v1.Nexus) (*routeV1Api.Route, error) {
+// GetRouteByCr return Route object with instance as a reference owner.
+func (service OpenshiftService) GetRouteByCr(instance nexusApi.Nexus) (*routeV1Api.Route, error) {
 	rl, err := service.routeClient.Routes(instance.Namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't retrieve services list from the cluster")
@@ -174,8 +174,8 @@ func (service OpenshiftService) GetRouteByCr(instance v1.Nexus) (*routeV1Api.Rou
 	return nil, nil
 }
 
-// UpdateExternalTargetPath performs updating route target port
-func (service OpenshiftService) UpdateExternalTargetPath(instance v1.Nexus, targetPort intstr.IntOrString) error {
+// UpdateExternalTargetPath performs updating route target port.
+func (service OpenshiftService) UpdateExternalTargetPath(instance nexusApi.Nexus, targetPort intstr.IntOrString) error {
 	instanceRoute, err := service.GetRouteByCr(instance)
 	if err != nil || instanceRoute == nil {
 		return errors.Wrap(err, "couldn't get route")

@@ -11,9 +11,6 @@ import (
 	"strings"
 
 	"github.com/dchest/uniuri"
-	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
-	keycloakV1Api "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
-	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/pkg/errors"
 	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,9 +19,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
-	v1 "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
+	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
+	keycloakApi "github.com/epam/edp-keycloak-operator/api/v1/v1"
+	keycloakHelper "github.com/epam/edp-keycloak-operator/controllers/helper"
+
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	"github.com/epam/edp-nexus-operator/v2/controllers/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
-	"github.com/epam/edp-nexus-operator/v2/pkg/controller/helper"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 )
@@ -36,12 +37,12 @@ const (
 	nexusIcon = "nexus.svg"
 )
 
-// NexusService interface for Nexus EDP component
+// Service interface for Nexus EDP component.
 type Service interface {
-	Configure(instance v1.Nexus) (*v1.Nexus, bool, error)
-	ExposeConfiguration(ctx context.Context, instance v1.Nexus) (*v1.Nexus, error)
-	Integration(instance v1.Nexus) (*v1.Nexus, error)
-	IsDeploymentReady(instance v1.Nexus) (*bool, error)
+	Configure(instance nexusApi.Nexus) (*nexusApi.Nexus, bool, error)
+	ExposeConfiguration(ctx context.Context, instance nexusApi.Nexus) (*nexusApi.Nexus, error)
+	Integration(instance nexusApi.Nexus) (*nexusApi.Nexus, error)
+	IsDeploymentReady(instance nexusApi.Nexus) (*bool, error)
 	ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error)
 }
 
@@ -52,7 +53,7 @@ type Client interface {
 	RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error)
 }
 
-// NewNexusService function that returns NexusService implementation
+// NewService function that returns NexusService implementation.
 func NewService(platformService platform.PlatformService, client client.Client, scheme *runtime.Scheme) Service {
 	return ServiceImpl{
 		platformService:      platformService,
@@ -65,7 +66,7 @@ func NewService(platformService platform.PlatformService, client client.Client, 
 	}
 }
 
-// NexusServiceImpl struct fo Nexus EDP Component
+// ServiceImpl struct fo Nexus EDP Component.
 type ServiceImpl struct {
 	platformService      platform.PlatformService
 	client               client.Client
@@ -74,12 +75,12 @@ type ServiceImpl struct {
 	clientBuilder        func(url string, user string, password string) Client
 }
 
-// IsDeploymentReady check if deployment for Nexus is ready
-func (s ServiceImpl) IsDeploymentReady(instance v1.Nexus) (*bool, error) {
+// IsDeploymentReady check if deployment for Nexus is ready.
+func (s ServiceImpl) IsDeploymentReady(instance nexusApi.Nexus) (*bool, error) {
 	return s.platformService.IsDeploymentReady(instance)
 }
 
-func (s ServiceImpl) getNexusRestApiUrl(instance v1.Nexus) (string, error) {
+func (s ServiceImpl) getNexusRestApiUrl(instance nexusApi.Nexus) (string, error) {
 	basePath := ""
 	if len(instance.Spec.BasePath) > 0 {
 		basePath = fmt.Sprintf("/%v", instance.Spec.BasePath)
@@ -100,7 +101,7 @@ func (s ServiceImpl) getNexusRestApiUrl(instance v1.Nexus) (string, error) {
 	return u, nil
 }
 
-func (s ServiceImpl) getNexusAdminPassword(instance v1.Nexus) (string, error) {
+func (s ServiceImpl) getNexusAdminPassword(instance nexusApi.Nexus) (string, error) {
 	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
 	nexusAdminCredentials, err := s.platformService.GetSecretData(instance.Namespace, secretName)
 	if err != nil {
@@ -109,7 +110,7 @@ func (s ServiceImpl) getNexusAdminPassword(instance v1.Nexus) (string, error) {
 	return string(nexusAdminCredentials["password"]), nil
 }
 
-func (s ServiceImpl) setAnnotation(instance *v1.Nexus, key string, value string) {
+func (s ServiceImpl) setAnnotation(instance *nexusApi.Nexus, key string, value string) {
 	if len(instance.Annotations) == 0 {
 		instance.ObjectMeta.Annotations = map[string]string{
 			key: value,
@@ -119,8 +120,8 @@ func (s ServiceImpl) setAnnotation(instance *v1.Nexus, key string, value string)
 	}
 }
 
-// Integration performs integration Nexus with other EDP components
-func (s ServiceImpl) Integration(instance v1.Nexus) (*v1.Nexus, error) {
+// Integration performs integration Nexus with other EDP components.
+func (s ServiceImpl) Integration(instance nexusApi.Nexus) (*nexusApi.Nexus, error) {
 
 	if instance.Spec.KeycloakSpec.Enabled {
 		keycloakClient, err := s.platformService.GetKeycloakClient(instance.Name, instance.Namespace)
@@ -128,7 +129,7 @@ func (s ServiceImpl) Integration(instance v1.Nexus) (*v1.Nexus, error) {
 			return &instance, errors.Wrap(err, "failed to get Keycloak client data!")
 		}
 
-		keycloakRealm, err := s.keycloakHelper.GetOwnerKeycloakRealm(keycloakClient.ObjectMeta)
+		keycloakRealm, err := s.keycloakHelper.GetOwnerKeycloakRealm(&keycloakClient.ObjectMeta)
 		if err != nil {
 			return &instance, nil
 		}
@@ -137,7 +138,7 @@ func (s ServiceImpl) Integration(instance v1.Nexus) (*v1.Nexus, error) {
 			return &instance, errors.New("Keycloak Realm CR in not created yet!")
 		}
 
-		keycloak, err := s.keycloakHelper.GetOwnerKeycloak(keycloakRealm.ObjectMeta)
+		keycloak, err := s.keycloakHelper.GetOwnerKeycloak(&keycloakRealm.ObjectMeta)
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to get owner for %s/%s", keycloakClient.Namespace, keycloakClient.Name)
 			return &instance, errors.Wrap(err, errMsg)
@@ -208,8 +209,8 @@ func (s ServiceImpl) Integration(instance v1.Nexus) (*v1.Nexus, error) {
 	return &instance, nil
 }
 
-// ExposeConfiguration performs exposing Nexus configuration for other EDP components
-func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance v1.Nexus) (*v1.Nexus, error) {
+// ExposeConfiguration performs exposing Nexus configuration for other EDP components.
+func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance nexusApi.Nexus) (*nexusApi.Nexus, error) {
 	u, err := s.getNexusRestApiUrl(instance)
 	if err != nil {
 		return &instance, errors.Wrap(err, "failed to get Nexus REST API URL")
@@ -276,7 +277,7 @@ func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance v1.Nexus)
 			return &instance, errors.Wrap(err, "failed to get route from cluster")
 		}
 
-		keycloakClient := keycloakV1Api.KeycloakClient{}
+		keycloakClient := keycloakApi.KeycloakClient{}
 		keycloakClient.Name = instance.Name
 		keycloakClient.Namespace = instance.Namespace
 		keycloakClient.Spec.ClientId = instance.Name
@@ -299,7 +300,7 @@ func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance v1.Nexus)
 	return &instance, err
 }
 
-func (s ServiceImpl) createEDPComponent(nexus v1.Nexus) error {
+func (s ServiceImpl) createEDPComponent(nexus nexusApi.Nexus) error {
 	url, err := s.getUrl(nexus)
 	if err != nil {
 		return err
@@ -311,7 +312,7 @@ func (s ServiceImpl) createEDPComponent(nexus v1.Nexus) error {
 	return s.platformService.CreateEDPComponentIfNotExist(nexus, *url, *icon)
 }
 
-func (s ServiceImpl) getUrl(nexus v1.Nexus) (*string, error) {
+func (s ServiceImpl) getUrl(nexus nexusApi.Nexus) (*string, error) {
 	url, _, _, err := s.platformService.GetExternalUrl(nexus.Namespace, nexus.Name)
 	if err != nil {
 		return nil, err
@@ -338,8 +339,8 @@ func (s ServiceImpl) getIcon() (*string, error) {
 	return &encoded, nil
 }
 
-// Configure performs self-configuration of Nexus
-func (s ServiceImpl) Configure(instance v1.Nexus) (*v1.Nexus, bool, error) {
+// Configure performs self-configuration of Nexus.
+func (s ServiceImpl) Configure(instance nexusApi.Nexus) (*nexusApi.Nexus, bool, error) {
 	adminSecret := map[string][]byte{
 		"user":     []byte(nexusDefaultSpec.NexusDefaultAdminUser),
 		"password": []byte(nexusDefaultSpec.NexusDefaultAdminPassword),

@@ -2,8 +2,9 @@ package mocks
 
 import (
 	"context"
-	mock "github.com/epam/edp-common/pkg/mock/controller-runtime/client"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	mock "github.com/epam/edp-common/pkg/mock/controller-runtime/client"
 )
 
 type Client struct {

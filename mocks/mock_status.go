@@ -19,7 +19,11 @@ type StatusWriter struct {
 	mock.Mock
 }
 
-func (s *StatusWriter) Update(ctx context.Context, obj client.Object, opts ...client.UpdateOption) error {
+func (s *StatusWriter) Create(ctx context.Context, obj client.Object, subResource client.Object, opts ...client.SubResourceCreateOption) error {
+	panic("call to an unimplemented stub method used to satisfy the interface")
+}
+
+func (s *StatusWriter) Update(ctx context.Context, obj client.Object, opts ...client.SubResourceUpdateOption) error {
 
 	called := s.Called()
 	parent, ok := called.Get(0).(client.StatusWriter)
@@ -30,7 +34,7 @@ func (s *StatusWriter) Update(ctx context.Context, obj client.Object, opts ...cl
 	return called.Error(0)
 }
 
-func (s *StatusWriter) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.PatchOption) error {
+func (s *StatusWriter) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.SubResourcePatchOption) error {
 	called := s.Called(obj, patch, opts)
 	parent, ok := called.Get(0).(client.StatusWriter)
 	if ok {

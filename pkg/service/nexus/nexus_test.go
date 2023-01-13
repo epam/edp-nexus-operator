@@ -7,9 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
-	keycloakApi "github.com/epam/edp-keycloak-operator/pkg/apis/v1/v1"
-	keycloakHelper "github.com/epam/edp-keycloak-operator/pkg/controller/helper"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -19,8 +16,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
+	keycloakApi "github.com/epam/edp-keycloak-operator/api/v1/v1"
+	keycloakHelper "github.com/epam/edp-keycloak-operator/controllers/helper"
+
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
 	pMock "github.com/epam/edp-nexus-operator/v2/mocks/platform"
-	nexusApi "github.com/epam/edp-nexus-operator/v2/pkg/apis/edp/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 )
@@ -490,12 +491,12 @@ func TestServiceImpl_ExposeConfiguration_CreateSecretErr(t *testing.T) {
 
 func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testing.T) {
 	scheme := runtime.NewScheme()
-	err := jenkinsV1Api.AddToScheme(scheme)
+	err := jenkinsApi.AddToScheme(scheme)
 	assert.NoError(t, err)
 	k8sClient := fake.NewClientBuilder().
 		WithScheme(scheme).
 		WithObjects(
-			&jenkinsV1Api.Jenkins{
+			&jenkinsApi.Jenkins{
 				ObjectMeta: v1.ObjectMeta{
 					Namespace: namespace,
 					Name:      "jenkins",
@@ -536,12 +537,12 @@ func TestServiceImpl_ExposeConfiguration_CreateJenkinsServiceAccountErr(t *testi
 
 func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
 	scheme := runtime.NewScheme()
-	err := jenkinsV1Api.AddToScheme(scheme)
+	err := jenkinsApi.AddToScheme(scheme)
 	assert.NoError(t, err)
 	k8sClient := fake.NewClientBuilder().
 		WithScheme(scheme).
 		WithObjects(
-			&jenkinsV1Api.Jenkins{
+			&jenkinsApi.Jenkins{
 				ObjectMeta: v1.ObjectMeta{
 					Namespace: namespace,
 					Name:      "jenkins",
@@ -584,12 +585,12 @@ func TestServiceImpl_ExposeConfiguration_GetSecretDataErr2(t *testing.T) {
 
 func TestServiceImpl_ExposeConfiguration_RunScriptErr(t *testing.T) {
 	scheme := runtime.NewScheme()
-	err := jenkinsV1Api.AddToScheme(scheme)
+	err := jenkinsApi.AddToScheme(scheme)
 	assert.NoError(t, err)
 	k8sClient := fake.NewClientBuilder().
 		WithScheme(scheme).
 		WithObjects(
-			&jenkinsV1Api.Jenkins{
+			&jenkinsApi.Jenkins{
 				ObjectMeta: v1.ObjectMeta{
 					Namespace: namespace,
 					Name:      "jenkins",
