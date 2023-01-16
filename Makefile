@@ -71,7 +71,7 @@ validate-docs: api-docs helm-docs  ## Validate helm and api docs
 
 # Run tests
 test: fmt vet
-	go test ./... -coverprofile=coverage.out `go list ./...`
+	KUBECONFIG=${CURRENT_DIR}/hack/kubecfg-stub.yaml go test ./... -coverprofile=coverage.out `go list ./...`
 
 .PHONY: fmt
 fmt:  ## Run go fmt
