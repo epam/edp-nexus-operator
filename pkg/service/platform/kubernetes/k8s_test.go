@@ -2,13 +2,11 @@ package kubernetes
 
 import (
 	"context"
-	"strings"
+	"fmt"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/apps/v1"
 	coreV1Api "k8s.io/api/core/v1"
 	networkingV1 "k8s.io/api/networking/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -24,7 +22,6 @@ import (
 	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1"
 	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
 	keycloakV1Api "github.com/epam/edp-keycloak-operator/api/v1/v1"
-
 	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
 	kMock "github.com/epam/edp-nexus-operator/v2/mocks/kubernetes"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
@@ -45,80 +42,83 @@ func createObjectMeta() metav1.ObjectMeta {
 }
 
 func TestK8SService_IsDeploymentReadyErr(t *testing.T) {
-	ctx := context.Background()
-	errTest := errors.New("test")
-	instance := nexusApi.Nexus{}
-	appV1Client := kMock.NewAppsV1Interface(t)
-	deployment := kMock.NewDeploymentInterface(t)
+	ctx := context.TODO()
+	errTest := fmt.Errorf("test")
+	instance := &nexusApi.Nexus{}
+	appV1Client := kMock.AppsV1Interface{}
+	deployment := &kMock.DeploymentInterface{}
+	service := K8SService{
+		appClient: &appV1Client,
+	}
+
 	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
 	deployment.On("Get", ctx, instance.Name, metav1.GetOptions{}).Return(nil, errTest)
 
-	service := K8SService{
-		appClient: appV1Client,
-	}
 	ready, err := service.IsDeploymentReady(instance)
 	assert.Error(t, err)
 	assert.Nil(t, ready)
 }
 
 func TestK8SService_IsDeploymentReadyFalse(t *testing.T) {
-	ctx := context.Background()
-	instance := nexusApi.Nexus{}
+	ctx := context.TODO()
+	instance := &nexusApi.Nexus{}
 	deploymentInstance := &appsv1.Deployment{}
-	appV1Client := kMock.NewAppsV1Interface(t)
-	deployment := kMock.NewDeploymentInterface(t)
+	appV1Client := kMock.AppsV1Interface{}
+	deployment := &kMock.DeploymentInterface{}
+	service := K8SService{
+		appClient: &appV1Client,
+	}
+
 	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
 	deployment.On("Get", ctx, instance.Name, metav1.GetOptions{}).Return(deploymentInstance, nil)
 
-	service := K8SService{
-		appClient: appV1Client,
-	}
 	ready, err := service.IsDeploymentReady(instance)
 	assert.NoError(t, err)
 	assert.False(t, *ready)
 }
 
 func TestK8SService_IsDeploymentReadyTrue(t *testing.T) {
-	ctx := context.Background()
-	instance := nexusApi.Nexus{}
+	ctx := context.TODO()
+	instance := &nexusApi.Nexus{}
 	deploymentInstance := &appsv1.Deployment{
 		Status: appsv1.DeploymentStatus{
 			UpdatedReplicas:   1,
 			AvailableReplicas: 1,
 		}}
-	appV1Client := kMock.NewAppsV1Interface(t)
-	deployment := kMock.NewDeploymentInterface(t)
+	appV1Client := kMock.AppsV1Interface{}
+	deployment := &kMock.DeploymentInterface{}
+	service := K8SService{
+		appClient: &appV1Client,
+	}
+
 	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
 	deployment.On("Get", ctx, instance.Name, metav1.GetOptions{}).Return(deploymentInstance, nil)
 
-	service := K8SService{
-		appClient: appV1Client,
-	}
 	ready, err := service.IsDeploymentReady(instance)
 	assert.NoError(t, err)
 	assert.True(t, *ready)
 }
 
 func TestK8SService_AddKeycloakProxyToDeployConf_GetErr(t *testing.T) {
-	ctx := context.Background()
-	instance := nexusApi.Nexus{}
+	ctx := context.TODO()
+	instance := &nexusApi.Nexus{}
 	deploymentInstance := &appsv1.Deployment{}
-	appV1Client := kMock.NewAppsV1Interface(t)
-	deployment := kMock.NewDeploymentInterface(t)
-	errTest := errors.New("test")
-	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
-	deployment.On("Get", ctx, instance.Name, metav1.GetOptions{}).Return(deploymentInstance, errTest)
-
+	appV1Client := kMock.AppsV1Interface{}
+	deployment := &kMock.DeploymentInterface{}
 	service := K8SService{
-		appClient: appV1Client,
+		appClient: &appV1Client,
 	}
+
+	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
+	deployment.On("Get", ctx, instance.Name, metav1.GetOptions{}).Return(deploymentInstance, fmt.Errorf("test"))
+
 	err := service.AddKeycloakProxyToDeployConf(instance, nil)
-	assert.Equal(t, errTest, err)
+	assert.Contains(t, err.Error(), "failed to get deployment")
 }
 
 func TestK8SService_AddKeycloakProxyToDeployConf_UpdateErr(t *testing.T) {
-	ctx := context.Background()
-	instance := nexusApi.Nexus{}
+	ctx := context.TODO()
+	instance := &nexusApi.Nexus{}
 	c := coreV1Api.Container{
 		Name:            "keycloak-proxy",
 		Image:           instance.Spec.KeycloakSpec.ProxyImage,
@@ -133,28 +133,29 @@ func TestK8SService_AddKeycloakProxyToDeployConf_UpdateErr(t *testing.T) {
 		TerminationMessagePolicy: coreV1Api.TerminationMessageReadFile,
 		Args:                     nil,
 	}
-	errTest := errors.New("test")
 
 	deploymentInstance := appsv1.Deployment{}
 	deploymentInstanceExpect := appsv1.Deployment{}
 	deploymentInstanceExpect.Spec.Template.Spec.Containers = append(deploymentInstanceExpect.Spec.Template.Spec.Containers, c)
-	appV1Client := kMock.NewAppsV1Interface(t)
-	deployment := kMock.NewDeploymentInterface(t)
+	appV1Client := kMock.AppsV1Interface{}
+	deployment := &kMock.DeploymentInterface{}
+	service := K8SService{
+		appClient: &appV1Client,
+	}
 
 	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
 	deployment.On("Get", ctx, instance.Name, metav1.GetOptions{}).Return(&deploymentInstance, nil)
-	deployment.On("Update", ctx, &deploymentInstanceExpect, metav1.UpdateOptions{}).Return(nil, errTest)
+	deployment.
+		On("Update", ctx, &deploymentInstanceExpect, metav1.UpdateOptions{}).
+		Return(nil, fmt.Errorf("test"))
 
-	service := K8SService{
-		appClient: appV1Client,
-	}
 	err := service.AddKeycloakProxyToDeployConf(instance, nil)
-	assert.Equal(t, errTest, err)
+	assert.Contains(t, err.Error(), "failed to get deployment")
 }
 
 func TestK8SService_AddKeycloakProxyToDeployConf(t *testing.T) {
-	ctx := context.Background()
-	instance := nexusApi.Nexus{}
+	ctx := context.TODO()
+	instance := &nexusApi.Nexus{}
 	c := coreV1Api.Container{
 		Name:            "keycloak-proxy",
 		Image:           instance.Spec.KeycloakSpec.ProxyImage,
@@ -173,33 +174,32 @@ func TestK8SService_AddKeycloakProxyToDeployConf(t *testing.T) {
 	deploymentInstance := appsv1.Deployment{}
 	deploymentInstanceExpect := appsv1.Deployment{}
 	deploymentInstanceExpect.Spec.Template.Spec.Containers = append(deploymentInstanceExpect.Spec.Template.Spec.Containers, c)
-	appV1Client := kMock.NewAppsV1Interface(t)
-	deployment := kMock.NewDeploymentInterface(t)
+	appV1Client := kMock.AppsV1Interface{}
+	deployment := &kMock.DeploymentInterface{}
+	service := K8SService{
+		appClient: &appV1Client,
+	}
 
 	appV1Client.On("Deployments", instance.Namespace).Return(deployment)
 	deployment.On("Get", ctx, instance.Name, metav1.GetOptions{}).Return(&deploymentInstance, nil)
 	deployment.On("Update", ctx, &deploymentInstanceExpect, metav1.UpdateOptions{}).Return(nil, nil)
 
-	service := K8SService{
-		appClient: appV1Client,
-	}
-	err := service.AddKeycloakProxyToDeployConf(instance, nil)
-	assert.NoError(t, err)
+	assert.NoError(t, service.AddKeycloakProxyToDeployConf(instance, nil))
 }
 
 func TestK8SService_GetExternalUrl_GetErr(t *testing.T) {
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-	errTest := errors.New("test")
-
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, errTest)
-
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, fmt.Errorf("test"))
+
+	// nolint
 	_, _, _, err := service.GetExternalUrl(namespace, name)
-	assert.Equal(t, errTest, err)
+	assert.Contains(t, err.Error(), "failed to get ingress")
 }
 
 func TestK8SService_GetExternalUrl(t *testing.T) {
@@ -217,17 +217,16 @@ func TestK8SService_GetExternalUrl(t *testing.T) {
 			},
 		},
 	}
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&ingressInstance, nil)
-
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
-	url, s, s2, err := service.GetExternalUrl(namespace, name)
 
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&ingressInstance, nil)
+
+	url, s, s2, err := service.GetExternalUrl(namespace, name)
 	assert.NoError(t, err)
 	assert.Equal(t, "https://hostname", url)
 	assert.Equal(t, host, s)
@@ -235,56 +234,59 @@ func TestK8SService_GetExternalUrl(t *testing.T) {
 }
 
 func TestK8SService_GetIngressByCr_ListErr(t *testing.T) {
-	instance := nexusApi.Nexus{
+	instance := &nexusApi.Nexus{
 		ObjectMeta: metav1.ObjectMeta{Namespace: namespace},
 	}
-	errTest := errors.New("test")
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("List", context.Background(), metav1.ListOptions{}).Return(nil, errTest)
-
+	errTest := fmt.Errorf("test")
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(nil, errTest)
+
 	cr, err := service.GetIngressByCr(instance)
 	assert.Error(t, err)
 	assert.Nil(t, cr)
-	assert.True(t, strings.Contains(err.Error(), "couldn't retrieve ingresses list from the cluster"))
+	assert.Contains(t, err.Error(), "failed to retrieve ingresses list from the cluster")
 }
 
 func TestK8SService_GetIngressByCr_InList(t *testing.T) {
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	ingressInstance := networkingV1.Ingress{ObjectMeta: createObjectMeta()}
 	list := networkingV1.IngressList{
 		Items: []networkingV1.Ingress{ingressInstance},
 	}
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
-
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+
 	cr, err := service.GetIngressByCr(instance)
 	assert.NoError(t, err)
 	assert.Equal(t, &ingressInstance, cr)
 }
 
 func TestK8SService_GetIngressByCr_NotInList(t *testing.T) {
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	list := networkingV1.IngressList{
 		Items: []networkingV1.Ingress{},
 	}
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
-
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+
 	cr, err := service.GetIngressByCr(instance)
 	assert.NoError(t, err)
 	assert.Nil(t, cr)
@@ -294,9 +296,10 @@ func TestK8SService_CreateKeycloakClientErr(t *testing.T) {
 	instance := &keycloakV1Api.KeycloakClient{}
 	client := fake.NewClientBuilder().Build()
 	service := K8SService{client: client}
+
 	err := service.CreateKeycloakClient(instance)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "no kind is registered for the type"))
+	assert.Contains(t, err.Error(), "no kind is registered for the type")
 }
 
 func TestK8SService_CreateKeycloakClient(t *testing.T) {
@@ -304,19 +307,22 @@ func TestK8SService_CreateKeycloakClient(t *testing.T) {
 		TypeMeta:   metav1.TypeMeta{Kind: "KeycloakClient", APIVersion: "v1"},
 		ObjectMeta: createObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &keycloakV1Api.KeycloakClient{})
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &keycloakV1Api.KeycloakClient{})
+
 	client := fake.NewClientBuilder().WithScheme(scheme).Build()
 	service := K8SService{client: client}
-	err := service.CreateKeycloakClient(instance)
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.CreateKeycloakClient(instance))
 }
 
 func TestK8SService_GetKeycloakClientErr(t *testing.T) {
 	client := fake.NewClientBuilder().Build()
 	service := K8SService{client: client}
+
 	_, err := service.GetKeycloakClient(name, namespace)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "no kind is registered for the type"))
+	assert.Contains(t, err.Error(), "no kind is registered for the type")
 }
 
 func TestK8SService_GetKeycloakClient(t *testing.T) {
@@ -324,9 +330,12 @@ func TestK8SService_GetKeycloakClient(t *testing.T) {
 		TypeMeta:   metav1.TypeMeta{Kind: "KeycloakClient", APIVersion: "apps/v1"},
 		ObjectMeta: createObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &keycloakV1Api.KeycloakClient{})
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &keycloakV1Api.KeycloakClient{})
+
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(instance).Build()
 	service := K8SService{client: client}
+
 	out, err := service.GetKeycloakClient(name, namespace)
 	assert.NoError(t, err)
 	assert.Equal(t, *instance, out)
@@ -337,93 +346,96 @@ func TestK8SService_CreateEDPComponentIfNotExist_GetErr(t *testing.T) {
 	client := fake.NewClientBuilder().Build()
 
 	service := K8SService{client: client}
-	err := service.CreateEDPComponentIfNotExist(instance, "", "")
+
+	err := service.CreateEDPComponentIfNotExist(&instance, "", "")
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "no kind is registered"))
+	assert.Contains(t, err.Error(), "no kind is registered")
 }
 
 func TestK8SService_CreateEDPComponentIfNotExist_AlreadyExist(t *testing.T) {
 	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	EDPComponent := edpCompApi.EDPComponent{ObjectMeta: createObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &edpCompApi.EDPComponent{})
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &edpCompApi.EDPComponent{})
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&EDPComponent).Build()
-
 	service := K8SService{client: client}
-	err := service.CreateEDPComponentIfNotExist(instance, "", "")
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.CreateEDPComponentIfNotExist(&instance, "", ""))
 }
 
 func TestK8SService_CreateEDPComponentIfNotExist(t *testing.T) {
 	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &edpCompApi.EDPComponent{}, &nexusApi.Nexus{})
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &edpCompApi.EDPComponent{}, &nexusApi.Nexus{})
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects().Build()
-
 	service := K8SService{client: client, Scheme: scheme}
-	err := service.CreateEDPComponentIfNotExist(instance, "test.com", "icon.png")
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.CreateEDPComponentIfNotExist(&instance, "test.com", "icon.png"))
 }
 
 func TestK8SService_CreateJenkinsServiceAccount_BadClient(t *testing.T) {
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion)
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion)
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects().Build()
 	service := K8SService{client: client, Scheme: scheme}
-	err := service.CreateJenkinsServiceAccount(namespace, name)
-	assert.Error(t, err)
+
+	assert.Error(t, service.CreateJenkinsServiceAccount(namespace, name))
 }
 
 func TestK8SService_CreateJenkinsServiceAccount(t *testing.T) {
 	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &jenkinsV1Api.JenkinsServiceAccount{})
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &jenkinsV1Api.JenkinsServiceAccount{})
 
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects().Build()
 	service := K8SService{client: client, Scheme: scheme}
-	err := service.CreateJenkinsServiceAccount(namespace, name)
-	assert.NoError(t, err)
 	tmp := &jenkinsV1Api.JenkinsServiceAccount{}
-	err = client.Get(context.Background(), types.NamespacedName{Namespace: namespace, Name: name}, tmp)
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.CreateJenkinsServiceAccount(namespace, name))
+	assert.NoError(t, client.Get(context.TODO(), types.NamespacedName{Namespace: namespace, Name: name}, tmp))
 }
 
 func TestK8SService_CreateJenkinsServiceAccount_AlreadyExist(t *testing.T) {
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &jenkinsV1Api.JenkinsServiceAccount{})
 	tmp := &jenkinsV1Api.JenkinsServiceAccount{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}
+	scheme := runtime.NewScheme()
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &jenkinsV1Api.JenkinsServiceAccount{})
+
 	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(tmp).Build()
 	service := K8SService{client: client, Scheme: scheme}
-	err := service.CreateJenkinsServiceAccount(namespace, name)
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.CreateJenkinsServiceAccount(namespace, name))
 }
 
 func TestK8SService_UpdateExternalTargetPath_GetIngressByCr(t *testing.T) {
-	instance := nexusApi.Nexus{
+	instance := &nexusApi.Nexus{
 		ObjectMeta: metav1.ObjectMeta{Namespace: namespace},
 	}
-	errTest := errors.New("test")
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("List", context.Background(), metav1.ListOptions{}).Return(nil, errTest)
-
+	errTest := fmt.Errorf("test")
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
 	orString := intstr.IntOrString{}
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(nil, errTest)
+
 	err := service.UpdateExternalTargetPath(instance, orString)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't get route"))
+	assert.Contains(t, err.Error(), "failed to get route")
 	extClient.AssertExpectations(t)
 	ingress.AssertExpectations(t)
 }
 
 func TestK8SService_UpdateExternalTargetPath_AlreadyUpdated(t *testing.T) {
 	orString := intstr.IntOrString{}
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	path := networkingV1.HTTPIngressPath{
 		Backend: networkingV1.IngressBackend{
 			Service: &networkingV1.IngressServiceBackend{
@@ -449,16 +461,16 @@ func TestK8SService_UpdateExternalTargetPath_AlreadyUpdated(t *testing.T) {
 	list := networkingV1.IngressList{
 		Items: []networkingV1.Ingress{ingressInstance},
 	}
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
-
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
-	err := service.UpdateExternalTargetPath(instance, orString)
-	assert.NoError(t, err)
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+
+	assert.NoError(t, service.UpdateExternalTargetPath(instance, orString))
 	extClient.AssertExpectations(t)
 	ingress.AssertExpectations(t)
 }
@@ -470,7 +482,7 @@ func TestK8SService_UpdateExternalTargetPath_UpdateErr(t *testing.T) {
 		IntVal: 2,
 		StrVal: "",
 	}
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	path := networkingV1.HTTPIngressPath{
 		Backend: networkingV1.IngressBackend{
 			Service: &networkingV1.IngressServiceBackend{
@@ -496,19 +508,18 @@ func TestK8SService_UpdateExternalTargetPath_UpdateErr(t *testing.T) {
 	list := networkingV1.IngressList{
 		Items: []networkingV1.Ingress{ingressInstance},
 	}
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-
-	errTest := errors.New("test")
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
-	ingress.On("Update", context.Background(), &ingressInstance, metav1.UpdateOptions{}).Return(nil, errTest)
-
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+	ingress.On("Update", context.TODO(), &ingressInstance, metav1.UpdateOptions{}).Return(nil, fmt.Errorf("test"))
+
 	err := service.UpdateExternalTargetPath(instance, intOrString)
-	assert.Equal(t, errTest, err)
+	assert.Contains(t, err.Error(), "failed to update ingress")
 	extClient.AssertExpectations(t)
 	ingress.AssertExpectations(t)
 }
@@ -520,7 +531,7 @@ func TestK8SService_UpdateExternalTargetPath(t *testing.T) {
 		IntVal: 2,
 		StrVal: "",
 	}
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	path := networkingV1.HTTPIngressPath{
 		Backend: networkingV1.IngressBackend{
 			Service: &networkingV1.IngressServiceBackend{
@@ -546,31 +557,32 @@ func TestK8SService_UpdateExternalTargetPath(t *testing.T) {
 	list := networkingV1.IngressList{
 		Items: []networkingV1.Ingress{ingressInstance},
 	}
-	ingress := kMock.NewIngress(t)
-	extClient := kMock.NewNetworkingV1Interface(t)
-
-	extClient.On("Ingresses", namespace).Return(ingress)
-	ingress.On("List", context.Background(), metav1.ListOptions{}).Return(&list, nil)
-	ingress.On("Update", context.Background(), &ingressInstance, metav1.UpdateOptions{}).Return(nil, nil)
-
+	ingress := &kMock.Ingress{}
+	extClient := &kMock.NetworkingV1Interface{}
 	service := K8SService{
 		networkingV1Client: extClient,
 	}
-	err := service.UpdateExternalTargetPath(instance, intOrString)
-	assert.NoError(t, err)
+
+	extClient.On("Ingresses", namespace).Return(ingress)
+	ingress.On("List", context.TODO(), metav1.ListOptions{}).Return(&list, nil)
+	ingress.On("Update", context.TODO(), &ingressInstance, metav1.UpdateOptions{}).Return(nil, nil)
+
+	assert.NoError(t, service.UpdateExternalTargetPath(instance, intOrString))
 	extClient.AssertExpectations(t)
 	ingress.AssertExpectations(t)
 }
 
 func TestK8SService_GetSecret(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
+	secrets := &kMock.SecretInterface{}
 	secret := &coreV1Api.Secret{}
-	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Get", context.Background(), name, metav1.GetOptions{}).Return(secret, nil)
 	service := K8SService{
 		CoreClient: &coreClient,
 	}
+
+	coreClient.On("Secrets", namespace).Return(secrets)
+	secrets.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(secret, nil)
+
 	result, err := service.GetSecret(namespace, name)
 	assert.NoError(t, err)
 	assert.Equal(t, secret, result)
@@ -580,27 +592,30 @@ func TestK8SService_GetSecret(t *testing.T) {
 
 func TestK8SService_UpdateSecret(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
+	secrets := &kMock.SecretInterface{}
 	secret := &coreV1Api.Secret{ObjectMeta: createObjectMeta()}
-	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Update", context.Background(), secret, metav1.UpdateOptions{}).Return(nil, nil)
 	service := K8SService{
 		CoreClient: &coreClient,
 	}
-	err := service.UpdateSecret(secret)
-	assert.NoError(t, err)
+
+	coreClient.On("Secrets", namespace).Return(secrets)
+	secrets.On("Update", context.TODO(), secret, metav1.UpdateOptions{}).Return(nil, nil)
+
+	assert.NoError(t, service.UpdateSecret(secret))
 	coreClient.AssertExpectations(t)
 	secrets.AssertExpectations(t)
 }
 
 func TestK8SService_GetSecretData_NotFound(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
-	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
+	secrets := &kMock.SecretInterface{}
 	service := K8SService{
 		CoreClient: &coreClient,
 	}
+
+	coreClient.On("Secrets", namespace).Return(secrets)
+	secrets.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
+
 	result, err := service.GetSecretData(namespace, name)
 	assert.NoError(t, err)
 	assert.Nil(t, result)
@@ -610,16 +625,18 @@ func TestK8SService_GetSecretData_NotFound(t *testing.T) {
 
 func TestK8SService_GetSecretData(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
+	secrets := &kMock.SecretInterface{}
 	data := map[string][]byte{"str": []byte("str")}
 	secret := &coreV1Api.Secret{
 		Data: data,
 	}
-	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Get", context.Background(), name, metav1.GetOptions{}).Return(secret, nil)
 	service := K8SService{
 		CoreClient: &coreClient,
 	}
+
+	coreClient.On("Secrets", namespace).Return(secrets)
+	secrets.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(secret, nil)
+
 	result, err := service.GetSecretData(namespace, name)
 	assert.NoError(t, err)
 	assert.Equal(t, data, result)
@@ -629,14 +646,14 @@ func TestK8SService_GetSecretData(t *testing.T) {
 
 func TestK8SService_GetConfigMapData_IsNotFound(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
-	configMaps := kMock.NewConfigMapInterface(t)
-
-	coreClient.On("ConfigMaps", namespace).Return(configMaps)
-	configMaps.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
-
+	configMaps := &kMock.ConfigMapInterface{}
 	service := K8SService{
 		CoreClient: &coreClient,
 	}
+
+	coreClient.On("ConfigMaps", namespace).Return(configMaps)
+	configMaps.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
+
 	data, err := service.GetConfigMapData(namespace, name)
 	assert.NoError(t, err)
 	assert.Nil(t, data)
@@ -646,12 +663,12 @@ func TestK8SService_GetConfigMapData_IsNotFound(t *testing.T) {
 
 func TestK8SService_GetConfigMapData(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
-	configMaps := kMock.NewConfigMapInterface(t)
+	configMaps := &kMock.ConfigMapInterface{}
 	data := map[string]string{"str": "str"}
 	configMap := coreV1Api.ConfigMap{Data: data}
 
 	coreClient.On("ConfigMaps", namespace).Return(configMaps)
-	configMaps.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&configMap, nil)
+	configMaps.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&configMap, nil)
 
 	service := K8SService{CoreClient: &coreClient}
 	result, err := service.GetConfigMapData(namespace, name)
@@ -666,12 +683,13 @@ func TestK8SService_GetServiceByCr_NotFound(t *testing.T) {
 	services := &kMock.ServiceInterface{}
 
 	coreClient.On("Services", namespace).Return(services)
-	services.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
+	services.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
 
 	service := K8SService{CoreClient: &coreClient}
+
 	cr, err := service.GetServiceByCr(name, namespace)
 	assert.Nil(t, cr)
-	assert.True(t, k8serrors.IsNotFound(err))
+	assert.Contains(t, err.Error(), "not found")
 	coreClient.AssertExpectations(t)
 	services.AssertExpectations(t)
 }
@@ -679,16 +697,15 @@ func TestK8SService_GetServiceByCr_NotFound(t *testing.T) {
 func TestK8SService_GetServiceByCr_Err(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
 	services := &kMock.ServiceInterface{}
-	errTest := errors.New("test")
+	errTest := fmt.Errorf("test")
+	service := K8SService{CoreClient: &coreClient}
 
 	coreClient.On("Services", namespace).Return(services)
+	services.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, errTest)
 
-	services.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, errTest)
-
-	service := K8SService{CoreClient: &coreClient}
 	cr, err := service.GetServiceByCr(name, namespace)
 	assert.Nil(t, cr)
-	assert.Equal(t, errTest, err)
+	assert.Contains(t, err.Error(), "failed to get service")
 	coreClient.AssertExpectations(t)
 	services.AssertExpectations(t)
 }
@@ -697,11 +714,11 @@ func TestK8SService_GetServiceByCr(t *testing.T) {
 	coreClient := kMock.CoreV1Interface{}
 	services := &kMock.ServiceInterface{}
 	serviceInstance := coreV1Api.Service{}
+	service := K8SService{CoreClient: &coreClient}
 
 	coreClient.On("Services", namespace).Return(services)
-	services.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&serviceInstance, nil)
+	services.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(&serviceInstance, nil)
 
-	service := K8SService{CoreClient: &coreClient}
 	cr, err := service.GetServiceByCr(name, namespace)
 	assert.Equal(t, &serviceInstance, cr)
 	assert.NoError(t, err)
@@ -710,19 +727,19 @@ func TestK8SService_GetServiceByCr(t *testing.T) {
 }
 
 func TestK8SService_AddPortToService_GetServiceByCrErr(t *testing.T) {
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	portSpec := coreV1Api.ServicePort{}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	portSpec := &coreV1Api.ServicePort{}
 	coreClient := kMock.CoreV1Interface{}
 	services := &kMock.ServiceInterface{}
-	errTest := errors.New("test")
+	errTest := fmt.Errorf("test")
+	service := K8SService{CoreClient: &coreClient}
 
 	coreClient.On("Services", namespace).Return(services)
-	services.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, errTest)
+	services.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, errTest)
 
-	service := K8SService{CoreClient: &coreClient}
 	err := service.AddPortToService(instance, portSpec)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't get"))
+	assert.Contains(t, err.Error(), "failed to get service")
 	coreClient.AssertExpectations(t)
 	services.AssertExpectations(t)
 }
@@ -738,116 +755,117 @@ func TestK8SService_AddPortToService_PortInService(t *testing.T) {
 			Ports: []coreV1Api.ServicePort{portSpec},
 		},
 	}
+
 	coreClient.On("Services", namespace).Return(services)
 	services.On("Get", context.Background(), name, metav1.GetOptions{}).Return(&serviceInstance, nil)
 
 	service := K8SService{CoreClient: &coreClient}
-	err := service.AddPortToService(instance, portSpec)
+	err := service.AddPortToService(&instance, &portSpec)
+
 	assert.NoError(t, err)
 	coreClient.AssertExpectations(t)
 	services.AssertExpectations(t)
 }
 
 func TestK8SService_AddPortToService_UpdateErr(t *testing.T) {
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	portSpec := coreV1Api.ServicePort{Name: name}
-
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	portSpec := &coreV1Api.ServicePort{Name: name}
 	coreClient := kMock.CoreV1Interface{}
 	services := &kMock.ServiceInterface{}
 	serviceInstance := &coreV1Api.Service{}
-	errTest := errors.New("test")
+	errTest := fmt.Errorf("test")
+	service := K8SService{CoreClient: &coreClient}
 
 	coreClient.On("Services", namespace).Return(services)
-	services.On("Get", context.Background(), name, metav1.GetOptions{}).Return(serviceInstance, nil)
-	services.On("Update", context.Background(), serviceInstance, metav1.UpdateOptions{}).Return(nil, errTest)
+	services.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(serviceInstance, nil)
+	services.On("Update", context.TODO(), serviceInstance, metav1.UpdateOptions{}).Return(nil, errTest)
 
-	service := K8SService{CoreClient: &coreClient}
-	err := service.AddPortToService(instance, portSpec)
-	assert.Equal(t, errTest, err)
+	assert.ErrorIs(t, service.AddPortToService(instance, portSpec), errTest)
 	coreClient.AssertExpectations(t)
 	services.AssertExpectations(t)
 }
 
 func TestK8SService_AddPortToService(t *testing.T) {
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	portSpec := coreV1Api.ServicePort{Name: name}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	portSpec := &coreV1Api.ServicePort{Name: name}
 
 	coreClient := kMock.CoreV1Interface{}
 	services := &kMock.ServiceInterface{}
 	serviceInstance := &coreV1Api.Service{}
+	service := K8SService{CoreClient: &coreClient}
 
 	coreClient.On("Services", namespace).Return(services)
-	services.On("Get", context.Background(), name, metav1.GetOptions{}).Return(serviceInstance, nil)
-	services.On("Update", context.Background(), serviceInstance, metav1.UpdateOptions{}).Return(nil, nil)
+	services.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(serviceInstance, nil)
+	services.On("Update", context.TODO(), serviceInstance, metav1.UpdateOptions{}).Return(nil, nil)
 
-	service := K8SService{CoreClient: &coreClient}
-	err := service.AddPortToService(instance, portSpec)
-	assert.NoError(t, err)
+	assert.NoError(t, service.AddPortToService(instance, portSpec))
 	coreClient.AssertExpectations(t)
 	services.AssertExpectations(t)
 }
 
 func TestK8SService_CreateSecret_SetControllerReferenceErr(t *testing.T) {
 	scheme := runtime.NewScheme()
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	data := map[string][]byte{"str": []byte("str")}
 	service := K8SService{Scheme: scheme}
+
 	err := service.CreateSecret(instance, name, data)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "no kind is registered"))
+	assert.Contains(t, err.Error(), "no kind is registered")
 }
 
 func TestK8SService_CreateSecret_AlreadyExist(t *testing.T) {
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
+	secrets := &kMock.SecretInterface{}
+	scheme := runtime.NewScheme()
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &nexusApi.Nexus{})
 
 	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, nil)
+	secrets.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, nil)
 
 	data := map[string][]byte{"str": []byte("str")}
 	service := K8SService{
 		Scheme:     scheme,
 		CoreClient: &coreClient,
 	}
-	err := service.CreateSecret(instance, name, data)
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.CreateSecret(instance, name, data))
 	coreClient.AssertExpectations(t)
 	secrets.AssertExpectations(t)
 }
 
 func TestK8SService_CreateSecret_GetSecretErr(t *testing.T) {
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	errTest := errors.New("test")
-
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	errTest := fmt.Errorf("test")
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
+	secrets := &kMock.SecretInterface{}
+	scheme := runtime.NewScheme()
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &nexusApi.Nexus{})
 
 	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, errTest)
+	secrets.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, errTest)
 
 	data := map[string][]byte{"str": []byte("str")}
 	service := K8SService{
 		Scheme:     scheme,
 		CoreClient: &coreClient,
 	}
-	err := service.CreateSecret(instance, name, data)
-	assert.Equal(t, errTest, err)
+
+	assert.ErrorIs(t, service.CreateSecret(instance, name, data), errTest)
 	coreClient.AssertExpectations(t)
 	secrets.AssertExpectations(t)
 }
 
 func TestK8SService_CreateSecret_CreateSecretErr(t *testing.T) {
 	data := map[string][]byte{"str": []byte("str")}
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	labels := platformHelper.GenerateLabels(instance.Name)
+	scheme := runtime.NewScheme()
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &nexusApi.Nexus{})
 
 	secretObject := &coreV1Api.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -858,35 +876,35 @@ func TestK8SService_CreateSecret_CreateSecretErr(t *testing.T) {
 		Data: data,
 		Type: "Opaque",
 	}
-	err := controllerutil.SetControllerReference(&instance, secretObject, scheme)
-	if err != nil {
+	if err := controllerutil.SetControllerReference(instance, secretObject, scheme); err != nil {
 		t.Fatal(err)
 	}
 
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
+	secrets := &kMock.SecretInterface{}
+	errTest := fmt.Errorf("test")
 
-	errTest := errors.New("test")
 	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
-	secrets.On("Create", context.Background(), secretObject, metav1.CreateOptions{}).Return(nil, errTest)
+	secrets.On("Get", context.TODO(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
+	secrets.On("Create", context.TODO(), secretObject, metav1.CreateOptions{}).Return(nil, errTest)
 
 	service := K8SService{
 		Scheme:     scheme,
 		CoreClient: &coreClient,
 	}
-	err = service.CreateSecret(instance, name, data)
-	assert.Equal(t, errTest, err)
+
+	assert.ErrorIs(t, service.CreateSecret(instance, name, data), errTest)
 	coreClient.AssertExpectations(t)
 	secrets.AssertExpectations(t)
 }
 
 func TestK8SService_CreateSecret(t *testing.T) {
 	data := map[string][]byte{"str": []byte("str")}
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
+	instance := &nexusApi.Nexus{ObjectMeta: createObjectMeta()}
 	labels := platformHelper.GenerateLabels(instance.Name)
+	scheme := runtime.NewScheme()
+
+	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &nexusApi.Nexus{})
 
 	secretObject := &coreV1Api.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -897,24 +915,26 @@ func TestK8SService_CreateSecret(t *testing.T) {
 		Data: data,
 		Type: "Opaque",
 	}
-	err := controllerutil.SetControllerReference(&instance, secretObject, scheme)
-	if err != nil {
+
+	if err := controllerutil.SetControllerReference(instance, secretObject, scheme); err != nil {
 		t.Fatal(err)
 	}
 
 	coreClient := kMock.CoreV1Interface{}
-	secrets := kMock.NewSecretInterface(t)
+	secrets := &kMock.SecretInterface{}
 
 	coreClient.On("Secrets", namespace).Return(secrets)
-	secrets.On("Get", context.Background(), name, metav1.GetOptions{}).Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
-	secrets.On("Create", context.Background(), secretObject, metav1.CreateOptions{}).Return(secretObject, nil)
+	secrets.
+		On("Get", context.TODO(), name, metav1.GetOptions{}).
+		Return(nil, k8serrors.NewNotFound(schema.GroupResource{}, name))
+	secrets.On("Create", context.TODO(), secretObject, metav1.CreateOptions{}).Return(secretObject, nil)
 
 	service := K8SService{
 		Scheme:     scheme,
 		CoreClient: &coreClient,
 	}
-	err = service.CreateSecret(instance, name, data)
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.CreateSecret(instance, name, data))
 	coreClient.AssertExpectations(t)
 	secrets.AssertExpectations(t)
 }
@@ -924,6 +944,7 @@ func TestK8SService_Init(t *testing.T) {
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
 	)
+
 	restConfig, err := config.ClientConfig()
 	if err != nil {
 		t.Fatal(err)
@@ -931,8 +952,7 @@ func TestK8SService_Init(t *testing.T) {
 
 	scheme := runtime.NewScheme()
 	client := fake.NewClientBuilder().Build()
-
 	service := K8SService{}
-	err = service.Init(restConfig, scheme, client)
-	assert.NoError(t, err)
+
+	assert.NoError(t, service.Init(restConfig, scheme, client))
 }

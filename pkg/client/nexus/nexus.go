@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
 
 	nexusClientHelper "github.com/epam/edp-nexus-operator/v2/pkg/client/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/helper"
+)
+
+const (
+	crAppJson     = "application/json"
+	magicNumber10 = 10
 )
 
 type Client struct {
@@ -17,62 +21,78 @@ type Client struct {
 }
 
 // Init performs initialization of Nexus connection.
-func Init(url string, user string, password string) *Client {
+func Init(url, user, password string) *Client {
 	return &Client{
 		resty: resty.SetHostURL(url).SetBasicAuth(user, password).SetHeaders(map[string]string{
-			"Content-Type": "application/json",
-			"Accept":       "application/json",
+			"Content-Type": crAppJson,
+			"Accept":       crAppJson,
 		}).SetDisableWarn(true),
 	}
 }
 
-// WaitForStatusIsUp waits for Nexus to be up.
-func (nc Client) IsNexusRestApiReady() (bool, int, error) {
-	nexusIsReady := true
+// IsNexusRestApiReady check if nexus rest api is ready.
+func (nc Client) IsNexusRestApiReady() (nexusIsReady bool, statusCode int, err error) {
+	nexusIsReady = true
+
 	resp, err := nc.resty.
-		SetRedirectPolicy(resty.FlexibleRedirectPolicy(10)).
+		SetRedirectPolicy(resty.FlexibleRedirectPolicy(magicNumber10)).
 		R().
 		Get("/status")
 	if err != nil {
-		return nexusIsReady, resp.StatusCode(), helper.LogErrorAndReturn(err)
-	} else if resp.IsError() {
+		helper.LogIfError(err)
+
+		return nexusIsReady, resp.StatusCode(), fmt.Errorf("failed to check if nexus rest api is ready: %w", err)
+	}
+
+	if resp.IsError() {
 		nexusIsReady = false
 	}
+
 	return nexusIsReady, resp.StatusCode(), nil
 }
 
 // CheckScriptExist checks if script is already uploaded.
 func (nc Client) CheckScriptExist(scriptName string) (bool, error) {
 	resp, err := nc.resty.R().
-		SetHeader("accept", "application/json").
+		SetHeader("accept", crAppJson).
 		Get("/script")
 	if err != nil || resp.IsError() {
-		return false, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Checking if script %v exist failed. Err - %v. Response - %s", scriptName, err, resp.Status())))
+		err = fmt.Errorf("failed to check if script - %s, status - %s: %w", scriptName, resp.Status(), err)
+		helper.LogIfError(err)
+
+		return false, err
 	}
 
 	var scriptsList []map[string]string
-	err = json.Unmarshal(resp.Body(), &scriptsList)
-	if err != nil {
-		return false, errors.Wrapf(err, "cant umarshal %v", resp.Body())
+
+	if err = json.Unmarshal(resp.Body(), &scriptsList); err != nil {
+		return false, fmt.Errorf("failed to unmarshal - %v: %w", resp.Body(), err)
 	}
+
 	for _, script := range scriptsList {
 		if script["name"] == scriptName {
 			return true, nil
 		}
 	}
+
 	return false, nil
 }
 
 // UploadScript uploads script to Nexus.
-func (nc Client) UploadScript(scriptName string, scriptType string, scriptContent string) error {
+func (nc Client) UploadScript(scriptName, scriptType, scriptContent string) error {
 	formattedContent := nexusClientHelper.FormateNexusScript(scriptContent)
+
 	resp, err := nc.resty.R().
 		SetBody(`{"name":"` + scriptName + `", "type":"` + scriptType + `", "content": "` + formattedContent + `"}`).
-		SetHeaders(map[string]string{"accept": "application/json", "Content-type": "application/json"}).
+		SetHeaders(map[string]string{"accept": crAppJson, "Content-type": crAppJson}).
 		Post("/script")
 	if err != nil || resp.IsError() {
-		return helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Uploading script %v failed. Err - %v. Response - %s", scriptName, err, resp.Status())))
+		err = fmt.Errorf("failed to upload script - %s, status - %s: %w", scriptName, resp.Status(), err)
+		helper.LogIfError(err)
+
+		return err
 	}
+
 	return nil
 }
 
@@ -82,14 +102,17 @@ func (nc Client) AreDefaultScriptsDeclared(listOfScripts map[string]string) (boo
 
 	for scriptFullName := range listOfScripts {
 		scriptName := strings.Split(scriptFullName, ".")[0]
+
 		scriptExist, err := nc.CheckScriptExist(scriptName)
 		if err != nil {
 			return false, err
 		}
+
 		if !scriptExist {
 			defaultScriptsAreDeclared = false
 		}
 	}
+
 	return defaultScriptsAreDeclared, nil
 }
 
@@ -98,39 +121,46 @@ func (nc Client) DeclareDefaultScripts(listOfScripts map[string]string) error {
 	for scriptFullName, scriptContent := range listOfScripts {
 		scriptName := strings.Split(scriptFullName, ".")[0]
 		scriptExtension := strings.Split(scriptFullName, ".")[1]
+
 		scriptExist, err := nc.CheckScriptExist(scriptName)
 		if err != nil {
 			return err
 		}
+
 		if !scriptExist {
-			err := nc.UploadScript(scriptName, scriptExtension, scriptContent)
-			if err != nil {
-				return err
+			if uploadErr := nc.UploadScript(scriptName, scriptExtension, scriptContent); uploadErr != nil {
+				return uploadErr
 			}
 		}
 	}
+
 	return nil
 }
 
 // CheckTaskExist checks if task is already uploaded.
 func (nc Client) CheckTaskExist(taskName string) (bool, error) {
 	resp, err := nc.resty.R().
-		SetHeader("accept", "application/json").
+		SetHeader("accept", crAppJson).
 		Get("/tasks")
 	if err != nil || resp.IsError() {
-		return false, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Checking if task %v exist failed. Err - %v. Response - %s", taskName, err, resp.Status())))
+		err = fmt.Errorf("failed to check if task - %s exists, status - %s: %w", taskName, resp.Status(), err)
+		helper.LogIfError(err)
+
+		return false, err
 	}
 
 	var tasksList map[string][]map[string]interface{}
-	err = json.Unmarshal(resp.Body(), &tasksList)
-	if err != nil {
-		return false, errors.Wrapf(err, "cant unmarshal %v", resp.Body())
+
+	if err = json.Unmarshal(resp.Body(), &tasksList); err != nil {
+		return false, fmt.Errorf("failed to unmarshal - %v: %w", resp.Body(), err)
 	}
+
 	for _, task := range tasksList["items"] {
 		if task["name"] == taskName {
 			return true, nil
 		}
 	}
+
 	return false, nil
 }
 
@@ -138,15 +168,20 @@ func (nc Client) CheckTaskExist(taskName string) (bool, error) {
 func (nc Client) RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error) {
 	body, err := json.Marshal(parameters)
 	if err != nil {
-		return nil, helper.LogErrorAndReturn(errors.New(fmt.Sprintf("Couldn't marshmal parameters %v from script %v. Err - %v", parameters, scriptName, err)))
+		err = fmt.Errorf("failed to marshal parameters - %s from script - %s: %w", parameters, scriptName, err)
+		helper.LogIfError(err)
+
+		return nil, err
 	}
+
 	resp, err := nc.resty.R().
 		SetBody(body).
 		SetHeader("Content-type", "text/plain").
 		Post(fmt.Sprintf("/script/%v/run", scriptName))
 	if err != nil || resp.IsError() {
-		return nil, errors.Wrapf(err, fmt.Sprintf("Running script %v failed. Response - %s", scriptName, resp.Status()))
+		return nil, fmt.Errorf("failed to run script - %s, status - %s: %w", scriptName, resp.Status(), err)
 	}
+
 	return resp.Body(), nil
 }
 
@@ -156,19 +191,23 @@ func (nc Client) CheckRoleExist(roleName interface{}) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	var parsedResponse map[string]string
-	err = json.Unmarshal(resp, &parsedResponse)
-	if err != nil {
-		return false, errors.Wrapf(err, "Unable to unmarshal %v. Err - %v.", string(resp), err)
+
+	if err = json.Unmarshal(resp, &parsedResponse); err != nil {
+		return false, fmt.Errorf("failed to unmarshal - %s: %w", string(resp), err)
 	}
+
 	var parsedResult map[string]interface{}
-	err = json.Unmarshal([]byte(parsedResponse["result"]), &parsedResult)
-	if err != nil {
-		return false, errors.Wrapf(err, "Unable to unmarshal %v. Err - %v.", parsedResponse["result"], err)
+
+	if err = json.Unmarshal([]byte(parsedResponse["result"]), &parsedResult); err != nil {
+		return false, fmt.Errorf("failed to unmarshal - %s: %w", parsedResponse["result"], err)
 	}
+
 	if parsedResult["roleId"] == roleName {
 		return true, nil
 	}
+
 	return false, nil
 }
 
@@ -176,7 +215,7 @@ func (nc Client) CheckRoleExist(roleName interface{}) (bool, error) {
 func (nc Client) CheckRepositoryExist(repositoryName string) (bool, error) {
 	serverRepoList, err := nc.GetRepositoryList()
 	if err != nil {
-		return false, errors.Wrap(err, "Failed to get repository list from Nexus!")
+		return false, fmt.Errorf("failed to get repository list from nexus: %w", err)
 	}
 
 	for _, repository := range serverRepoList {
@@ -184,6 +223,7 @@ func (nc Client) CheckRepositoryExist(repositoryName string) (bool, error) {
 			return true, nil
 		}
 	}
+
 	return false, nil
 }
 
@@ -193,12 +233,13 @@ func (nc Client) GetRepositoryList() ([]map[string]interface{}, error) {
 
 	resp, err := nc.resty.R().Get("/repositories")
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to get repository list from Nexus!")
+		return nil, fmt.Errorf("failed to get repository list from nexus: %w", err)
 	}
 
 	err = json.Unmarshal(resp.Body(), &out)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Cant unmarshal %v", resp.Body())
+		return nil, fmt.Errorf("failed to unmarshal body - %v: %w", resp.Body(), err)
 	}
+
 	return out, nil
 }

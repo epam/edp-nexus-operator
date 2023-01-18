@@ -12,7 +12,6 @@ const (
 	debugModeEnvVar              = "DEBUG_MODE"
 	inClusterNamespacePath       = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 	platformType                 = "PLATFORM_TYPE"
-	StatusOK                     = "OK"
 	FailureReconciliationTimeout = time.Second * 10
 )
 
@@ -26,6 +25,7 @@ func GetWatchNamespace() (string, error) {
 	if !found {
 		return "", fmt.Errorf("%s must be set", watchNamespaceEnvVar)
 	}
+
 	return ns, nil
 }
 
@@ -38,32 +38,37 @@ func GetDebugMode() (bool, error) {
 
 	b, err := strconv.ParseBool(mode)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to parse debug mode value: %w", err)
 	}
+
 	return b, nil
 }
 
-// Check whether the operator is running in cluster or locally.
+// RunningInCluster checks whether the operator is running in cluster or locally.
 func RunningInCluster() bool {
 	_, err := os.Stat(inClusterNamespacePath)
+
 	return !os.IsNotExist(err)
 }
 
 func ContainsString(slice []string, s string) bool {
-	for _, item := range slice {
-		if item == s {
+	for i := range slice {
+		if slice[i] == s {
 			return true
 		}
 	}
+
 	return false
 }
 
 func RemoveString(slice []string, s string) (result []string) {
-	for _, item := range slice {
-		if item == s {
+	for i := range slice {
+		if slice[i] == s {
 			continue
 		}
-		result = append(result, item)
+
+		result = append(result, slice[i])
 	}
+
 	return
 }

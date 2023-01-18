@@ -12,10 +12,6 @@ type NexusUserSpec struct {
 	Status    string   `json:"status"`
 }
 
-func (in NexusUser) OwnerName() string {
-	return in.Spec.OwnerName
-}
-
 type NexusUserStatus struct {
 	ID    string `json:"id"`
 	Value string `json:"value"`
@@ -40,6 +36,10 @@ type NexusUserList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []NexusUser `json:"items"`
+}
+
+func (in NexusUser) OwnerName() string {
+	return in.Spec.OwnerName
 }
 
 func init() {

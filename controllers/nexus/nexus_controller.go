@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -33,18 +32,21 @@ const (
 	StatusExposeFinish     = "config exposed"
 	StatusIntegrationStart = "integration started"
 	StatusReady            = "ready"
+	RequeueAfterSeconds10  = 10 * time.Second
+	RequeueAfterSeconds30  = 30 * time.Second
+	RequeueAfterSeconds60  = 60 * time.Second
 )
 
-func NewReconcileNexus(client client.Client, scheme *runtime.Scheme, log logr.Logger) (*ReconcileNexus, error) {
-	ps, err := platform.NewPlatformService(helper.GetPlatformTypeEnv(), scheme, client)
+func NewReconcileNexus(c client.Client, scheme *runtime.Scheme, log logr.Logger) (*ReconcileNexus, error) {
+	ps, err := platform.NewPlatformService(helper.GetPlatformTypeEnv(), scheme, c)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to create platform service")
+		return nil, fmt.Errorf("failed to create platform service: %w", err)
 	}
 
 	return &ReconcileNexus{
-		client:  client,
+		client:  c,
 		scheme:  scheme,
-		service: nexus.NewService(ps, client, scheme),
+		service: nexus.NewService(ps, c, scheme),
 		log:     log.WithName("nexus"),
 	}, nil
 }
@@ -59,20 +61,28 @@ type ReconcileNexus struct {
 func (r *ReconcileNexus) SetupWithManager(mgr ctrl.Manager) error {
 	p := predicate.Funcs{
 		UpdateFunc: func(e event.UpdateEvent) bool {
-			oldObject := e.ObjectOld.(*nexusApi.Nexus)
-			newObject := e.ObjectNew.(*nexusApi.Nexus)
+			oldObject, ok := e.ObjectOld.(*nexusApi.Nexus)
+			if !ok {
+				return false
+			}
+
+			newObject, ok := e.ObjectNew.(*nexusApi.Nexus)
+			if !ok {
+				return false
+			}
+
 			return oldObject.Status == newObject.Status
 		},
 	}
 
-	return ctrl.NewControllerManagedBy(mgr).
+	if err := ctrl.NewControllerManagedBy(mgr).
 		For(&nexusApi.Nexus{}, builder.WithPredicates(p)).
-		Complete(r)
-}
+		Complete(r); err != nil {
+		return fmt.Errorf("failed to create cpntroller manager: %w", err)
+	}
 
-//+kubebuilder:rbac:groups=v2.edp.epam.com,namespace=placeholder,resources=nexuses,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=v2.edp.epam.com,namespace=placeholder,resources=nexuses/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=v2.edp.epam.com,namespace=placeholder,resources=nexuses/finalizers,verbs=update
+	return nil
+}
 
 func (r *ReconcileNexus) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	log := r.log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
@@ -86,133 +96,149 @@ func (r *ReconcileNexus) Reconcile(ctx context.Context, request reconcile.Reques
 			// Return and don't requeue
 			return reconcile.Result{}, nil
 		}
-		return reconcile.Result{}, err
+
+		return reconcile.Result{}, fmt.Errorf("failed to get Nexus instance from k8s: %w", err)
 	}
 
 	if instance.Status.Status == "" || instance.Status.Status == StatusFailed {
 		log.Info("Installation has been started")
+
 		if err := r.updateStatus(ctx, instance, StatusInstall); err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, err
 		}
 	}
 
 	if instance.Status.Status == StatusInstall {
 		log.Info("Installation has been finished")
+
 		if err := r.updateStatus(ctx, instance, StatusCreated); err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, err
 		}
 	}
 
-	if ready, err := r.service.IsDeploymentReady(*instance); err != nil {
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errors.Wrap(err, "Checking if Deployment config is ready has been failed")
+	if ready, err := r.service.IsDeploymentReady(instance); err != nil {
+		return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, fmt.Errorf("failed to check if deployment config is ready: %w", err)
 	} else if !*ready {
 		log.Info("Deployment config is not ready for configuration yet")
-		return reconcile.Result{RequeueAfter: 60 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: RequeueAfterSeconds60}, nil
 	}
 
 	if instance.Status.Status == StatusCreated || instance.Status.Status == "" {
 		log.Info("Configuration has started")
-		err := r.updateStatus(ctx, instance, StatusConfiguring)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+
+		if err := r.updateStatus(ctx, instance, StatusConfiguring); err != nil {
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, err
 		}
 	}
 
-	instance, isFinished, err := r.service.Configure(*instance)
+	instance, isFinished, err := r.service.Configure(instance)
 	if err != nil {
 		log.Error(err, "Configuration has failed")
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, errors.Wrap(err, "Configuration failed")
-	} else if !isFinished {
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, nil
+		return reconcile.Result{RequeueAfter: RequeueAfterSeconds30}, fmt.Errorf("service configuration failed : %w", err)
+	}
+
+	if !isFinished {
+		return reconcile.Result{RequeueAfter: RequeueAfterSeconds30}, nil
 	}
 
 	if instance.Status.Status == StatusConfiguring {
 		log.Info("Configuration has finished")
-		err = r.updateStatus(ctx, instance, StatusConfigured)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+
+		if updErr := r.updateStatus(ctx, instance, StatusConfigured); updErr != nil {
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, updErr
 		}
 	}
 
 	if instance.Status.Status == StatusConfigured {
 		log.Info("Exposing configuration has started")
-		err = r.updateStatus(ctx, instance, StatusExposeStart)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+
+		if updErr := r.updateStatus(ctx, instance, StatusExposeStart); updErr != nil {
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, updErr
 		}
 	}
 
-	instance, err = r.service.ExposeConfiguration(ctx, *instance)
+	instance, err = r.service.ExposeConfiguration(ctx, instance)
 	if err != nil {
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errors.Wrap(err, "Exposing configuration failed")
+		return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, fmt.Errorf("failed to expose configuration: %w", err)
 	}
 
 	if instance.Status.Status == StatusExposeStart {
 		log.Info("Exposing configuration has finished")
-		err = r.updateStatus(ctx, instance, StatusExposeFinish)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+
+		if updErr := r.updateStatus(ctx, instance, StatusExposeFinish); updErr != nil {
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, updErr
 		}
 	}
 
 	if instance.Status.Status == StatusExposeFinish {
 		log.Info("Exposing configuration has started")
-		err = r.updateStatus(ctx, instance, StatusIntegrationStart)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+
+		if updErr := r.updateStatus(ctx, instance, StatusIntegrationStart); updErr != nil {
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, updErr
 		}
 	}
 
-	instance, err = r.service.Integration(*instance)
+	instance, err = r.service.Integration(instance)
 	if err != nil {
-		return reconcile.Result{RequeueAfter: 10 * time.Second}, errors.Wrap(err, "Integration failed")
+		return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, fmt.Errorf("integration failed: %w", err)
 	}
 
 	if instance.Status.Status == StatusIntegrationStart {
 		log.Info("Exposing configuration has started")
-		err = r.updateStatus(ctx, instance, StatusReady)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: 10 * time.Second}, err
+
+		if updErr := r.updateStatus(ctx, instance, StatusReady); updErr != nil {
+			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, updErr
 		}
 	}
 
-	err = r.updateAvailableStatus(ctx, instance, true)
-	if err != nil {
+	if err = r.updateAvailableStatus(ctx, instance, true); err != nil {
 		log.Info("Failed to update availability status")
-		return reconcile.Result{RequeueAfter: 30 * time.Second}, err
+
+		return reconcile.Result{RequeueAfter: RequeueAfterSeconds30}, err
 	}
 
 	log.Info("Reconciling has been finished")
+
 	return reconcile.Result{}, nil
 }
 
 func (r *ReconcileNexus) updateStatus(ctx context.Context, instance *nexusApi.Nexus, newStatus string) error {
-	log := r.log.WithValues("Request.Namespace", instance.Namespace, "Request.Name", instance.Name).
+	log := r.log.
+		WithValues("Request.Namespace", instance.Namespace, "Request.Name", instance.Name).
 		WithName("status_update")
+
 	currentStatus := instance.Status.Status
 	instance.Status.Status = newStatus
 	instance.Status.LastTimeUpdated = metav1.NewTime(time.Now())
+
 	if err := r.client.Status().Update(ctx, instance); err != nil {
-		if err := r.client.Update(ctx, instance); err != nil {
-			return errors.Wrapf(err, "couldn't update status from '%v' to '%v'", currentStatus, newStatus)
+		if updErr := r.client.Update(ctx, instance); updErr != nil {
+			return fmt.Errorf("failed to update status from '%v' to '%v': %w", currentStatus, newStatus, updErr)
 		}
 	}
+
 	log.Info(fmt.Sprintf("Status has been updated to '%v'", newStatus))
+
 	return nil
 }
 
-func (r ReconcileNexus) updateAvailableStatus(ctx context.Context, instance *nexusApi.Nexus, value bool) error {
-	log := r.log.WithValues("Request.Namespace", instance.Namespace, "Request.Name", instance.Name).
+func (r *ReconcileNexus) updateAvailableStatus(ctx context.Context, instance *nexusApi.Nexus, value bool) error {
+	log := r.log.
+		WithValues("Request.Namespace", instance.Namespace, "Request.Name", instance.Name).
 		WithName("status_update")
+
 	if instance.Status.Available != value {
 		instance.Status.Available = value
 		instance.Status.LastTimeUpdated = metav1.NewTime(time.Now())
+
 		if err := r.client.Status().Update(ctx, instance); err != nil {
-			if err := r.client.Update(ctx, instance); err != nil {
-				return errors.Wrapf(err, "couldn't update availability status to %v", value)
+			if updErr := r.client.Update(ctx, instance); updErr != nil {
+				return fmt.Errorf("failed to update availability status to %v: %w", value, updErr)
 			}
 		}
+
 		log.Info(fmt.Sprintf("Availability status has been updated to '%v'", value))
 	}
+
 	return nil
 }

@@ -2,11 +2,11 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/dchest/uniuri"
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -23,7 +23,10 @@ import (
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 )
 
-const finalizer = "nexus.user.operator"
+const (
+	finalizer = "nexus.user.operator"
+	crDefault = "default"
+)
 
 type Reconcile struct {
 	k8sClient      client.Client
@@ -42,7 +45,7 @@ type NexusClient interface {
 func NewReconcile(k8sClient client.Client, scheme *runtime.Scheme, log logr.Logger, platformType string) (*Reconcile, error) {
 	ps, err := platform.NewPlatformService(platformType, scheme, k8sClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to create platform service")
+		return nil, fmt.Errorf("failed to create platform service: %w", err)
 	}
 
 	r := Reconcile{
@@ -52,11 +55,17 @@ func NewReconcile(k8sClient client.Client, scheme *runtime.Scheme, log logr.Logg
 	}
 
 	r.getNexusClient = r.clientForNexusChild
+
 	return &r, nil
 }
 
 func (r *Reconcile) clientForNexusChild(ctx context.Context, child nexus.Child) (NexusClient, error) {
-	return r.service.ClientForNexusChild(ctx, child)
+	nc, err := r.service.ClientForNexusChild(ctx, child)
+	if err != nil {
+		return nc, fmt.Errorf("failed to get client for nexus chield: %w", err)
+	}
+
+	return nc, nil
 }
 
 func (r *Reconcile) SetupWithManager(mgr ctrl.Manager) error {
@@ -64,14 +73,25 @@ func (r *Reconcile) SetupWithManager(mgr ctrl.Manager) error {
 		UpdateFunc: isSpecUpdated,
 	}
 
-	return ctrl.NewControllerManagedBy(mgr).
+	if err := ctrl.NewControllerManagedBy(mgr).
 		For(&nexusApi.NexusUser{}, builder.WithPredicates(pred)).
-		Complete(r)
+		Complete(r); err != nil {
+		return fmt.Errorf("failed to build controller: %w", err)
+	}
+
+	return nil
 }
 
 func isSpecUpdated(e event.UpdateEvent) bool {
-	oo := e.ObjectOld.(*nexusApi.NexusUser)
-	no := e.ObjectNew.(*nexusApi.NexusUser)
+	oo, ok := e.ObjectOld.(*nexusApi.NexusUser)
+	if !ok {
+		return false
+	}
+
+	no, ok := e.ObjectNew.(*nexusApi.NexusUser)
+	if !ok {
+		return false
+	}
 
 	return !reflect.DeepEqual(oo.Spec, no.Spec) ||
 		(oo.GetDeletionTimestamp().IsZero() && !no.GetDeletionTimestamp().IsZero())
@@ -92,18 +112,20 @@ func (r *Reconcile) Reconcile(ctx context.Context, request reconcile.Request) (r
 			return
 		}
 
-		resultErr = errors.Wrap(err, "unable to get nexus user from k8s")
+		resultErr = fmt.Errorf("failed to get nexus user from k8s: %w", err)
+
 		return
 	}
 
 	if err := r.tryReconcile(ctx, &instance); err != nil {
 		instance.Status.Value = err.Error()
 
-		if err := r.k8sClient.Status().Update(ctx, &instance); err != nil {
-			resultErr = err
+		if errStatusUpdate := r.k8sClient.Status().Update(ctx, &instance); errStatusUpdate != nil {
+			resultErr = errStatusUpdate
 		}
 
 		result.RequeueAfter = helper.FailureReconciliationTimeout
+
 		log.Error(err, "an error has occurred while handling nexus user", "name",
 			request.Name)
 	}
@@ -116,44 +138,48 @@ func (r *Reconcile) Reconcile(ctx context.Context, request reconcile.Request) (r
 func (r *Reconcile) tryReconcile(ctx context.Context, instance *nexusApi.NexusUser) error {
 	nxCl, err := r.getNexusClient(ctx, instance)
 	if err != nil {
-		return errors.Wrap(err, "unable to create nexus client for child")
+		return fmt.Errorf("failed to create nexus client for child: %w", err)
 	}
 
-	if err := r.syncUser(ctx, instance, nxCl); err != nil {
-		return errors.Wrap(err, "unable to sync user")
+	if err = r.syncUser(ctx, instance, nxCl); err != nil {
+		return fmt.Errorf("failed to sync user: %w", err)
 	}
 
-	if _, err := r.deleteResource(ctx, instance, nxCl); err != nil {
-		return errors.Wrap(err, "unable to delete resource")
+	if _, err = r.deleteResource(ctx, instance, nxCl); err != nil {
+		return fmt.Errorf("failed to delete resource: %w", err)
 	}
 
 	return nil
 }
 
-func (r *Reconcile) syncUser(ctx context.Context, instance *nexusApi.NexusUser, nxCl NexusClient) error {
+func (*Reconcile) syncUser(ctx context.Context, instance *nexusApi.NexusUser, nxCl NexusClient) error {
 	specUsr := instanceSpecToUser(&instance.Spec)
 
 	if instance.Status.ID == "" {
 		usr, err := nxCl.GetUser(ctx, specUsr.Email)
 		if nexusClient.IsErrNotFound(err) {
 			specUsr.Password = uniuri.New()
-			if err := nxCl.CreateUser(ctx, specUsr); err != nil {
-				return errors.Wrap(err, "unable to create user")
+			if err = nxCl.CreateUser(ctx, specUsr); err != nil {
+				return fmt.Errorf("failed to create user: %w", err)
 			}
+
 			instance.Status.ID = specUsr.ID
 
 			return nil
-		} else if err != nil {
-			return errors.Wrap(err, "unknown error")
+		}
+
+		if err != nil {
+			return fmt.Errorf("failed to get user: %w", err)
 		}
 
 		instance.Status.ID = usr.ID
 	}
 
 	specUsr.ID = instance.Status.ID
-	specUsr.Source = "default"
+	specUsr.Source = crDefault
+
 	if err := nxCl.UpdateUser(ctx, specUsr); err != nil {
-		return errors.Wrap(err, "unable to update user")
+		return fmt.Errorf("failed to update user: %w", err)
 	}
 
 	return nil
@@ -180,7 +206,7 @@ func (r *Reconcile) deleteResource(ctx context.Context, instance *nexusApi.Nexus
 			instance.SetFinalizers(finalizers)
 
 			if err := r.k8sClient.Update(ctx, instance); err != nil {
-				return false, errors.Wrap(err, "unable to update deletable object")
+				return false, fmt.Errorf("failed to update deletable object: %w", err)
 			}
 		}
 
@@ -188,7 +214,7 @@ func (r *Reconcile) deleteResource(ctx context.Context, instance *nexusApi.Nexus
 	}
 
 	if err := nxCl.DeleteUser(ctx, instance.Status.ID); err != nil {
-		return false, errors.Wrap(err, "unable to delete resource")
+		return false, fmt.Errorf("failed to delete resource: %w", err)
 	}
 
 	if helper.ContainsString(finalizers, finalizer) {
@@ -196,7 +222,7 @@ func (r *Reconcile) deleteResource(ctx context.Context, instance *nexusApi.Nexus
 		instance.SetFinalizers(finalizers)
 
 		if err := r.k8sClient.Update(ctx, instance); err != nil {
-			return false, errors.Wrap(err, "unable to update instance status")
+			return false, fmt.Errorf("failed to update instance status: %w", err)
 		}
 	}
 

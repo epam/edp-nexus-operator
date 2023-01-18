@@ -16,7 +16,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	commonmock "github.com/epam/edp-common/pkg/mock"
-
 	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
 	nexusClient "github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
@@ -67,7 +66,7 @@ func (s *ControllerTestSuite) TearDownTest() {
 
 func (s *ControllerTestSuite) TestReconcile_Reconcile_Create() {
 	s.clientMock.On("GetUser", s.clientUser.Email).Return(nil,
-		nexusClient.ErrNotFound("not found"))
+		nexusClient.ErrNotFound)
 	s.clientMock.On("CreateUser", s.clientUser).Return(nil)
 	_, err := s.rec.Reconcile(context.Background(), reconcile.Request{NamespacedName: types.NamespacedName{
 		Name: s.nxUser.Name, Namespace: s.nxUser.Namespace,
@@ -103,8 +102,7 @@ func (s *ControllerTestSuite) TestReconcile_Reconcile_Update() {
 }
 
 func (s *ControllerTestSuite) TestReconcile_Reconcile_Update_Failure() {
-	s.clientMock.On("GetUser", s.clientUser.Email).Return(s.clientUser,
-		nil)
+	s.clientMock.On("GetUser", s.clientUser.Email).Return(s.clientUser, nil)
 
 	specDuplicate := instanceSpecToUser(&s.nxUser.Spec)
 	specDuplicate.Source = "default"
@@ -118,7 +116,6 @@ func (s *ControllerTestSuite) TestReconcile_Reconcile_Update_Failure() {
 
 	loggerSink, ok := s.logger.GetSink().(*commonmock.Logger)
 	assert.True(s.T(), ok)
-
 	assert.NoError(t, err)
 	assert.Error(t, loggerSink.LastError())
 	assert.Contains(t, loggerSink.LastError().Error(), "update fatal")

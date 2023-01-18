@@ -2,12 +2,11 @@ package nexus
 
 import (
 	"context"
-	"strings"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,6 +43,7 @@ func createInstanceByStatus(status string) *nexusApi.Nexus {
 func createClient(instance *nexusApi.Nexus) k8sClient.Client {
 	scheme := runtime.NewScheme()
 	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
+
 	return fake.NewClientBuilder().WithScheme(scheme).WithObjects(instance).Build()
 }
 
@@ -62,7 +62,7 @@ func TestReconcileNexus_Reconcile_BadClient(t *testing.T) {
 
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Error(t, err)
-	assert.True(t, runtime.IsNotRegisteredError(err))
+	assert.True(t, runtime.IsNotRegisteredError(errors.Unwrap(err)))
 	assert.Equal(t, reconcile.Result{}, result)
 }
 
@@ -112,7 +112,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusFailedErr(t *testing.T) {
 
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
@@ -145,7 +145,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusInstallErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
@@ -174,7 +174,7 @@ func TestReconcileNexus_Reconcile_IsDeploymentReadyErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Checking if Deployment config is ready has been failed"))
+	assert.Contains(t, err.Error(), "failed to check if deployment config is ready")
 	service.AssertExpectations(t)
 }
 
@@ -234,7 +234,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusCreatedErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }
@@ -263,7 +263,7 @@ func TestReconcileNexus_Reconcile_ConfigureErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 30 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Configuration failed"))
+	assert.Contains(t, err.Error(), "service configuration failed")
 	service.AssertExpectations(t)
 }
 
@@ -325,7 +325,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusConfiguringErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }
@@ -362,7 +362,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusConfiguredErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }
@@ -377,7 +377,7 @@ func TestReconcileNexus_Reconcile_ExposeConfigurationErr(t *testing.T) {
 	ok := true
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, *instance).Return(instance, errTest)
+	service.On("ExposeConfiguration", ctx, instance).Return(instance, errTest)
 
 	reconcileNexus := ReconcileNexus{
 		client:  client,
@@ -392,7 +392,7 @@ func TestReconcileNexus_Reconcile_ExposeConfigurationErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Exposing configuration failed"))
+	assert.Contains(t, err.Error(), "failed to expose configuration")
 	service.AssertExpectations(t)
 }
 
@@ -414,7 +414,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusExposeStartErr(t *testing.T) {
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,
@@ -429,7 +429,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusExposeStartErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }
@@ -452,7 +452,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusExposeFinishErr(t *testing.T) {
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,
@@ -467,7 +467,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusExposeFinishErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }
@@ -482,8 +482,8 @@ func TestReconcileNexus_Reconcile_IntegrationErr(t *testing.T) {
 	ok := true
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
-	service.On("Integration", *instance).Return(instance, errTest)
+	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
+	service.On("Integration", instance).Return(instance, errTest)
 
 	reconcileNexus := ReconcileNexus{
 		client:  client,
@@ -498,7 +498,7 @@ func TestReconcileNexus_Reconcile_IntegrationErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "Integration failed"))
+	assert.Contains(t, err.Error(), "integration failed")
 	service.AssertExpectations(t)
 }
 
@@ -520,8 +520,8 @@ func TestReconcileNexus_Reconcile_UpdateStatusIntegrationStartErr(t *testing.T) 
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
-	service.On("Integration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
+	service.On("Integration", instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,
@@ -536,7 +536,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusIntegrationStartErr(t *testing.T) 
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update status from"))
+	assert.Contains(t, err.Error(), "failed to update status from")
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }
@@ -558,8 +558,8 @@ func TestReconcileNexus_Reconcile_UpdateStatusReadyErr(t *testing.T) {
 	clientMock.On("Update").Return(errTest)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
-	service.On("Integration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
+	service.On("Integration", instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,
@@ -574,7 +574,7 @@ func TestReconcileNexus_Reconcile_UpdateStatusReadyErr(t *testing.T) {
 	result, err := reconcileNexus.Reconcile(ctx, req)
 	assert.Equal(t, reconcile.Result{RequeueAfter: 30 * time.Second}, result)
 	assert.Error(t, err)
-	assert.True(t, strings.Contains(err.Error(), "couldn't update availability status"))
+	assert.Contains(t, err.Error(), "failed to update availability status")
 	clientMock.AssertExpectations(t)
 	statusWriter.AssertExpectations(t)
 }
@@ -594,8 +594,8 @@ func TestReconcileNexus_Reconcile(t *testing.T) {
 	statusWriter.On("Update").Return(nil)
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, *instance).Return(instance, nil)
-	service.On("Integration", *instance).Return(instance, nil)
+	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
+	service.On("Integration", instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,

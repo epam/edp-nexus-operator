@@ -81,8 +81,9 @@ fmt:  ## Run go fmt
 vet:  ## Run go vet
 	go vet ./...
 
+.PHONY: lint
 lint: golangci-lint ## Run go lint
-	#${GOLANGCILINT} run # TODO: uncomment and fix lint warnings.
+	${GOLANGCILINT} run -v -c .golangci.yaml ./...
 
 .PHONY: build
 build: clean ## build operator's binary

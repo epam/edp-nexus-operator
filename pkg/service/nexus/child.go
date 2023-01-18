@@ -2,8 +2,8 @@ package nexus
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
 
 	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
@@ -17,22 +17,22 @@ type Child interface {
 }
 
 func (s ServiceImpl) ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error) {
-	var nx nexusApi.Nexus
+	nx := new(nexusApi.Nexus)
 	if err := s.client.Get(ctx, types.NamespacedName{
 		Namespace: child.GetNamespace(),
 		Name:      child.OwnerName(),
-	}, &nx); err != nil {
-		return nil, errors.Wrap(err, "unable to get nexus owner")
+	}, nx); err != nil {
+		return nil, fmt.Errorf("failed to get nexus owner: %w", err)
 	}
 
 	pwd, err := s.getNexusAdminPassword(nx)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to get nexus admin password")
+		return nil, fmt.Errorf("failed to get nexus admin password: %w", err)
 	}
 
 	u, err := s.getNexusRestApiUrl(nx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get Nexus REST API URL")
+		return nil, fmt.Errorf("failed to get Nexus REST API URL: %w", err)
 	}
 
 	return nexus.Init(u, nexusDefaultSpec.NexusDefaultAdminUser, pwd), nil

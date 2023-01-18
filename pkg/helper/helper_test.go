@@ -1,10 +1,10 @@
 package helper
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"

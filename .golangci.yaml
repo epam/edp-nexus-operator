@@ -110,6 +110,31 @@ issues:
         - funlen
         - revive
         - wrapcheck
+    - path: api/
+      linters:
+        - gochecknoinits
+        - gocritic
+    # Disable for Reconcile func
+    # mostly because those function aggregators
+    - linters:
+        - funlen
+        - cyclop
+      text: "Reconcile"
+    # Disable for Configure func
+    - linters:
+        - funlen
+        - cyclop
+        - gocritic
+      text: "Configure"
+    - linters:
+        - cyclop
+      text: "CreateConfigMapFromFile"
+    - linters:
+        - cyclop
+      text: "ExposeConfiguration"
+    - linters:
+        - funlen
+      text: "Integration"
 
   # Independently of option `exclude` we use default exclude patterns,
   # it can be disabled by this option. To list all

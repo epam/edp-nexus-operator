@@ -4,17 +4,17 @@ import (
 	"flag"
 	"os"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
+	// to ensure that exec-entrypoint and run can make use of them.
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
+	//+kubebuilder:scaffold:imports
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
-	//+kubebuilder:scaffold:imports
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -23,7 +23,6 @@ import (
 	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1"
 	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
 	keycloakApi "github.com/epam/edp-keycloak-operator/api/v1/v1"
-
 	nexusApiV1 "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
 	nexusApiV1Alpha1 "github.com/epam/edp-nexus-operator/v2/api/edp/v1alpha1"
 	"github.com/epam/edp-nexus-operator/v2/controllers/helper"
@@ -37,20 +36,6 @@ var (
 )
 
 const nexusOperatorLock = "edp-nexus-operator-lock"
-
-func init() {
-	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
-	utilruntime.Must(nexusApiV1Alpha1.AddToScheme(scheme))
-
-	utilruntime.Must(nexusApiV1.AddToScheme(scheme))
-
-	utilruntime.Must(edpCompApi.AddToScheme(scheme))
-
-	utilruntime.Must(jenkinsApi.AddToScheme(scheme))
-
-	utilruntime.Must(keycloakApi.AddToScheme(scheme))
-}
 
 func main() {
 	var (
@@ -77,6 +62,13 @@ func main() {
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(nexusApiV1Alpha1.AddToScheme(scheme))
+	utilruntime.Must(nexusApiV1.AddToScheme(scheme))
+	utilruntime.Must(edpCompApi.AddToScheme(scheme))
+	utilruntime.Must(jenkinsApi.AddToScheme(scheme))
+	utilruntime.Must(keycloakApi.AddToScheme(scheme))
+
 	v := buildInfo.Get()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
@@ -98,6 +90,7 @@ func main() {
 	}
 
 	cfg := ctrl.GetConfigOrDie()
+
 	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
@@ -116,13 +109,14 @@ func main() {
 	}
 
 	platformType := helper.GetPlatformTypeEnv()
+
 	nexusCtrl, err := nexus.NewReconcileNexus(mgr.GetClient(), mgr.GetScheme(), setupLog.WithName("nexus-ctrl"))
 	if err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "nexus")
 		os.Exit(1)
 	}
 
-	if err := nexusCtrl.SetupWithManager(mgr); err != nil {
+	if err = nexusCtrl.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "nexus")
 		os.Exit(1)
 	}
@@ -133,23 +127,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := userCtrl.SetupWithManager(mgr); err != nil {
+	if err = userCtrl.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "user")
 		os.Exit(1)
 	}
 
-	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+	if err = mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
 		os.Exit(1)
 	}
 
-	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+	if err = mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+
+	if err = mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
