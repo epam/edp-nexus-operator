@@ -19,7 +19,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	"github.com/epam/edp-nexus-operator/v2/api/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"

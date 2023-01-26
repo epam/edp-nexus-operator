@@ -22,10 +22,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	edpCompApi "github.com/epam/edp-component-operator/pkg/apis/v1/v1"
+	edpCompApi "github.com/epam/edp-component-operator/api/v1"
 	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
-	keycloakV1Api "github.com/epam/edp-keycloak-operator/api/v1/v1"
-	nexusV1 "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	keycloakV1Api "github.com/epam/edp-keycloak-operator/api/v1"
+	nexusV1 "github.com/epam/edp-nexus-operator/v2/api/v1"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
 )

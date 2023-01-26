@@ -16,7 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	commonmock "github.com/epam/edp-common/pkg/mock"
-	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	nexusClient "github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"
 )

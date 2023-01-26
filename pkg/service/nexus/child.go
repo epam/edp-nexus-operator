@@ -6,7 +6,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/types"
 
-	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
 )

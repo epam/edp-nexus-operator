@@ -16,7 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	"github.com/epam/edp-nexus-operator/v2/mocks"
 	sMock "github.com/epam/edp-nexus-operator/v2/mocks/nexus"
 )

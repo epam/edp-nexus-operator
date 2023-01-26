@@ -16,7 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	"github.com/epam/edp-nexus-operator/v2/controllers/helper"
 	nexusClient "github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus"

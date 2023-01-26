@@ -16,9 +16,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
-	keycloakApi "github.com/epam/edp-keycloak-operator/api/v1/v1"
+	keycloakApi "github.com/epam/edp-keycloak-operator/api/v1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/controllers/helper"
-	nexusApi "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	pMock "github.com/epam/edp-nexus-operator/v2/mocks/platform"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"

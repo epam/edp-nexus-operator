@@ -10,8 +10,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	keycloakV1Api "github.com/epam/edp-keycloak-operator/api/v1/v1"
-	edpV1 "github.com/epam/edp-nexus-operator/v2/api/edp/v1"
+	keycloakV1Api "github.com/epam/edp-keycloak-operator/api/v1"
+	edpV1 "github.com/epam/edp-nexus-operator/v2/api/v1"
 	"github.com/epam/edp-nexus-operator/v2/pkg/helper"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/kubernetes"
 	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform/openshift"
