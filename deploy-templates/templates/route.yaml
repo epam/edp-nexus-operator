@@ -11,8 +11,8 @@ metadata:
   {{- end }}
   name: nexus
 spec:
-  host: {{if .Values.nexus.basePath}}{{ .Values.global.dnsWildCard }}{{else}}nexus-{{ .Values.global.edpName }}.{{ .Values.global.dnsWildCard }}{{end}}
-  path: {{if .Values.nexus.basePath}}/{{.Values.nexus.basePath}}(/|$)(.*){{else}}/{{end}}
+  host: {{ include "nexus-operator.nexusBaseUrl" . }}
+  path: {{ include "nexus-operator.nexusBasePath" . }}
   port:
     targetPort: 8081
   tls:

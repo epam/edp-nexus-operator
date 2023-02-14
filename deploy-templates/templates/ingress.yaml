@@ -23,10 +23,10 @@ spec:
 {{ tpl (toYaml .Values.nexus.ingress.tls) $ | indent 4 }}
 {{- end }}
   rules:
-    - host: {{if .Values.nexus.basePath}}{{ .Values.global.dnsWildCard }}{{else}}nexus-{{ .Values.global.edpName }}.{{ .Values.global.dnsWildCard }}{{end}}
+    - host: {{ include "nexus-operator.nexusBaseUrl" . }}
       http:
         paths:
-          - path: {{if .Values.nexus.basePath}}/{{.Values.nexus.basePath}}{{else}}/{{end}}
+          - path: {{ include "nexus-operator.nexusBasePath" . }}
             {{- if $ingressSupportsPathType }}
             pathType: {{ $ingressPathType }}
             {{- end }}
@@ -34,7 +34,7 @@ spec:
               {{- if $ingressApiIsStable }}
               service:
                 name: nexus
-                port: 
+                port:
                   number: 3000
               {{- else }}
               serviceName: nexus

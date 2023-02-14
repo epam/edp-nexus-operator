@@ -27,14 +27,13 @@ A Helm chart for EDP Nexus Operator
 | global.dnsWildCard | string | `nil` | a cluster DNS wildcard name |
 | global.edpName | string | `""` | namespace or a project name (in case of OpenShift) |
 | global.openshift.deploymentType | string | `"deployments"` | Which type of kind will be deployed to Openshift (values: deployments/deploymentConfigs) |
-| global.platform | string | `"openshift"` | platform type that can be "kubernetes" or "openshift" |
+| global.platform | string | `"kubernetes"` | platform type that can be "kubernetes" or "openshift" |
 | image.repository | string | `"epamedp/nexus-operator"` | EDP nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator) |
 | image.tag | string | `nil` | EDP nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags) |
 | imagePullPolicy | string | `"IfNotPresent"` |  |
 | name | string | `"nexus-operator"` | component name |
 | nexus.affinity | object | `{}` |  |
 | nexus.annotations | object | `{}` |  |
-| nexus.basePath | string | `""` | Base path for Nexus URL |
 | nexus.deploy | bool | `true` | Flag to enable/disable Nexus deploy |
 | nexus.env | list | `[{"name":"INSTALL4J_ADD_VM_PARAMS","value":"-Xms2703M -Xmx2703M\n-XX:MaxDirectMemorySize=2703M\n-XX:+UnlockExperimentalVMOptions\n-XX:+UseCGroupMemoryLimitForHeap\n-Djava.util.prefs.userRoot=/nexus-data/javaprefs"}]` | Custom environment variables to be used by nexus pod |
 | nexus.image | string | `"sonatype/nexus3"` | Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3) |

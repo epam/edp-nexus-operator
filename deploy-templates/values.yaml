@@ -2,7 +2,7 @@ global:
   # -- namespace or a project name (in case of OpenShift)
   edpName: ""
   # -- platform type that can be "kubernetes" or "openshift"
-  platform: "openshift"
+  platform: "kubernetes"
   # -- Administrators of your tenant
   admins:
     - "stub_user_one@example.com"
@@ -43,8 +43,10 @@ nexus:
   # --  Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags)
   version: "3.43.0"
   imagePullPolicy: "IfNotPresent"
-  # --  Base path for Nexus URL
-  basePath: ""
+
+  # --  Base path for Nexus URL e.g. "some/path". With no starting '/'. Default: '/'.
+  # basePath:
+
   # --  Secrets to pull from private Docker registry
   imagePullSecrets:
   # -- Custom environment variables to be used by nexus pod

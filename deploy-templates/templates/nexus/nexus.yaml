@@ -18,5 +18,7 @@ spec:
       roles:
         - nx-admin
   {{- end }}
-  basePath: "{{.Values.nexus.basePath}}"
+  {{- if .Values.nexus.basePath }}
+  basePath: "{{ .Values.nexus.basePath }}"
+  {{- end }}
 {{end}}

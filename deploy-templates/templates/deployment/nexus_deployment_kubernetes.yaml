@@ -1,4 +1,5 @@
 {{if or (eq .Values.global.platform "kubernetes") (eq .Values.global.openshift.deploymentType "deployments")}}
+{{if .Values.nexus.deploy}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,7 +35,7 @@ spec:
       containers:
         - env:
             - name: NEXUS_CONTEXT
-              value: "{{if .Values.nexus.basePath}}{{.Values.nexus.basePath}}{{.Values.nexus.basePath}}{{else}}/{{end}}"
+              value: "{{ include "nexus-operator.nexusBasePath" . }}"
             {{- toYaml .Values.nexus.env | nindent 12 }}
           image: "{{.Values.nexus.image}}:{{.Values.nexus.version}}"
           imagePullPolicy: "{{ .Values.nexus.imagePullPolicy }}"
@@ -101,4 +102,5 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{end}}
 {{end}}

@@ -93,3 +93,25 @@ Return if ingress supports pathType.
 {{- define "nexus.ingress.supportsPathType" -}}
   {{- or (eq (include "nexus.ingress.isStable" .) "true") (and (eq (include "nexus.ingress.apiVersion" .) "networking.k8s.io/v1beta1") (semverCompare ">= 1.18-0" .Capabilities.KubeVersion.Version)) -}}
 {{- end -}}
+
+{{/*
+Define Nexus URL
+*/}}
+{{- define "nexus-operator.nexusBaseUrl" -}}
+{{- if .Values.nexus.basePath }}
+{{- .Values.global.dnsWildCard }}
+{{- else }}
+{{- printf "nexus-%s.%s" .Values.global.edpName .Values.global.dnsWildCard  }}
+{{- end }}
+{{- end }}
+
+{{/*
+Define Nexus BasePath
+*/}}
+{{- define "nexus-operator.nexusBasePath" -}}
+{{- if .Values.nexus.basePath }}
+{{- printf "/%s" .Values.nexus.basePath }}
+{{- else }}
+{{- printf "/"  }}
+{{- end }}
+{{- end }}
