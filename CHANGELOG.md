@@ -1,6 +1,30 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Features
+
+- Updated Operator SDK version [EPMDEDP-11174](https://jiraeu.epam.com/browse/EPMDEDP-11174)
+- Updated EDP components [EPMDEDP-11206](https://jiraeu.epam.com/browse/EPMDEDP-11206)
+- Provide opportunity to use default cluster storageClassName [EPMDEDP-11230](https://jiraeu.epam.com/browse/EPMDEDP-11230)
+
+### Bug Fixes
+
+- Test run on GitHub build [EPMDEDP-11174](https://jiraeu.epam.com/browse/EPMDEDP-11174)
+
+### Code Refactoring
+
+- Apply golangci-lint [EPMDEDP-10628](https://jiraeu.epam.com/browse/EPMDEDP-10628)
+- Move Nexus basePath logic to helpers.tpl [EPMDEDP-11531](https://jiraeu.epam.com/browse/EPMDEDP-11531)
+
+### Routine
+
+- Update current development version [EPMDEDP-10610](https://jiraeu.epam.com/browse/EPMDEDP-10610)
+- Update git-chglog for nexus-operator [EPMDEDP-11518](https://jiraeu.epam.com/browse/EPMDEDP-11518)
+
+### Documentation
+
+- Update chart and application version in Readme file [EPMDEDP-11221](https://jiraeu.epam.com/browse/EPMDEDP-11221)
+
 
 <a name="v2.13.0"></a>
 ## [v2.13.0] - 2022-12-06
@@ -20,8 +44,8 @@
 
 - Update current development version [EPMDEDP-10274](https://jiraeu.epam.com/browse/EPMDEDP-10274)
 - Move script from edp-library-pipelines to the repository [EPMDEDP-10652](https://jiraeu.epam.com/browse/EPMDEDP-10652)
-- Upgrade nexus to the 3.42.0 version [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
 - Update Nexus image to 3.43.0 [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
+- Upgrade nexus to the 3.42.0 version [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
 - Increase memory request and limits for nexus [EPMDEDP-10775](https://jiraeu.epam.com/browse/EPMDEDP-10775)
 - Update nuget proxy url endpoint [EPMDEDP-10776](https://jiraeu.epam.com/browse/EPMDEDP-10776)
 - Update current development version [EPMDEDP-10805](https://jiraeu.epam.com/browse/EPMDEDP-10805)
@@ -165,6 +189,101 @@
 - test
 
 
+<a name="v2.3.0-63"></a>
+## [v2.3.0-63] - 2020-01-21
+
+<a name="v2.3.0-61"></a>
+## [v2.3.0-61] - 2019-12-25
+
+<a name="v2.2.0-62"></a>
+## [v2.2.0-62] - 2020-01-21
+
+<a name="v2.2.0-60"></a>
+## [v2.2.0-60] - 2019-12-05
+
+<a name="v2.2.0-59"></a>
+## [v2.2.0-59] - 2019-12-04
+
+<a name="v2.2.0-58"></a>
+## [v2.2.0-58] - 2019-11-18
+
+<a name="v2.2.0-57"></a>
+## [v2.2.0-57] - 2019-11-14
+
+<a name="v2.2.0-56"></a>
+## [v2.2.0-56] - 2019-11-13
+
+<a name="v2.2.0-55"></a>
+## [v2.2.0-55] - 2019-11-11
+
+<a name="v2.2.0-54"></a>
+## [v2.2.0-54] - 2019-11-08
+
+<a name="v2.2.0-53"></a>
+## [v2.2.0-53] - 2019-10-30
+
+<a name="v2.2.0-52"></a>
+## [v2.2.0-52] - 2019-10-18
+
+<a name="v2.2.0-51"></a>
+## [v2.2.0-51] - 2019-10-15
+
+<a name="v2.2.0-50"></a>
+## [v2.2.0-50] - 2019-10-10
+
+<a name="v2.2.0-49"></a>
+## [v2.2.0-49] - 2019-10-10
+
+<a name="v2.2.0-48"></a>
+## [v2.2.0-48] - 2019-10-09
+
+<a name="v2.2.0-47"></a>
+## [v2.2.0-47] - 2019-10-09
+
+<a name="v2.2.0-46"></a>
+## [v2.2.0-46] - 2019-10-08
+
+<a name="v2.2.0-45"></a>
+## [v2.2.0-45] - 2019-10-08
+
+<a name="v2.2.0-44"></a>
+## [v2.2.0-44] - 2019-10-08
+
+<a name="v2.2.0-43"></a>
+## [v2.2.0-43] - 2019-10-08
+
+<a name="v2.2.0-42"></a>
+## [v2.2.0-42] - 2019-10-07
+
+<a name="v2.2.0-41"></a>
+## [v2.2.0-41] - 2019-10-07
+
+<a name="v2.2.0-40"></a>
+## [v2.2.0-40] - 2019-09-30
+
+<a name="v2.1.0-39"></a>
+## [v2.1.0-39] - 2019-09-24
+
+<a name="v2.1.0-38"></a>
+## [v2.1.0-38] - 2019-09-23
+
+<a name="v2.1.0-37"></a>
+## [v2.1.0-37] - 2019-09-23
+
+<a name="v2.1.0-36"></a>
+## [v2.1.0-36] - 2019-09-16
+
+<a name="v2.1.0-35"></a>
+## [v2.1.0-35] - 2019-09-10
+
+<a name="v2.1.0-34"></a>
+## v2.1.0-34 - 2019-09-10
+### Reverts
+
+- [EPMDEDP-2950] Implement roles creation in Nexus
+- [EPMDEDP-2963,2964] Outreach and NuGetApiKey
+
+
 [Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.13.0...HEAD
 [v2.13.0]: https://github.com/epam/edp-nexus-operator/compare/v2.12.1...v2.13.0
 [v2.12.1]: https://github.com/epam/edp-nexus-operator/compare/v2.12.0...v2.12.1
@@ -176,3 +295,32 @@
 [v2.8.0]: https://github.com/epam/edp-nexus-operator/compare/v2.7.1...v2.8.0
 [v2.7.1]: https://github.com/epam/edp-nexus-operator/compare/v2.7.0...v2.7.1
 [v2.7.0]: https://github.com/epam/edp-nexus-operator/compare/v2.3.0-63...v2.7.0
+[v2.3.0-63]: https://github.com/epam/edp-nexus-operator/compare/v2.3.0-61...v2.3.0-63
+[v2.3.0-61]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-62...v2.3.0-61
+[v2.2.0-62]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-60...v2.2.0-62
+[v2.2.0-60]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-59...v2.2.0-60
+[v2.2.0-59]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-58...v2.2.0-59
+[v2.2.0-58]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-57...v2.2.0-58
+[v2.2.0-57]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-56...v2.2.0-57
+[v2.2.0-56]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-55...v2.2.0-56
+[v2.2.0-55]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-54...v2.2.0-55
+[v2.2.0-54]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-53...v2.2.0-54
+[v2.2.0-53]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-52...v2.2.0-53
+[v2.2.0-52]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-51...v2.2.0-52
+[v2.2.0-51]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-50...v2.2.0-51
+[v2.2.0-50]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-49...v2.2.0-50
+[v2.2.0-49]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-48...v2.2.0-49
+[v2.2.0-48]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-47...v2.2.0-48
+[v2.2.0-47]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-46...v2.2.0-47
+[v2.2.0-46]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-45...v2.2.0-46
+[v2.2.0-45]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-44...v2.2.0-45
+[v2.2.0-44]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-43...v2.2.0-44
+[v2.2.0-43]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-42...v2.2.0-43
+[v2.2.0-42]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-41...v2.2.0-42
+[v2.2.0-41]: https://github.com/epam/edp-nexus-operator/compare/v2.2.0-40...v2.2.0-41
+[v2.2.0-40]: https://github.com/epam/edp-nexus-operator/compare/v2.1.0-39...v2.2.0-40
+[v2.1.0-39]: https://github.com/epam/edp-nexus-operator/compare/v2.1.0-38...v2.1.0-39
+[v2.1.0-38]: https://github.com/epam/edp-nexus-operator/compare/v2.1.0-37...v2.1.0-38
+[v2.1.0-37]: https://github.com/epam/edp-nexus-operator/compare/v2.1.0-36...v2.1.0-37
+[v2.1.0-36]: https://github.com/epam/edp-nexus-operator/compare/v2.1.0-35...v2.1.0-36
+[v2.1.0-35]: https://github.com/epam/edp-nexus-operator/compare/v2.1.0-34...v2.1.0-35
