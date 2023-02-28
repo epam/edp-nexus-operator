@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -17,13 +18,12 @@ import (
 	pMock "github.com/epam/edp-nexus-operator/v2/mocks/platform"
 	"github.com/epam/edp-nexus-operator/v2/pkg/client/nexus"
 	nexusDefaultSpec "github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	"github.com/epam/edp-nexus-operator/v2/pkg/service/platform"
 )
 
 const (
 	name      = "name"
 	namespace = "namespace"
-	URLScheme = "https"
-	host      = "domain"
 )
 
 func ObjectMeta() v1.ObjectMeta {
@@ -550,4 +550,176 @@ func TestServiceImpl_Configure(t *testing.T) {
 	assert.NoError(t, err)
 	platformMock.AssertExpectations(t)
 	nexusClient.AssertExpectations(t)
+}
+
+func TestServiceImpl_getNexusRestApiUrl(t *testing.T) {
+	t.Parallel()
+
+	type fields struct {
+		platformService      platform.PlatformService
+		runningInClusterFunc func() bool
+	}
+
+	type args struct {
+		instance *nexusApi.Nexus
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    string
+		wantErr require.ErrorAssertionFunc
+	}{
+		{
+			name: "base path starts with a /",
+			fields: fields{
+				runningInClusterFunc: func() bool {
+					return true
+				},
+				platformService: nil,
+			},
+			args: args{
+				instance: &nexusApi.Nexus{
+					ObjectMeta: v1.ObjectMeta{
+						Name:      "name",
+						Namespace: "namespace",
+					},
+					Spec: nexusApi.NexusSpec{
+						BasePath: "/basepath",
+					},
+				},
+			},
+			want:    "http://name.namespace:8081/basepath/service/rest/v1",
+			wantErr: require.NoError,
+		},
+		{
+			name: "base path starts without a /",
+			fields: fields{
+				runningInClusterFunc: func() bool {
+					return true
+				},
+				platformService: nil,
+			},
+			args: args{
+				instance: &nexusApi.Nexus{
+					ObjectMeta: v1.ObjectMeta{
+						Name:      "name",
+						Namespace: "namespace",
+					},
+					Spec: nexusApi.NexusSpec{
+						BasePath: "basepath",
+					},
+				},
+			},
+			want:    "http://name.namespace:8081/basepath/service/rest/v1",
+			wantErr: require.NoError,
+		},
+		{
+			name: "base path starts and ends with multiple /",
+			fields: fields{
+				runningInClusterFunc: func() bool {
+					return true
+				},
+				platformService: nil,
+			},
+			args: args{
+				instance: &nexusApi.Nexus{
+					ObjectMeta: v1.ObjectMeta{
+						Name:      "name",
+						Namespace: "namespace",
+					},
+					Spec: nexusApi.NexusSpec{
+						BasePath: "////basepath//",
+					},
+				},
+			},
+			want:    "http://name.namespace:8081/basepath/service/rest/v1",
+			wantErr: require.NoError,
+		},
+		{
+			name: "base path is empty",
+			fields: fields{
+				runningInClusterFunc: func() bool {
+					return true
+				},
+				platformService: nil,
+			},
+			args: args{
+				instance: &nexusApi.Nexus{
+					ObjectMeta: v1.ObjectMeta{
+						Name:      "name",
+						Namespace: "namespace",
+					},
+					Spec: nexusApi.NexusSpec{
+						BasePath: "",
+					},
+				},
+			},
+			want:    "http://name.namespace:8081/service/rest/v1",
+			wantErr: require.NoError,
+		},
+		{
+			name: "base path is just a /",
+			fields: fields{
+				runningInClusterFunc: func() bool {
+					return true
+				},
+				platformService: nil,
+			},
+			args: args{
+				instance: &nexusApi.Nexus{
+					ObjectMeta: v1.ObjectMeta{
+						Name:      "name",
+						Namespace: "namespace",
+					},
+					Spec: nexusApi.NexusSpec{
+						BasePath: "/",
+					},
+				},
+			},
+			want:    "http://name.namespace:8081/service/rest/v1",
+			wantErr: require.NoError,
+		},
+		{
+			name: "base path is multiple /",
+			fields: fields{
+				runningInClusterFunc: func() bool {
+					return true
+				},
+				platformService: nil,
+			},
+			args: args{
+				instance: &nexusApi.Nexus{
+					ObjectMeta: v1.ObjectMeta{
+						Name:      "name",
+						Namespace: "namespace",
+					},
+					Spec: nexusApi.NexusSpec{
+						BasePath: "/////",
+					},
+				},
+			},
+			want:    "http://name.namespace:8081/service/rest/v1",
+			wantErr: require.NoError,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			s := ServiceImpl{
+				platformService:      tt.fields.platformService,
+				runningInClusterFunc: tt.fields.runningInClusterFunc,
+			}
+
+			got, err := s.getNexusRestApiUrl(tt.args.instance)
+			tt.wantErr(t, err, fmt.Sprintf("getNexusRestApiUrl(%v)", tt.args.instance))
+
+			assert.Equalf(t, tt.want, got, "getNexusRestApiUrl(%v)", tt.args.instance)
+		})
+	}
 }

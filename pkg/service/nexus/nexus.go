@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/dchest/uniuri"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -24,7 +25,6 @@ var (
 )
 
 const (
-	crHTTPFormatString                        = "http://%v.%v:%v%v/%v"
 	crUsernameKey                             = "username"
 	crFirstNameKey                            = "first_name"
 	crLastNameKey                             = "last_name"
@@ -88,27 +88,30 @@ func (s ServiceImpl) getNexusRestApiUrl(instance *nexusApi.Nexus) (string, error
 		return "", fmt.Errorf("missing runningInClusterFunc")
 	}
 
-	basePath := ""
-	if len(instance.Spec.BasePath) > 0 {
-		basePath = fmt.Sprintf("/%v", instance.Spec.BasePath)
-	}
-
-	URL := fmt.Sprintf(
-		crHTTPFormatString,
-		instance.Name,
-		instance.Namespace,
-		nexusDefaultSpec.NexusPort,
-		basePath,
-		nexusDefaultSpec.NexusRestApiUrlPath,
-	)
-
 	if !s.runningInClusterFunc() {
-		eu, _, _, err := s.platformService.GetExternalUrl(instance.Namespace, instance.Name)
+		externalURL, _, _, err := s.platformService.GetExternalUrl(instance.Namespace, instance.Name)
 		if err != nil {
 			return "", fmt.Errorf("failed to get Route for %v/%v: %w", instance.Namespace, instance.Name, err)
 		}
 
-		URL = fmt.Sprintf("%v/%v", eu, nexusDefaultSpec.NexusRestApiUrlPath)
+		URL, err := url.JoinPath(externalURL, nexusDefaultSpec.NexusRestApiUrlPath)
+		if err != nil {
+			return "", fmt.Errorf("failed to build Nexus API URL using external URL: %w", err)
+		}
+
+		return URL, nil
+	}
+
+	URL := fmt.Sprintf(
+		"http://%s.%s:%d",
+		instance.Name,
+		instance.Namespace,
+		nexusDefaultSpec.NexusPort,
+	)
+
+	URL, err := url.JoinPath(URL, instance.Spec.BasePath, nexusDefaultSpec.NexusRestApiUrlPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to build Nexus API URL: %w", err)
 	}
 
 	return URL, nil
@@ -125,7 +128,7 @@ func (s ServiceImpl) getNexusAdminPassword(instance *nexusApi.Nexus) (string, er
 	return string(nexusAdminCredentials[crPasswordKey]), nil
 }
 
-// ExposeConfiguration performs exposing Nexus configuration for other EDP components.
+// ExposeConfiguration creates new users in Nexus.
 func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance *nexusApi.Nexus) (*nexusApi.Nexus, error) {
 	u, err := s.getNexusRestApiUrl(instance)
 	if err != nil {
@@ -493,10 +496,11 @@ func (ServiceImpl) buildUserProps(newUser map[string][]byte, userProperties map[
 
 func (s ServiceImpl) runScript(
 	ctx context.Context, newUser map[string][]byte, userProperties map[string]interface{},
-	instance *nexusApi.Nexus, nexusClient Client) error {
+	instance *nexusApi.Nexus, nexusClient Client,
+) error {
 	newUserSecretName := fmt.Sprintf("%s-%s", instance.Name, newUser[crUsernameKey])
 	if err := s.platformService.CreateSecret(instance, newUserSecretName, newUser); err != nil {
-		return fmt.Errorf("failed to create secret -%s: %w", newUserSecretName, err)
+		return fmt.Errorf("failed to create secret %s: %w", newUserSecretName, err)
 	}
 
 	if s.jenkinsEnabled(ctx, instance.Namespace) {

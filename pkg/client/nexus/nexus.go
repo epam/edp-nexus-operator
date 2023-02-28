@@ -23,10 +23,13 @@ type Client struct {
 // Init performs initialization of Nexus connection.
 func Init(url, user, password string) *Client {
 	return &Client{
-		resty: resty.SetHostURL(url).SetBasicAuth(user, password).SetHeaders(map[string]string{
-			"Content-Type": crAppJson,
-			"Accept":       crAppJson,
-		}).SetDisableWarn(true),
+		resty: resty.SetHostURL(url).
+			SetBasicAuth(user, password).
+			SetHeaders(map[string]string{
+				"Content-Type": crAppJson,
+				"Accept":       crAppJson,
+			}).
+			SetDisableWarn(true),
 	}
 }
 
