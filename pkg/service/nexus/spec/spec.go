@@ -1,9 +1,6 @@
 package spec
 
 const (
-	// NexusDefaultPropertiesConfigMapPrefix is a default prefix of the properties config map.
-	NexusDefaultPropertiesConfigMapPrefix = "nexus-default.properties"
-
 	// NexusDefaultTasksConfigMapPrefix is a default prefix of the tasks config map.
 	NexusDefaultTasksConfigMapPrefix = "default-tasks"
 
@@ -25,14 +22,8 @@ const (
 	// EdpAnnotationsPrefix is a general prefix for all annotation made by EDP team.
 	EdpAnnotationsPrefix = "edp.epam.com"
 
-	// IdentityServiceCredentialsSecretPostfix is a default identity service  secret postfix.
-	IdentityServiceCredentialsSecretPostfix = "is-credentials"
-
 	// NexusPort is a default Nexus port.
 	NexusPort = 8081
-
-	// NexusMemoryRequest is a default request value for memory request for deployment config.
-	NexusMemoryRequest = "500Mi"
 
 	// NexusDefaultAdminUser is a default admin username in Nexus.
 	NexusDefaultAdminUser string = "admin"
@@ -42,9 +33,4 @@ const (
 
 	// NexusRestApiUrlPath is the Nexus relative REST API path.
 	NexusRestApiUrlPath = "service/rest/v1"
-
-	// EdpCiUserSuffix is the entity prefix for integration functionality.
-	EdpCiUserSuffix string = "ci-credentials"
-
-	NexusKeycloakProxyPort int32 = 3000
 )

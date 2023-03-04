@@ -62,7 +62,7 @@ func NewReconcile(k8sClient client.Client, scheme *runtime.Scheme, log logr.Logg
 func (r *Reconcile) clientForNexusChild(ctx context.Context, child nexus.Child) (NexusClient, error) {
 	nc, err := r.service.ClientForNexusChild(ctx, child)
 	if err != nil {
-		return nc, fmt.Errorf("failed to get client for nexus chield: %w", err)
+		return nc, fmt.Errorf("failed to get client for nexus child: %w", err)
 	}
 
 	return nc, nil

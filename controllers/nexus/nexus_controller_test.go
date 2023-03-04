@@ -472,75 +472,6 @@ func TestReconcileNexus_Reconcile_UpdateStatusExposeFinishErr(t *testing.T) {
 	statusWriter.AssertExpectations(t)
 }
 
-func TestReconcileNexus_Reconcile_IntegrationErr(t *testing.T) {
-	ctx := context.Background()
-	errTest := errors.New("test")
-
-	instance := createInstanceByStatus(StatusInstall)
-	client := createClient(instance)
-	service := sMock.Service{}
-	ok := true
-	service.On("IsDeploymentReady").Return(&ok, nil)
-	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
-	service.On("Integration", instance).Return(instance, errTest)
-
-	reconcileNexus := ReconcileNexus{
-		client:  client,
-		log:     logr.Discard(),
-		service: &service,
-	}
-
-	req := reconcile.Request{
-		NamespacedName: createNamespacedName(),
-	}
-
-	result, err := reconcileNexus.Reconcile(ctx, req)
-	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "integration failed")
-	service.AssertExpectations(t)
-}
-
-func TestReconcileNexus_Reconcile_UpdateStatusIntegrationStartErr(t *testing.T) {
-	statusWriter := &mocks.StatusWriter{}
-	clientMock := mocks.Client{}
-	ctx := context.Background()
-	service := sMock.Service{}
-	ok := true
-
-	errTest := errors.New("test")
-
-	instance := createInstanceByStatus(StatusIntegrationStart)
-	client := createClient(instance)
-
-	clientMock.On("Get", createNamespacedName(), &nexusApi.Nexus{}).Return(client)
-	clientMock.On("Status").Return(statusWriter)
-	statusWriter.On("Update").Return(errTest)
-	clientMock.On("Update").Return(errTest)
-	service.On("IsDeploymentReady").Return(&ok, nil)
-	service.On("Configure").Return(instance, true, nil)
-	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
-	service.On("Integration", instance).Return(instance, nil)
-
-	reconcileNexus := ReconcileNexus{
-		client:  &clientMock,
-		log:     logr.Discard(),
-		service: &service,
-	}
-
-	req := reconcile.Request{
-		NamespacedName: createNamespacedName(),
-	}
-
-	result, err := reconcileNexus.Reconcile(ctx, req)
-	assert.Equal(t, reconcile.Result{RequeueAfter: 10 * time.Second}, result)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to update status from")
-	clientMock.AssertExpectations(t)
-	statusWriter.AssertExpectations(t)
-}
-
 func TestReconcileNexus_Reconcile_UpdateStatusReadyErr(t *testing.T) {
 	statusWriter := &mocks.StatusWriter{}
 	clientMock := mocks.Client{}
@@ -559,7 +490,6 @@ func TestReconcileNexus_Reconcile_UpdateStatusReadyErr(t *testing.T) {
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
 	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
-	service.On("Integration", instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,
@@ -595,7 +525,6 @@ func TestReconcileNexus_Reconcile(t *testing.T) {
 	service.On("IsDeploymentReady").Return(&ok, nil)
 	service.On("Configure").Return(instance, true, nil)
 	service.On("ExposeConfiguration", ctx, instance).Return(instance, nil)
-	service.On("Integration", instance).Return(instance, nil)
 
 	reconcileNexus := ReconcileNexus{
 		client:  &clientMock,

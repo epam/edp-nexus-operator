@@ -128,9 +128,6 @@ issues:
       text: "Configure"
     - linters:
         - cyclop
-      text: "CreateConfigMapFromFile"
-    - linters:
-        - cyclop
       text: "ExposeConfiguration"
     - linters:
         - funlen

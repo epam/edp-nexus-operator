@@ -52,8 +52,7 @@ annotations:
         edpSpec:
           dnsWildcard: localhost.com
         keycloakSpec:
-          enabled: true
-          proxyImage: quay.io/keycloak/keycloak-gatekeeper:10.0.0
+          enabled: false
           roles:
             - developer
             - administrator

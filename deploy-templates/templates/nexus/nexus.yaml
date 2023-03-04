@@ -7,11 +7,10 @@ spec:
   edpSpec:
     dnsWildcard: {{ .Values.global.dnsWildCard }}
   keycloakSpec:
-    enabled: true
+    enabled: false
     roles:
       - developer
       - administrator
-    proxyImage: {{.Values.nexus.proxyImage}}
   users:
   {{- range .Values.global.admins }}
     - username: {{ . }}

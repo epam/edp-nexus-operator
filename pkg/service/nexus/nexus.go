@@ -5,22 +5,17 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/dchest/uniuri"
-	coreV1Api "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
 	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
-	keycloakApi "github.com/epam/edp-keycloak-operator/api/v1"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/controllers/helper"
 	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	"github.com/epam/edp-nexus-operator/v2/controllers/helper"
@@ -30,18 +25,13 @@ import (
 )
 
 var (
-	log                          = ctrl.Log.WithName("nexus_service")
-	errCantGetOwnerKeycloakRealm = errors.New("failed to get owner keycloak realm")
+	log = ctrl.Log.WithName("nexus_service")
 )
 
 const (
 	imgFolder                                 = "img"
 	nexusIcon                                 = "nexus.svg"
 	crHTTPFormatString                        = "http://%v.%v:%v%v/%v"
-	crUpstreamURLFormatString                 = "--upstream-url=http://127.0.0.1:%v"
-	crRedirectionURLFormatString              = "--redirection-url=%v"
-	crClientIDFormatString                    = "--client-id=%v"
-	crDiscoveryURLFormatString                = "--discovery-url=%s/auth/realms/%s"
 	crUsernameKey                             = "username"
 	crFirstNameKey                            = "first_name"
 	crLastNameKey                             = "last_name"
@@ -57,7 +47,6 @@ const (
 type Service interface {
 	Configure(instance *nexusApi.Nexus) (*nexusApi.Nexus, bool, error)
 	ExposeConfiguration(ctx context.Context, instance *nexusApi.Nexus) (*nexusApi.Nexus, error)
-	Integration(instance *nexusApi.Nexus) (*nexusApi.Nexus, error)
 	IsDeploymentReady(instance *nexusApi.Nexus) (*bool, error)
 	ClientForNexusChild(ctx context.Context, child Child) (*nexus.Client, error)
 }
@@ -67,12 +56,6 @@ type Client interface {
 	DeclareDefaultScripts(listOfScripts map[string]string) error
 	AreDefaultScriptsDeclared(listOfScripts map[string]string) (bool, error)
 	RunScript(scriptName string, parameters map[string]interface{}) ([]byte, error)
-}
-
-type keycloakData struct {
-	keycloakClient *keycloakApi.KeycloakClient
-	keycloakRealm  *keycloakApi.KeycloakRealm
-	keycloak       *keycloakApi.Keycloak
 }
 
 // NewService function that returns NexusService implementation.
@@ -149,77 +132,6 @@ func (s ServiceImpl) getNexusAdminPassword(instance *nexusApi.Nexus) (string, er
 	return string(nexusAdminCredentials[crPasswordKey]), nil
 }
 
-// Integration performs integration Nexus with other EDP components.
-func (s ServiceImpl) Integration(instance *nexusApi.Nexus) (*nexusApi.Nexus, error) {
-	if !instance.Spec.KeycloakSpec.Enabled {
-		log.V(1).Info("Keycloak integration not enabled.")
-
-		return instance, nil
-	}
-
-	keycloakDataInstance, err := s.buildKeycloak(instance)
-	if err != nil {
-		if errors.Is(err, errCantGetOwnerKeycloakRealm) {
-			return instance, nil
-		}
-
-		return instance, err
-	}
-
-	_, host, scheme, err := s.platformService.GetExternalUrl(instance.Namespace, instance.Name)
-	if err != nil {
-		return instance, fmt.Errorf("failed to get route: %w", err)
-	}
-
-	var proxyConfig []string
-
-	upstreamUrl := fmt.Sprintf(crUpstreamURLFormatString, nexusDefaultSpec.NexusPort)
-
-	if instance.Spec.BasePath == "" {
-		upstreamUrl = fmt.Sprintf("%v/%v", upstreamUrl, instance.Spec.BasePath)
-		proxyConfig = append(proxyConfig, fmt.Sprintf("--base-uri=/%v", instance.Spec.BasePath))
-	}
-
-	listen := fmt.Sprintf("--listen=0.0.0.0:%d", nexusDefaultSpec.NexusKeycloakProxyPort)
-
-	proxyConfig = append(
-		proxyConfig,
-		"--skip-openid-provider-tls-verify=true",
-		fmt.Sprintf(crDiscoveryURLFormatString, keycloakDataInstance.keycloak.Spec.Url, keycloakDataInstance.keycloakRealm.Spec.RealmName),
-		fmt.Sprintf(crClientIDFormatString, keycloakDataInstance.keycloakClient.Spec.ClientId),
-		"--client-secret=42",
-		listen,
-		fmt.Sprintf(crRedirectionURLFormatString, fmt.Sprintf("%v://%v", scheme, host)),
-		upstreamUrl,
-	)
-
-	if len(instance.Spec.KeycloakSpec.Roles) > 0 {
-		proxyConfig = append(proxyConfig,
-			fmt.Sprintf("--resources=uri=/*|roles=%s|require-any-role=true",
-				strings.Join(instance.Spec.KeycloakSpec.Roles, ",")))
-	}
-
-	if err = s.platformService.AddKeycloakProxyToDeployConf(instance, proxyConfig); err != nil {
-		return instance, fmt.Errorf("failed to add Keycloak proxy: %w", err)
-	}
-
-	keyCloakProxyPort := coreV1Api.ServicePort{
-		Name:       "keycloak-proxy",
-		Port:       nexusDefaultSpec.NexusKeycloakProxyPort,
-		Protocol:   coreV1Api.ProtocolTCP,
-		TargetPort: intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort},
-	}
-	if err = s.platformService.AddPortToService(instance, &keyCloakProxyPort); err != nil {
-		return instance, fmt.Errorf("failed to add keycloak proxy port to service: %w", err)
-	}
-
-	if err = s.platformService.UpdateExternalTargetPath(instance, intstr.IntOrString{IntVal: nexusDefaultSpec.NexusKeycloakProxyPort}); err != nil {
-		return instance, fmt.Errorf("failed to update target port in Route: %w", err)
-	}
-
-	return instance, nil
-}
-
 // ExposeConfiguration performs exposing Nexus configuration for other EDP components.
 func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance *nexusApi.Nexus) (*nexusApi.Nexus, error) {
 	u, err := s.getNexusRestApiUrl(instance)
@@ -269,14 +181,6 @@ func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance *nexusApi
 
 	if updErr := s.client.Update(context.TODO(), instance); updErr != nil {
 		log.Error(err, "failed to update nexus instance: %w")
-	}
-
-	if instance.Spec.KeycloakSpec.Enabled {
-		if err = s.keycloakClient(instance); err != nil {
-			return instance, fmt.Errorf("failed to create Keycloak client: %w", err)
-		}
-
-		return instance, nil
 	}
 
 	return instance, s.createEDPComponent(instance)
@@ -480,7 +384,7 @@ func (s ServiceImpl) Configure(instance *nexusApi.Nexus) (*nexusApi.Nexus, bool,
 		instance.Namespace,
 		fmt.Sprintf(crStringStringFormat, instance.Name, nexusDefaultSpec.NexusDefaultRolesConfigMapPrefix))
 	if err != nil {
-		return instance, false, fmt.Errorf("failed to get default roles from Config Mapr: %w", err)
+		return instance, false, fmt.Errorf("failed to get default roles from Config Map: %w", err)
 	}
 
 	var parsedRoles []map[string]interface{}
@@ -620,62 +524,6 @@ func (s ServiceImpl) jenkinsEnabled(ctx context.Context, namespace string) bool 
 
 func getBoolP(val bool) *bool {
 	return &val
-}
-
-func (s ServiceImpl) buildKeycloak(instance *nexusApi.Nexus) (*keycloakData, error) {
-	keycloakClient, err := s.platformService.GetKeycloakClient(instance.Name, instance.Namespace)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get keycloak client data: %w", err)
-	}
-
-	keycloakRealm, err := s.keycloakHelper.GetOwnerKeycloakRealm(&keycloakClient.ObjectMeta)
-	if err != nil {
-		return nil, errCantGetOwnerKeycloakRealm
-	}
-
-	if keycloakRealm == nil {
-		return nil, errors.New("keycloak realm CR in not created yet")
-	}
-
-	keycloak, err := s.keycloakHelper.GetOwnerKeycloak(&keycloakRealm.ObjectMeta)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get owner for %s/%s: %w", keycloakClient.Namespace, keycloakClient.Name, err)
-	}
-
-	if keycloak == nil {
-		return nil, errors.New("keycloak CR is not created yet")
-	}
-
-	return &keycloakData{
-		keycloakClient: &keycloakClient,
-		keycloakRealm:  keycloakRealm,
-		keycloak:       keycloak,
-	}, nil
-}
-
-func (s ServiceImpl) keycloakClient(instance *nexusApi.Nexus) error {
-	webURL, _, _, getErr := s.platformService.GetExternalUrl(instance.Namespace, instance.Name)
-	if getErr != nil {
-		return fmt.Errorf("failed to get route from cluster: %w", getErr)
-	}
-
-	keycloakClient := keycloakApi.KeycloakClient{}
-	keycloakClient.Name = instance.Name
-	keycloakClient.Namespace = instance.Namespace
-	keycloakClient.Spec.ClientId = instance.Name
-	keycloakClient.Spec.Public = true
-	keycloakClient.Spec.WebUrl = webURL
-	keycloakClient.Spec.DefaultClientScopes = []string{"edp"}
-
-	if instance.Spec.KeycloakSpec.Realm != "" {
-		keycloakClient.Spec.TargetRealm = instance.Spec.KeycloakSpec.Realm
-	}
-
-	if err := s.platformService.CreateKeycloakClient(&keycloakClient); err != nil {
-		return nil
-	}
-
-	return nil
 }
 
 func (ServiceImpl) buildUserProps(newUser map[string][]byte, userProperties map[string]interface{}) error {

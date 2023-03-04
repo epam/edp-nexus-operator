@@ -5,7 +5,7 @@ data:
       {
         "capability_typeId": "rutauth",
         "capability_properties": {
-          "httpHeader": "X-Auth-Userid"
+          "httpHeader": "X-Forwarded-Preferred-Username"
         }
       }
     ]

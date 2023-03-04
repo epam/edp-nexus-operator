@@ -39,12 +39,8 @@ A Helm chart for EDP Nexus Operator
 | nexus.image | string | `"sonatype/nexus3"` | Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3) |
 | nexus.imagePullPolicy | string | `"IfNotPresent"` |  |
 | nexus.imagePullSecrets | string | `nil` | Secrets to pull from private Docker registry |
-| nexus.ingress.annotations | object | `{}` |  |
-| nexus.ingress.pathType | string | `"Prefix"` | pathType is only for k8s >= 1.1= |
-| nexus.ingress.tls | list | `[]` | See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress ingressClassName: nginx |
 | nexus.name | string | `"nexus"` | Nexus name |
 | nexus.nodeSelector | object | `{}` |  |
-| nexus.proxyImage | string | `"quay.io/keycloak/keycloak-gatekeeper:10.0.0"` |  |
 | nexus.resources.limits.memory | string | `"6Gi"` |  |
 | nexus.resources.requests.cpu | string | `"100m"` |  |
 | nexus.resources.requests.memory | string | `"2Gi"` |  |

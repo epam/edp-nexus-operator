@@ -1,0 +1,13 @@
+apiVersion: v1.edp.epam.com/v1
+kind: KeycloakClient
+metadata:
+  name: nexus
+spec:
+  advancedProtocolMappers: true
+  clientId: nexus
+  defaultClientScopes:
+    - groups
+    - edp
+  directAccess: false
+  targetRealm: {{ .Values.global.edpName }}-main
+  webUrl: https://{{ include "nexus-operator.nexusBaseUrl" . }}

@@ -23,18 +23,17 @@ import (
 )
 
 const (
-	StatusInstall          = "installing"
-	StatusFailed           = "failed"
-	StatusCreated          = "created"
-	StatusConfiguring      = "configuring"
-	StatusConfigured       = "configured"
-	StatusExposeStart      = "exposing config"
-	StatusExposeFinish     = "config exposed"
-	StatusIntegrationStart = "integration started"
-	StatusReady            = "ready"
-	RequeueAfterSeconds10  = 10 * time.Second
-	RequeueAfterSeconds30  = 30 * time.Second
-	RequeueAfterSeconds60  = 60 * time.Second
+	StatusInstall         = "installing"
+	StatusFailed          = "failed"
+	StatusCreated         = "created"
+	StatusConfiguring     = "configuring"
+	StatusConfigured      = "configured"
+	StatusExposeStart     = "exposing config"
+	StatusExposeFinish    = "config exposed"
+	StatusReady           = "ready"
+	RequeueAfterSeconds10 = 10 * time.Second
+	RequeueAfterSeconds30 = 30 * time.Second
+	RequeueAfterSeconds60 = 60 * time.Second
 )
 
 func NewReconcileNexus(c client.Client, scheme *runtime.Scheme, log logr.Logger) (*ReconcileNexus, error) {
@@ -78,7 +77,7 @@ func (r *ReconcileNexus) SetupWithManager(mgr ctrl.Manager) error {
 	if err := ctrl.NewControllerManagedBy(mgr).
 		For(&nexusApi.Nexus{}, builder.WithPredicates(p)).
 		Complete(r); err != nil {
-		return fmt.Errorf("failed to create cpntroller manager: %w", err)
+		return fmt.Errorf("failed to create controller manager: %w", err)
 	}
 
 	return nil
@@ -171,19 +170,6 @@ func (r *ReconcileNexus) Reconcile(ctx context.Context, request reconcile.Reques
 	}
 
 	if instance.Status.Status == StatusExposeFinish {
-		log.Info("Exposing configuration has started")
-
-		if updErr := r.updateStatus(ctx, instance, StatusIntegrationStart); updErr != nil {
-			return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, updErr
-		}
-	}
-
-	instance, err = r.service.Integration(instance)
-	if err != nil {
-		return reconcile.Result{RequeueAfter: RequeueAfterSeconds10}, fmt.Errorf("integration failed: %w", err)
-	}
-
-	if instance.Status.Status == StatusIntegrationStart {
 		log.Info("Exposing configuration has started")
 
 		if updErr := r.updateStatus(ctx, instance, StatusReady); updErr != nil {
