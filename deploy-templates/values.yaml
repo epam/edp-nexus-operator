@@ -8,6 +8,8 @@ global:
     - "stub_user_one@example.com"
   # -- a cluster DNS wildcard name
   dnsWildCard:
+  # -- Keycloak Endpoint which is used for SSO integration. Format https://keycloak.example.com
+  keycloakUrl:
   openshift:
     # -- Which type of kind will be deployed to Openshift (values: deployments/deploymentConfigs)
     deploymentType: "deployments"
@@ -75,3 +77,42 @@ nexus:
     requests:
       cpu: 100m
       memory: 2Gi
+
+# Proxy configuration section
+oauth2_proxy:
+  # -- Install oauth2-proxy as a part of nexus deployment. Default: true
+  enabled: true
+
+  image:
+    # -- oauth2-proxy image repository
+    repository: quay.io/oauth2-proxy/oauth2-proxy
+    # -- oauth2-proxy image tag
+    tag: v7.4.0
+
+  extraEnv: []
+  extraArgs: {}
+
+  ingress:
+    annotations: {}
+    # -- pathType is only for k8s >= 1.1=
+    pathType: Prefix
+    # -- For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+    # -- See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+    # ingressClassName: nginx
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 300Mi
+    requests:
+      cpu: 100m
+      memory: 300Mi
+
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

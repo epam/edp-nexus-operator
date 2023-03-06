@@ -26,6 +26,7 @@ A Helm chart for EDP Nexus Operator
 | global.admins | list | `["stub_user_one@example.com"]` | Administrators of your tenant |
 | global.dnsWildCard | string | `nil` | a cluster DNS wildcard name |
 | global.edpName | string | `""` | namespace or a project name (in case of OpenShift) |
+| global.keycloakUrl | string | `nil` | Keycloak Endpoint which is used for SSO integration. Format https://keycloak.example.com |
 | global.openshift.deploymentType | string | `"deployments"` | Which type of kind will be deployed to Openshift (values: deployments/deploymentConfigs) |
 | global.platform | string | `"kubernetes"` | platform type that can be "kubernetes" or "openshift" |
 | image.repository | string | `"epamedp/nexus-operator"` | EDP nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator) |
@@ -48,6 +49,22 @@ A Helm chart for EDP Nexus Operator
 | nexus.tolerations | list | `[]` |  |
 | nexus.version | string | `"3.43.0"` | Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags) |
 | nodeSelector | object | `{}` |  |
+| oauth2_proxy.affinity | object | `{}` |  |
+| oauth2_proxy.annotations | object | `{}` |  |
+| oauth2_proxy.enabled | bool | `true` | Install oauth2-proxy as a part of nexus deployment. Default: true |
+| oauth2_proxy.extraArgs | object | `{}` |  |
+| oauth2_proxy.extraEnv | list | `[]` |  |
+| oauth2_proxy.image.repository | string | `"quay.io/oauth2-proxy/oauth2-proxy"` | oauth2-proxy image repository |
+| oauth2_proxy.image.tag | string | `"v7.4.0"` | oauth2-proxy image tag |
+| oauth2_proxy.ingress.annotations | object | `{}` |  |
+| oauth2_proxy.ingress.pathType | string | `"Prefix"` | pathType is only for k8s >= 1.1= |
+| oauth2_proxy.ingress.tls | list | `[]` | See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress ingressClassName: nginx |
+| oauth2_proxy.nodeSelector | object | `{}` |  |
+| oauth2_proxy.resources.limits.cpu | string | `"100m"` |  |
+| oauth2_proxy.resources.limits.memory | string | `"300Mi"` |  |
+| oauth2_proxy.resources.requests.cpu | string | `"100m"` |  |
+| oauth2_proxy.resources.requests.memory | string | `"300Mi"` |  |
+| oauth2_proxy.tolerations | list | `[]` |  |
 | resources.limits.memory | string | `"192Mi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |
 | resources.requests.memory | string | `"64Mi"` |  |

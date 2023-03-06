@@ -1,3 +1,4 @@
+{{- if .Values.oauth2_proxy.enabled -}}
 apiVersion: v1.edp.epam.com/v1
 kind: KeycloakClient
 metadata:
@@ -11,3 +12,4 @@ spec:
   directAccess: false
   targetRealm: {{ .Values.global.edpName }}-main
   webUrl: https://{{ include "nexus-operator.nexusBaseUrl" . }}
+{{- end -}}
