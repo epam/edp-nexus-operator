@@ -89,6 +89,15 @@ oauth2_proxy:
     # -- oauth2-proxy image tag
     tag: v7.4.0
 
+  # Create a cookie-secret with the following command
+  # openssl rand -base64 32 | head -c 32 | base64
+  # Use an existing secret for OAuth2 cookie-secret
+  existingSecret:
+    # -- Secret name which stores cookie-secret
+    secretName: oauth2-proxy-cookie-secret
+    # -- Secret key which stores cookie-secret
+    secretKey: cookie-secret
+
   extraEnv: []
   extraArgs: {}
 

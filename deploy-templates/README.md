@@ -52,6 +52,8 @@ A Helm chart for EDP Nexus Operator
 | oauth2_proxy.affinity | object | `{}` |  |
 | oauth2_proxy.annotations | object | `{}` |  |
 | oauth2_proxy.enabled | bool | `true` | Install oauth2-proxy as a part of nexus deployment. Default: true |
+| oauth2_proxy.existingSecret.secretKey | string | `"cookie-secret"` | Secret key which stores cookie-secret |
+| oauth2_proxy.existingSecret.secretName | string | `"oauth2-proxy-cookie-secret"` | Secret name which stores cookie-secret |
 | oauth2_proxy.extraArgs | object | `{}` |  |
 | oauth2_proxy.extraEnv | list | `[]` |  |
 | oauth2_proxy.image.repository | string | `"quay.io/oauth2-proxy/oauth2-proxy"` | oauth2-proxy image repository |

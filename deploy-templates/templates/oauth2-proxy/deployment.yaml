@@ -38,15 +38,15 @@ spec:
           env:
             - name: OAUTH2_PROXY_CLIENT_SECRET
               valueFrom:
+                # keycloak-client-nexus-secret is created by keycloak-operator
                 secretKeyRef:
-                  # keycloak-client-nexus-secret is created by keycloak-operator
                   name:  keycloak-client-nexus-secret
                   key: clientSecret
             - name: OAUTH2_PROXY_COOKIE_SECRET
               valueFrom:
                 secretKeyRef:
-                  name:  keycloak-client-nexus-secret
-                  key: cookie-secret
+                  name: {{ .Values.oauth2_proxy.existingSecret.secretName }}
+                  key: {{ .Values.oauth2_proxy.existingSecret.secretKey }}
 
           {{- if .Values.oauth2_proxy.extraEnv }}
   {{ tpl (toYaml .Values.oauth2_proxy.extraEnv) . | indent 10 }}
