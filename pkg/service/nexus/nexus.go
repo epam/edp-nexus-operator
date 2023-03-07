@@ -1,13 +1,9 @@
 package nexus
 
 import (
-	"bufio"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
-	"os"
 
 	"github.com/dchest/uniuri"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -15,7 +11,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
-	platformHelper "github.com/epam/edp-jenkins-operator/v2/pkg/service/platform/helper"
 	keycloakHelper "github.com/epam/edp-keycloak-operator/controllers/helper"
 	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	"github.com/epam/edp-nexus-operator/v2/controllers/helper"
@@ -29,8 +24,6 @@ var (
 )
 
 const (
-	imgFolder                                 = "img"
-	nexusIcon                                 = "nexus.svg"
 	crHTTPFormatString                        = "http://%v.%v:%v%v/%v"
 	crUsernameKey                             = "username"
 	crFirstNameKey                            = "first_name"
@@ -180,62 +173,10 @@ func (s ServiceImpl) ExposeConfiguration(ctx context.Context, instance *nexusApi
 	}
 
 	if updErr := s.client.Update(context.TODO(), instance); updErr != nil {
-		log.Error(err, "failed to update nexus instance: %w")
+		return instance, fmt.Errorf("failed to update nexus instance: %w", err)
 	}
 
-	return instance, s.createEDPComponent(instance)
-}
-
-func (s ServiceImpl) createEDPComponent(n *nexusApi.Nexus) error {
-	url, err := s.getUrl(n)
-	if err != nil {
-		return err
-	}
-
-	icon, err := getIcon()
-	if err != nil {
-		return err
-	}
-
-	if err = s.platformService.CreateEDPComponentIfNotExist(n, *url, *icon); err != nil {
-		return fmt.Errorf("failed to create EDP component: %w", err)
-	}
-
-	return nil
-}
-
-func (s ServiceImpl) getUrl(n *nexusApi.Nexus) (*string, error) {
-	url, _, _, err := s.platformService.GetExternalUrl(n.Namespace, n.Name)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get external URL: %w", err)
-	}
-
-	return &url, nil
-}
-
-func getIcon() (*string, error) {
-	p, err := platformHelper.CreatePathToTemplateDirectory(imgFolder)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create image folder: %w", err)
-	}
-
-	fp := fmt.Sprintf("%v/%v", p, nexusIcon)
-
-	f, err := os.Open(fp)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open icon file: %w", err)
-	}
-
-	reader := bufio.NewReader(f)
-
-	content, err := io.ReadAll(reader)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read content: %w", err)
-	}
-
-	encoded := base64.StdEncoding.EncodeToString(content)
-
-	return &encoded, nil
+	return instance, nil
 }
 
 // Configure performs self-configuration of Nexus.

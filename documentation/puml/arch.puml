@@ -53,8 +53,6 @@ class LocalObjectReference {
     String name
 }
 JenkinsServiceAccount <-d- Nexus : creates nexus-ci.user
-EDPComponent <-d- Nexus : creates
-KeycloakClient <-d- Nexus : creates
 
 legend
 |<back:LightGoldenRodYellow>    </back>| Work In Progress |

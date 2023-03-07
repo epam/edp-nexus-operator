@@ -18,7 +18,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	edpCompApi "github.com/epam/edp-component-operator/api/v1"
 	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
 	nexusV1 "github.com/epam/edp-nexus-operator/v2/api/v1"
 	platformHelper "github.com/epam/edp-nexus-operator/v2/pkg/service/platform/helper"
@@ -238,54 +237,4 @@ func (s *K8SService) getJenkinsServiceAccount(name, namespace string) (*jenkinsV
 	}
 
 	return jsa, nil
-}
-
-func (s *K8SService) CreateEDPComponentIfNotExist(n *nexusV1.Nexus, url, icon string) error {
-	if _, err := s.getEDPComponent(n.Name, n.Namespace); err != nil {
-		if k8serrors.IsNotFound(err) {
-			return s.createEDPComponent(n, url, icon)
-		}
-
-		return fmt.Errorf("failed to get edp component: %s: %w", n.Name, err)
-	}
-
-	log.Info("edp component already exists", crNameKey, n.Name)
-
-	return nil
-}
-
-func (s *K8SService) getEDPComponent(name, namespace string) (*edpCompApi.EDPComponent, error) {
-	c := &edpCompApi.EDPComponent{}
-	if err := s.client.Get(context.TODO(), types.NamespacedName{
-		Namespace: namespace,
-		Name:      name,
-	}, c); err != nil {
-		return nil, fmt.Errorf("failed to get EDP component: %w", err)
-	}
-
-	return c, nil
-}
-
-func (s *K8SService) createEDPComponent(n *nexusV1.Nexus, url, icon string) error {
-	obj := &edpCompApi.EDPComponent{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      n.Name,
-			Namespace: n.Namespace,
-		},
-		Spec: edpCompApi.EDPComponentSpec{
-			Type:    "nexus",
-			Url:     url,
-			Icon:    icon,
-			Visible: true,
-		},
-	}
-	if err := controllerutil.SetControllerReference(n, obj, s.Scheme); err != nil {
-		return fmt.Errorf("failed to set controller reference: %w", err)
-	}
-
-	if err := s.client.Create(context.TODO(), obj); err != nil {
-		return fmt.Errorf("failed to create k8s service: %w", err)
-	}
-
-	return nil
 }

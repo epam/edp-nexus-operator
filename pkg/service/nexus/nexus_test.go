@@ -321,44 +321,7 @@ func TestServiceImpl_ExposeConfiguration_RunScriptErr(t *testing.T) {
 	platformMock.AssertExpectations(t)
 }
 
-func TestServiceImpl_ExposeConfiguration_createEDPComponentErr(t *testing.T) {
-	instance := &nexusApi.Nexus{ObjectMeta: ObjectMeta()}
-	scheme := runtime.NewScheme()
-	scheme.AddKnownTypes(v1.SchemeGroupVersion, &nexusApi.Nexus{})
-
-	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(instance).Build()
-
-	platformMock := pMock.PlatformService{}
-	nexusService := ServiceImpl{
-		platformService:      &platformMock,
-		client:               client,
-		runningInClusterFunc: ReturnTrue,
-	}
-
-	platformMock.On("GetExternalUrl", namespace, name).Return(host, "", "", nil)
-
-	secretName := fmt.Sprintf("%v-admin-password", instance.Name)
-	secretData := createSecretData()
-
-	var parseUsers []map[string]interface{}
-
-	raw, err := json.Marshal(parseUsers)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	configData := map[string]string{nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix: string(raw)}
-
-	platformMock.On("GetSecretData", namespace, secretName).Return(secretData, nil)
-	platformMock.On("GetConfigMapData", namespace,
-		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(configData, nil)
-
-	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
-	assert.Error(t, err)
-	platformMock.AssertExpectations(t)
-}
-
-func TestServiceImpl_ExposeConfiguration_GetExternalUrlErr(t *testing.T) {
+func TestServiceImpl_ExposeConfiguration_Pass(t *testing.T) {
 	instance := &nexusApi.Nexus{ObjectMeta: ObjectMeta(),
 		Spec: nexusApi.NexusSpec{KeycloakSpec: nexusApi.KeycloakSpec{Enabled: true}}}
 	scheme := runtime.NewScheme()
@@ -382,18 +345,14 @@ func TestServiceImpl_ExposeConfiguration_GetExternalUrlErr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	errTest := errors.New("UnableToGetExternalURL")
-
 	configData := map[string]string{nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix: string(raw)}
 
 	platformMock.On("GetSecretData", namespace, secretName).Return(secretData, nil)
 	platformMock.On("GetConfigMapData", namespace,
 		fmt.Sprintf("%v-%v", instance.Name, nexusDefaultSpec.NexusDefaultUsersConfigMapPrefix)).Return(configData, nil)
-	platformMock.On("GetExternalUrl", namespace, name).Return(host, "", "", errTest).Once()
 
 	_, err = nexusService.ExposeConfiguration(context.Background(), instance)
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to get external URL: UnableToGetExternalURL")
+	assert.NoError(t, err)
 	platformMock.AssertExpectations(t)
 }
 

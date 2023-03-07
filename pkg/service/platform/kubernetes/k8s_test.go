@@ -18,7 +18,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-	edpCompApi "github.com/epam/edp-component-operator/api/v1"
 	jenkinsV1Api "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
 	nexusApi "github.com/epam/edp-nexus-operator/v2/api/v1"
 	kMock "github.com/epam/edp-nexus-operator/v2/mocks/kubernetes"
@@ -140,42 +139,6 @@ func TestK8SService_GetExternalUrl(t *testing.T) {
 	assert.Equal(t, "https://hostname", url)
 	assert.Equal(t, host, s)
 	assert.Equal(t, "https", s2)
-}
-
-func TestK8SService_CreateEDPComponentIfNotExist_GetErr(t *testing.T) {
-	instance := nexusApi.Nexus{}
-	client := fake.NewClientBuilder().Build()
-
-	service := K8SService{client: client}
-
-	err := service.CreateEDPComponentIfNotExist(&instance, "", "")
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "no kind is registered")
-}
-
-func TestK8SService_CreateEDPComponentIfNotExist_AlreadyExist(t *testing.T) {
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	EDPComponent := edpCompApi.EDPComponent{ObjectMeta: createObjectMeta()}
-	scheme := runtime.NewScheme()
-
-	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &edpCompApi.EDPComponent{})
-
-	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects(&EDPComponent).Build()
-	service := K8SService{client: client}
-
-	assert.NoError(t, service.CreateEDPComponentIfNotExist(&instance, "", ""))
-}
-
-func TestK8SService_CreateEDPComponentIfNotExist(t *testing.T) {
-	instance := nexusApi.Nexus{ObjectMeta: createObjectMeta()}
-	scheme := runtime.NewScheme()
-
-	scheme.AddKnownTypes(appsv1.SchemeGroupVersion, &edpCompApi.EDPComponent{}, &nexusApi.Nexus{})
-
-	client := fake.NewClientBuilder().WithScheme(scheme).WithObjects().Build()
-	service := K8SService{client: client, Scheme: scheme}
-
-	assert.NoError(t, service.CreateEDPComponentIfNotExist(&instance, "test.com", "icon.png"))
 }
 
 func TestK8SService_CreateJenkinsServiceAccount_BadClient(t *testing.T) {

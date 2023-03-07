@@ -14,9 +14,6 @@ rules:
     - nexuses
     - nexuses/finalizers
     - nexuses/status
-    - edpcomponents
-    - edpcomponents/finalizers
-    - edpcomponents/status
     - jenkins
     - jenkins/finalizers
     - jenkins/status

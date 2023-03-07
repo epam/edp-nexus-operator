@@ -15,20 +15,6 @@ type PlatformService struct {
 	mock.Mock
 }
 
-// CreateEDPComponentIfNotExist provides a mock function with given fields: instance, url, icon
-func (_m *PlatformService) CreateEDPComponentIfNotExist(instance *nexusApi.Nexus, url string, icon string) error {
-	ret := _m.Called(instance, url, icon)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(nexusApi.Nexus, string, string) error); ok {
-		r0 = rf(*instance, url, icon)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // CreateJenkinsServiceAccount provides a mock function with given fields: namespace, secretName
 func (_m *PlatformService) CreateJenkinsServiceAccount(namespace string, secretName string) error {
 	ret := _m.Called(namespace, secretName)

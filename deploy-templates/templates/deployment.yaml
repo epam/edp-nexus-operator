@@ -27,7 +27,7 @@ spec:
           image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: "{{ .Values.imagePullPolicy }}"
           command:
-            - {{ .Values.name }}
+            - /manager
           securityContext:
             allowPrivilegeEscalation: false
           env:

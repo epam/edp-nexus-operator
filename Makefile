@@ -1,10 +1,10 @@
 PACKAGE=github.com/epam/edp-common/pkg/config
 CURRENT_DIR=$(shell pwd)
 DIST_DIR=${CURRENT_DIR}/dist
-BIN_NAME=go-binary
+BIN_NAME=manager
 
-HOST_OS:=$(shell go env GOOS)
-HOST_ARCH:=$(shell go env GOARCH)
+HOST_OS?=$(shell go env GOOS)
+HOST_ARCH?=$(shell go env GOARCH)
 
 VERSION?=$(shell git describe --tags)
 BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
