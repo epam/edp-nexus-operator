@@ -15,7 +15,7 @@ spec:
   host: {{ include "nexus-operator.nexusBaseUrl" . }}
   path: {{ include "nexus-operator.nexusBasePath" . }}
   port:
-    targetPort: 8080
+    targetPort: http
   tls:
     insecureEdgeTerminationPolicy: Redirect
     termination: edge
