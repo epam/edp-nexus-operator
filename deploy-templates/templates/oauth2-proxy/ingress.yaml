@@ -7,9 +7,9 @@
 kind: Ingress
 apiVersion: {{ include "nexus.ingress.apiVersion" . }}
 metadata:
-  name: oauth2-proxy-nexus
+  name: nexus-proxy
   labels:
-    app: oauth2-proxy
+    app: nexus-proxy
     {{- include "nexus-operator.labels" . | nindent 4 }}
   {{- with .Values.oauth2_proxy.ingress.annotations }}
   annotations:
@@ -34,11 +34,11 @@ spec:
             backend:
               {{- if $ingressApiIsStable }}
               service:
-                name: oauth2-proxy
+                name: nexus-proxy
                 port:
                   number: 8080
               {{- else }}
-              serviceName: oauth2-proxy
+              serviceName: nexus-proxy
               servicePort: 8080
               {{- end }}
 {{ end }}

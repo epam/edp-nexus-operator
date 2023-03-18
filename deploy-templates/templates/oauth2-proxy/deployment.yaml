@@ -3,25 +3,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: oauth2-proxy
+    app: nexus-proxy
     {{- include "nexus-operator.labels" . | nindent 4 }}
-  name: oauth2-proxy
+  name: nexus-proxy
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "oauth2-proxy.selectorLabels" . | indent 6 }}
+      {{- include "nexus-proxy.selectorLabels" . | indent 6 }}
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/oauth2-proxy/configmap.yaml") . | sha256sum }}
       labels:
-        app: oauth2-proxy
-        {{- include "oauth2-proxy.selectorLabels" . | indent 8 }}
+        app: nexus-proxy
+        {{- include "nexus-proxy.selectorLabels" . | indent 8 }}
     spec:
-      serviceAccountName: oauth2-proxy
+      serviceAccountName: nexus-proxy
       containers:
-        - name: oauth2-proxy-nexus
+        - name: nexus-proxy
           image: "{{ .Values.oauth2_proxy.image.repository }}:{{ .Values.oauth2_proxy.image.tag  }}"
           args:
             - --http-address=0.0.0.0:4180
@@ -80,7 +80,7 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: oauth2-proxy-config
+            name: nexus-proxy-config
           name: configmain
 
     {{- if .Values.oauth2_proxy.affinity }}

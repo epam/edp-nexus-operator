@@ -50,10 +50,10 @@ app.kubernetes.io/name: {{ include "nexus-operator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-Selector labels for oauth2-proxy
+Selector labels for nexus-proxy
 */}}
-{{- define "oauth2-proxy.selectorLabels" }}
-app.kubernetes.io/name: oauth2-proxy
+{{- define "nexus-proxy.selectorLabels" }}
+app.kubernetes.io/name: nexus-proxy
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
