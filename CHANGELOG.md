@@ -1,29 +1,48 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+<a name="v2.14.0"></a>
+## [v2.14.0] - 2023-03-24
 ### Features
 
 - Updated Operator SDK version [EPMDEDP-11174](https://jiraeu.epam.com/browse/EPMDEDP-11174)
 - Updated EDP components [EPMDEDP-11206](https://jiraeu.epam.com/browse/EPMDEDP-11206)
 - Provide opportunity to use default cluster storageClassName [EPMDEDP-11230](https://jiraeu.epam.com/browse/EPMDEDP-11230)
+- Add oauth2-proxy deployment [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
+- Remove keycloak configuration from nexus controller [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
 
 ### Bug Fixes
 
 - Test run on GitHub build [EPMDEDP-11174](https://jiraeu.epam.com/browse/EPMDEDP-11174)
+- BasePath does not depend on "/" [EPMDEDP-11634](https://jiraeu.epam.com/browse/EPMDEDP-11634)
+- Fix port for route in OpenShift [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
+- Remove route object for nexus [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
 
 ### Code Refactoring
 
 - Apply golangci-lint [EPMDEDP-10628](https://jiraeu.epam.com/browse/EPMDEDP-10628)
 - Move Nexus basePath logic to helpers.tpl [EPMDEDP-11531](https://jiraeu.epam.com/browse/EPMDEDP-11531)
+- Use nexus-proxy instead of generalized oauth2-proxy [EPMDEDP-11693](https://jiraeu.epam.com/browse/EPMDEDP-11693)
+- Remove unused resource after migration to distorless container [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
+- Do not create EDPComponent in controller logic [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
+- Allow to define existing secret for oauth2-proxy [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
 
 ### Routine
 
 - Update current development version [EPMDEDP-10610](https://jiraeu.epam.com/browse/EPMDEDP-10610)
 - Update git-chglog for nexus-operator [EPMDEDP-11518](https://jiraeu.epam.com/browse/EPMDEDP-11518)
+- Bump golang.org/x/net from 0.5.0 to 0.8.0 [EPMDEDP-11578](https://jiraeu.epam.com/browse/EPMDEDP-11578)
+- Update oauth2-proxy configuration [EPMDEDP-6229](https://jiraeu.epam.com/browse/EPMDEDP-6229)
 
 ### Documentation
 
 - Update chart and application version in Readme file [EPMDEDP-11221](https://jiraeu.epam.com/browse/EPMDEDP-11221)
+
+### BREAKING CHANGE:
+
+
+Nexus now uses oauth2-proxy instead of keycloak-proxy. Consider perform proper migration
 
 
 <a name="v2.13.0"></a>
@@ -44,8 +63,8 @@
 
 - Update current development version [EPMDEDP-10274](https://jiraeu.epam.com/browse/EPMDEDP-10274)
 - Move script from edp-library-pipelines to the repository [EPMDEDP-10652](https://jiraeu.epam.com/browse/EPMDEDP-10652)
-- Update Nexus image to 3.43.0 [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
 - Upgrade nexus to the 3.42.0 version [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
+- Update Nexus image to 3.43.0 [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
 - Increase memory request and limits for nexus [EPMDEDP-10775](https://jiraeu.epam.com/browse/EPMDEDP-10775)
 - Update nuget proxy url endpoint [EPMDEDP-10776](https://jiraeu.epam.com/browse/EPMDEDP-10776)
 - Update current development version [EPMDEDP-10805](https://jiraeu.epam.com/browse/EPMDEDP-10805)
@@ -284,7 +303,8 @@
 - [EPMDEDP-2963,2964] Outreach and NuGetApiKey
 
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.13.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.14.0...HEAD
+[v2.14.0]: https://github.com/epam/edp-nexus-operator/compare/v2.13.0...v2.14.0
 [v2.13.0]: https://github.com/epam/edp-nexus-operator/compare/v2.12.1...v2.13.0
 [v2.12.1]: https://github.com/epam/edp-nexus-operator/compare/v2.12.0...v2.12.1
 [v2.12.0]: https://github.com/epam/edp-nexus-operator/compare/v2.11.0...v2.12.0
