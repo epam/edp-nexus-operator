@@ -101,6 +101,20 @@ oauth2_proxy:
   extraEnv: []
   extraArgs: {}
 
+  # -- Additional volumes to be added to the oauth2-proxy pod
+  extraVolumes: []
+  #  - name: custom-ca
+  #    secret:
+  #      defaultMode: 420
+  #      secretName: custom-ca
+
+  # -- Additional volumeMounts to be added to the oauth2-proxy container
+  extraVolumeMounts: []
+  #  - name: custom-ca
+  #    mountPath: /etc/ssl/certs/CA.crt
+  #    readOnly: true
+  #    subPath: CA.crt
+
   ingress:
     annotations: {}
     # -- pathType is only for k8s >= 1.1=
