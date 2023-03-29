@@ -2,8 +2,15 @@
 ## [Unreleased]
 
 
+<a name="v2.14.1"></a>
+## [v2.14.1] - 2023-03-29
+### Routine
+
+- Add the ability to use additional volumes in oauth2 proxy helm chart [EPMDEDP-11628](https://jiraeu.epam.com/browse/EPMDEDP-11628)
+
+
 <a name="v2.14.0"></a>
-## [v2.14.0] - 2023-03-18
+## [v2.14.0] - 2023-03-24
 ### Features
 
 - Updated Operator SDK version [EPMDEDP-11174](https://jiraeu.epam.com/browse/EPMDEDP-11174)
@@ -303,7 +310,8 @@ Nexus now uses oauth2-proxy instead of keycloak-proxy. Consider perform proper m
 - [EPMDEDP-2963,2964] Outreach and NuGetApiKey
 
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.14.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.14.1...HEAD
+[v2.14.1]: https://github.com/epam/edp-nexus-operator/compare/v2.14.0...v2.14.1
 [v2.14.0]: https://github.com/epam/edp-nexus-operator/compare/v2.13.0...v2.14.0
 [v2.13.0]: https://github.com/epam/edp-nexus-operator/compare/v2.12.1...v2.13.0
 [v2.12.1]: https://github.com/epam/edp-nexus-operator/compare/v2.12.0...v2.12.1
