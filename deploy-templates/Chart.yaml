@@ -24,8 +24,8 @@ annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/operator: "true"
   artifacthub.io/images: |
-    - name: nexus-operator:2.14.0
-      image: epamedp/nexus-operator:2.14.0
+    - name: nexus-operator:2.14.1
+      image: epamedp/nexus-operator:2.14.1
     - name: nexus3:3.50.0
       image: sonatype/nexus3:3.50.0
     - name: alpine:3.16.4
