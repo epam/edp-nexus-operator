@@ -3,8 +3,8 @@ description: A Helm chart for EDP Nexus Operator
 home: https://epam.github.io/edp-install/
 name: nexus-operator
 type: application
-version: 2.15.0-SNAPSHOT
-appVersion: 2.15.0-SNAPSHOT
+version: 2.16.0-SNAPSHOT
+appVersion: 2.16.0-SNAPSHOT
 icon: https://epam.github.io/edp-install/assets/logo.png
 keywords:
   - edp
@@ -24,12 +24,12 @@ annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/operator: "true"
   artifacthub.io/images: |
-    - name: nexus-operator:2.14.1
-      image: epamedp/nexus-operator:2.14.1
+    - name: nexus-operator:2.15.0
+      image: epamedp/nexus-operator:2.15.0
     - name: nexus3:3.50.0
       image: sonatype/nexus3:3.50.0
-    - name: alpine:3.16.4
-      image: alpine:3.16.4
+    - name: alpine:3.18.0
+      image: alpine:3.18.0
   artifacthub.io/operatorCapabilities: Full Lifecycle
   artifacthub.io/crds: |
     - kind: Nexus
