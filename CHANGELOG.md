@@ -1,11 +1,16 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+<a name="v2.15.0"></a>
+## [v2.15.0] - 2023-05-16
 ### Routine
 
 - Update Nexus image to 3.50.0 [EPMDEDP-10707](https://jiraeu.epam.com/browse/EPMDEDP-10707)
+- Update CHANGELOG.md [EPMDEDP-11472](https://jiraeu.epam.com/browse/EPMDEDP-11472)
 - Update current development version [EPMDEDP-11472](https://jiraeu.epam.com/browse/EPMDEDP-11472)
 - Add the ability to use additional volumes in oauth2 proxy helm chart [EPMDEDP-11628](https://jiraeu.epam.com/browse/EPMDEDP-11628)
+- Add templates for github issues [EPMDEDP-11928](https://jiraeu.epam.com/browse/EPMDEDP-11928)
 
 
 <a name="v2.14.1"></a>
@@ -76,8 +81,8 @@ Nexus now uses oauth2-proxy instead of keycloak-proxy. Consider perform proper m
 
 - Update current development version [EPMDEDP-10274](https://jiraeu.epam.com/browse/EPMDEDP-10274)
 - Move script from edp-library-pipelines to the repository [EPMDEDP-10652](https://jiraeu.epam.com/browse/EPMDEDP-10652)
-- Upgrade nexus to the 3.42.0 version [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
 - Update Nexus image to 3.43.0 [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
+- Upgrade nexus to the 3.42.0 version [EPMDEDP-10753](https://jiraeu.epam.com/browse/EPMDEDP-10753)
 - Increase memory request and limits for nexus [EPMDEDP-10775](https://jiraeu.epam.com/browse/EPMDEDP-10775)
 - Update nuget proxy url endpoint [EPMDEDP-10776](https://jiraeu.epam.com/browse/EPMDEDP-10776)
 - Update current development version [EPMDEDP-10805](https://jiraeu.epam.com/browse/EPMDEDP-10805)
@@ -316,7 +321,8 @@ Nexus now uses oauth2-proxy instead of keycloak-proxy. Consider perform proper m
 - [EPMDEDP-2963,2964] Outreach and NuGetApiKey
 
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.14.1...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v2.15.0...HEAD
+[v2.15.0]: https://github.com/epam/edp-nexus-operator/compare/v2.14.1...v2.15.0
 [v2.14.1]: https://github.com/epam/edp-nexus-operator/compare/v2.14.0...v2.14.1
 [v2.14.0]: https://github.com/epam/edp-nexus-operator/compare/v2.13.0...v2.14.0
 [v2.13.0]: https://github.com/epam/edp-nexus-operator/compare/v2.12.1...v2.13.0
