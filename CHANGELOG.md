@@ -1,6 +1,11 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Routine
+
+- Update current development version [EPMDEDP-11826](https://jiraeu.epam.com/browse/EPMDEDP-11826)
+- Remove mention of alpine docker image [EPMDEDP-12253](https://jiraeu.epam.com/browse/EPMDEDP-12253)
+
 
 <a name="v2.15.0"></a>
 ## [v2.15.0] - 2023-05-25

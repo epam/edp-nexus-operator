@@ -28,8 +28,6 @@ annotations:
       image: epamedp/nexus-operator:2.15.0
     - name: nexus3:3.50.0
       image: sonatype/nexus3:3.50.0
-    - name: alpine:3.18.0
-      image: alpine:3.18.0
   artifacthub.io/operatorCapabilities: Full Lifecycle
   artifacthub.io/crds: |
     - kind: Nexus
