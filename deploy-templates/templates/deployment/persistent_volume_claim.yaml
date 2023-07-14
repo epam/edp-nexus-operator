@@ -1,3 +1,4 @@
+{{ if .Values.nexus.deploy }}
 {{- $storageClassName := .Values.nexus.storage.class -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -16,3 +17,4 @@ spec:
   storageClassName: "{{ $storageClassName }}"
 {{ end }}
   volumeMode: Filesystem
+{{ end }}

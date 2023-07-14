@@ -28,6 +28,10 @@ image:
   tag:
 imagePullPolicy: "IfNotPresent"
 
+nexusCR:
+  # -- Specifies whether Nexus CR should be created
+  create: true
+
 resources:
   limits:
     memory: 192Mi

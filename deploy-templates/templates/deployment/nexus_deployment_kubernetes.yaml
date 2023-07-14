@@ -1,5 +1,5 @@
+{{ if .Values.nexus.deploy }}
 {{if or (eq .Values.global.platform "kubernetes") (eq .Values.global.openshift.deploymentType "deployments")}}
-{{if .Values.nexus.deploy}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -102,5 +102,5 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{end}}
+{{ end }}
 {{end}}

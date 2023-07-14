@@ -1,4 +1,4 @@
-{{- if .Values.nexus.deploy -}}
+{{- if .Values.nexusCR.create -}}
 apiVersion: v2.edp.epam.com/v1
 kind: Nexus
 metadata:
@@ -18,4 +18,4 @@ spec:
         - nx-admin
   {{- end }}
   basePath: "{{ include "nexus-operator.nexusBasePath" . }}"
-{{end}}
+{{ end }}

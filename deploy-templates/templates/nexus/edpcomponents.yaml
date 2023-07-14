@@ -1,3 +1,4 @@
+{{- if .Values.nexusCR.create -}}
 apiVersion: v1.edp.epam.com/v1
 kind: EDPComponent
 metadata:
@@ -8,3 +9,4 @@ spec:
   type: nexus
   url: "https://{{ include "nexus-operator.nexusBaseUrl" . }}"
   visible: true
+{{ end }}
