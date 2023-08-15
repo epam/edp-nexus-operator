@@ -47,7 +47,7 @@ A Helm chart for EDP Nexus Operator
 | nexus.resources.requests.memory | string | `"2Gi"` |  |
 | nexus.storage.size | string | `"10Gi"` | Nexus data volume capacity |
 | nexus.tolerations | list | `[]` |  |
-| nexus.version | string | `"3.50.0"` | Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags) |
+| nexus.version | string | `"3.58.1"` | Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags) |
 | nexusCR.create | bool | `true` | Specifies whether Nexus CR should be created |
 | nodeSelector | object | `{}` |  |
 | oauth2_proxy.affinity | object | `{}` |  |

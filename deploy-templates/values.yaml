@@ -47,7 +47,7 @@ nexus:
   # --  Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3)
   image: "sonatype/nexus3"
   # --  Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags)
-  version: "3.50.0"
+  version: "3.58.1"
   imagePullPolicy: "IfNotPresent"
 
   # --  Base path for Nexus URL e.g. "some/path". With no starting '/'. Default: '/'.
