@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
   create-blobstore.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ data:
         blobStore.createFileBlobStore(parsed_args.name, parsed_args.path)
     }
   create-repo-maven-group.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-maven-hosted.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-pypi-hosted.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-pypi-proxy.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -241,7 +241,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-pypi-group.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -290,7 +290,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-maven-proxy.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -362,7 +362,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-npm-group.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -410,7 +410,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-npm-hosted.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -448,7 +448,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-npm-proxy.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -516,7 +516,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-nuget-group.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -564,7 +564,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-nuget-hosted.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -602,7 +602,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-repo-nuget-proxy.groovy: |
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -670,7 +670,7 @@ data:
         repository.getRepositoryManager().create(configuration)
     }
   create-task.groovy: |-
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -711,7 +711,7 @@ data:
 
     taskScheduler.scheduleTask(taskConfiguration, schedule)
   delete-blobstore.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -734,7 +734,7 @@ data:
         blobStore.getBlobStoreManager().delete(parsed_args.name)
     }
   delete-repo.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -758,7 +758,7 @@ data:
         repository.getRepositoryManager().delete(parsed_args.name)
     }
   disable-outreach-capability.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -779,7 +779,7 @@ data:
         capabilityRegistry.disable(it.context().id())
     }
   enable-realm.groovy: |-
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -801,7 +801,7 @@ data:
     realmManager = container.lookup(RealmManager.class.getName())
     realmManager.enableRealm(parsed_args.name)
   get-nuget-token.groovy: |-
-    /* Copyright 2022 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -826,11 +826,14 @@ data:
         apiKeyDomain = "NuGetApiKey"
         principal = new SimplePrincipalCollection(userName, realmName)
         keyStore = container.lookup(ApiKeyStore.class.getName())
-        apiKey = keyStore.getApiKey(apiKeyDomain, principal)
-        if (apiKey == null) {
-            apiKey = keyStore.createApiKey(apiKeyDomain, principal)
+        apiKeyOptional = keyStore.getApiKey(apiKeyDomain, principal)
+        if (!apiKeyOptional.isPresent()) {
+            apiKeyChars = keyStore.createApiKey(apiKeyDomain, principal)
+        } else {
+            apiKeyChars = apiKeyOptional.get().getApiKey()
         }
-        return apiKey.toString()
+        apiKey = new String(apiKeyChars)
+        return apiKey
     }
 
     nuGetApiKey = getOrCreateNuGetApiKey(parsed_args.name)
@@ -839,7 +842,7 @@ data:
             nuGetApiKey: nuGetApiKey
     ])
   get-role.groovy: |-
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -872,7 +875,7 @@ data:
 
     return JsonOutput.toJson(existingRole)
   setup-anonymous-access.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -892,7 +895,7 @@ data:
 
     security.setAnonymousAccess(Boolean.valueOf(parsed_args.anonymous_access))
   setup-base-url.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -912,7 +915,7 @@ data:
 
     core.baseUrl(parsed_args.base_url)
   setup-capability.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -955,7 +958,7 @@ data:
         )
     }
   setup-ldap.groovy: |-
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -1029,7 +1032,7 @@ data:
         ldapConfigMgr.addLdapServerConfiguration(ldapConfig)
     }
   setup-privilege.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -1080,7 +1083,7 @@ data:
         authManager.addPrivilege(privilege)
     }
   setup-role.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -1123,7 +1126,7 @@ data:
         security.addRole(parsed_args.id, parsed_args.name, parsed_args.description, privileges.toList(), roles.toList())
     }
   setup-user.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -1156,7 +1159,7 @@ data:
         security.addUser(parsed_args.username, parsed_args.first_name, parsed_args.last_name, parsed_args.email, true, parsed_args.password, parsed_args.roles)
     }
   update-admin-password.groovy: |
-    /* Copyright 2018 EPAM Systems.
+    /* Copyright 2023 EPAM Systems.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
