@@ -64,7 +64,7 @@ Define Nexus URL
 {{- if .Values.nexus.basePath }}
 {{- .Values.global.dnsWildCard }}
 {{- else }}
-{{- printf "nexus-%s.%s" .Values.global.edpName .Values.global.dnsWildCard  }}
+{{- printf "nexus-%s.%s" .Release.Namespace .Values.global.dnsWildCard  }}
 {{- end }}
 {{- end }}
 

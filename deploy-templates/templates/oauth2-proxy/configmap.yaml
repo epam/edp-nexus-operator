@@ -17,7 +17,7 @@ data:
     cookie_secure = "false"
     email_domains = [ "*" ]
     insecure_oidc_allow_unverified_email = "true"
-    oidc_issuer_url = "{{ $kkUrl }}/auth/realms/{{ .Values.global.edpName }}-main"
+    oidc_issuer_url = "{{ $kkUrl }}/auth/realms/{{ .Release.Namespace }}-main"
     pass_access_token = "true"
     pass_authorization_header = "true"
     pass_basic_auth = "false"

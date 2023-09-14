@@ -25,7 +25,6 @@ A Helm chart for EDP Nexus Operator
 | annotations | object | `{}` |  |
 | global.admins | list | `["stub_user_one@example.com"]` | Administrators of your tenant |
 | global.dnsWildCard | string | `nil` | a cluster DNS wildcard name |
-| global.edpName | string | `""` | namespace or a project name (in case of OpenShift) |
 | global.keycloakUrl | string | `nil` | Keycloak Endpoint which is used for SSO integration. Format https://keycloak.example.com |
 | global.openshift.deploymentType | string | `"deployments"` | Which type of kind will be deployed to Openshift (values: deployments/deploymentConfigs) |
 | global.platform | string | `"kubernetes"` | platform type that can be "kubernetes" or "openshift" |

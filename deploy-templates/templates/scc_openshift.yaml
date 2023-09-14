@@ -22,7 +22,7 @@ metadata:
   labels:
     app: nexus
     {{- include "nexus-operator.labels" . | nindent 4 }}
-  name: nexus-{{.Values.global.edpName}}
+  name: nexus-{{ .Release.Namespace }}
 priority: 1
 readOnlyRootFilesystem: false
 requiredDropCapabilities: []
@@ -34,7 +34,7 @@ seLinuxContext:
 supplementalGroups:
   type: RunAsAny
 users:
-  - system:serviceaccount:{{.Values.global.edpName}}:nexus
+  - system:serviceaccount:{{ .Release.Namespace }}:nexus
 volumes:
   - configMap
   - downwardAPI

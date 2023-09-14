@@ -10,6 +10,6 @@ spec:
     - groups
     - edp
   directAccess: false
-  targetRealm: {{ .Values.global.edpName }}-main
+  targetRealm: {{ .Release.Namespace }}-main
   webUrl: https://{{ include "nexus-operator.nexusBaseUrl" . }}
 {{- end -}}

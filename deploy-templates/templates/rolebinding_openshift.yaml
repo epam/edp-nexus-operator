@@ -8,12 +8,12 @@ metadata:
 roleRef:
   kind: Role
   name: edp-{{ .Values.name }}
-  namespace: {{ .Values.global.edpName }}
+  namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
     name: edp-{{ .Values.name }}
-    namespace: {{ .Values.global.edpName }}
+    namespace: {{ .Release.Namespace }}
 userNames:
-  - system:serviceaccount:{{ .Values.global.edpName }}:edp-{{ .Values.name }}
+  - system:serviceaccount:{{ .Release.Namespace }}:edp-{{ .Values.name }}
 groupNames: []
 {{- end -}}

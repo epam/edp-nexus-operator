@@ -1,6 +1,4 @@
 global:
-  # -- namespace or a project name (in case of OpenShift)
-  edpName: ""
   # -- platform type that can be "kubernetes" or "openshift"
   platform: "kubernetes"
   # -- Administrators of your tenant

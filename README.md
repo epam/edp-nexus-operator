@@ -41,7 +41,7 @@ In order to install the Nexus operator, follow the steps below:
 
 4. Install operator in the <edp-project> namespace with the helm command; find below the installation command example:
     ```bash
-    helm install nexus-operator epamedp/nexus-operator --version <chart_version> --namespace <edp-project> --set name=nexus-operator --set global.edpName=<edp-project> --set global.platform=<platform_type> --set global.dnsWildCard=<cluster_DNS_wildcard>
+    helm install nexus-operator epamedp/nexus-operator --version <chart_version> --namespace <edp-project> --set name=nexus-operator --set global.platform=<platform_type> --set global.dnsWildCard=<cluster_DNS_wildcard>
     ```
 5. Check the <edp-project> namespace that should contain operator deployment with your operator in a running status.
 
