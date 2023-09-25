@@ -20,14 +20,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	buildInfo "github.com/epam/edp-common/pkg/config"
-	edpCompApi "github.com/epam/edp-component-operator/api/v1"
-	jenkinsApi "github.com/epam/edp-jenkins-operator/v2/pkg/apis/v2/v1"
-	keycloakApi "github.com/epam/edp-keycloak-operator/api/v1"
-	nexusApiV1 "github.com/epam/edp-nexus-operator/v2/api/v1"
-	nexusApiV1Alpha1 "github.com/epam/edp-nexus-operator/v2/api/v1alpha1"
-	"github.com/epam/edp-nexus-operator/v2/controllers/helper"
-	"github.com/epam/edp-nexus-operator/v2/controllers/nexus"
-	"github.com/epam/edp-nexus-operator/v2/controllers/user"
+	nexusApiV1Alpha1 "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/controllers/nexus"
+	"github.com/epam/edp-nexus-operator/controllers/user"
+	nexusclient "github.com/epam/edp-nexus-operator/pkg/client/nexus"
+	"github.com/epam/edp-nexus-operator/pkg/helper"
 )
 
 var (
@@ -64,10 +61,6 @@ func main() {
 
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(nexusApiV1Alpha1.AddToScheme(scheme))
-	utilruntime.Must(nexusApiV1.AddToScheme(scheme))
-	utilruntime.Must(edpCompApi.AddToScheme(scheme))
-	utilruntime.Must(jenkinsApi.AddToScheme(scheme))
-	utilruntime.Must(keycloakApi.AddToScheme(scheme))
 
 	v := buildInfo.Get()
 
@@ -108,26 +101,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	platformType := helper.GetPlatformTypeEnv()
+	apiClientProvider := nexusclient.NewApiClientProvider(mgr.GetClient())
 
-	nexusCtrl, err := nexus.NewReconcileNexus(mgr.GetClient(), mgr.GetScheme(), setupLog.WithName("nexus-ctrl"))
-	if err != nil {
+	if err = nexus.NewNexusReconciler(mgr.GetClient(), mgr.GetScheme(), apiClientProvider).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "nexus")
 		os.Exit(1)
 	}
 
-	if err = nexusCtrl.SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "nexus")
-		os.Exit(1)
-	}
-
-	userCtrl, err := user.NewReconcile(mgr.GetClient(), mgr.GetScheme(), setupLog.WithName("user-ctrl"), platformType)
-	if err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "user")
-		os.Exit(1)
-	}
-
-	if err = userCtrl.SetupWithManager(mgr); err != nil {
+	if err = user.NewReconcile(mgr.GetClient(), mgr.GetScheme()).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "user")
 		os.Exit(1)
 	}

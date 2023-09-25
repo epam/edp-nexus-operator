@@ -1,17 +1,7 @@
-apiVersion: v2.edp.epam.com/v1
+apiVersion: edp.epam.com/v1alpha1
 kind: Nexus
 metadata:
   name: nexus1
 spec:
-  basePath: ''
-  edpSpec:
-    dnsWildcard: localhost.com
-  keycloakSpec:
-    enabled: false
-    roles:
-      - developer
-      - administrator
-  users:
-    - roles:
-        - nx-admin
-      username: nx@example.com
+  url: https://nexus-example.com
+  secret: nexus-secret

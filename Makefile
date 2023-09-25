@@ -11,6 +11,8 @@ BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
 KUBECTL_VERSION=$(shell go list -m all | grep k8s.io/client-go| cut -d' ' -f2)
+ENVTEST ?= $(LOCALBIN)/setup-envtest
+ENVTEST_K8S_VERSION = 1.23.5
 
 override LDFLAGS += \
   -X ${PACKAGE}.version=${VERSION} \
@@ -70,8 +72,12 @@ validate-docs: api-docs helm-docs  ## Validate helm and api docs
 	@git diff -s --exit-code docs/api.md || (echo " Run 'make api-docs' to address the issue." && git diff && exit 1)
 
 # Run tests
-test: fmt vet
-	KUBECONFIG=${CURRENT_DIR}/hack/kubecfg-stub.yaml go test ./... -coverprofile=coverage.out `go list ./...`
+test: fmt vet envtest
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" \
+	TEST_NEXUS_URL=${TEST_NEXUS_URL} \
+	TEST_NEXUS_USER=${TEST_NEXUS_USER} \
+	TEST_NEXUS_PASSWORD=${TEST_NEXUS_PASSWORD} \
+	go test ./... -coverprofile=coverage.out `go list ./...`
 
 .PHONY: fmt
 fmt:  ## Run go fmt
@@ -113,7 +119,7 @@ helm-docs: helmdocs	## generate helm docs
 GOLANGCILINT = ${CURRENT_DIR}/bin/golangci-lint
 .PHONY: golangci-lint
 golangci-lint: ## Download golangci-lint locally if necessary.
-	$(call go-get-tool,$(GOLANGCILINT),github.com/golangci/golangci-lint/cmd/golangci-lint,v1.50.1)
+	$(call go-get-tool,$(GOLANGCILINT),github.com/golangci/golangci-lint/cmd/golangci-lint,v1.54.2)
 
 .PHONY: install
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
@@ -178,3 +184,9 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle $(BUNDLE_GEN_FLAGS)
 	operator-sdk bundle validate ./bundle
+
+ENVTEST=$(LOCALBIN)/setup-envtest
+.PHONY: envtest
+envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
+$(ENVTEST): $(LOCALBIN)
+	$(call go-get-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,latest)

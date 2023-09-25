@@ -2,25 +2,43 @@ package helper
 
 import (
 	"fmt"
-	"log"
-
-	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	"os"
+	"strconv"
 )
 
-func LogErrorAndReturn(err error) error {
-	log.Printf("[ERROR] %v", err)
-	return err
-}
+const (
+	watchNamespaceEnvVar   = "WATCH_NAMESPACE"
+	debugModeEnvVar        = "DEBUG_MODE"
+	inClusterNamespacePath = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+)
 
-func LogIfError(err error) {
-	if err == nil {
-		return
+// GetWatchNamespace returns the namespace the operator should be watching for changes.
+func GetWatchNamespace() (string, error) {
+	ns, found := os.LookupEnv(watchNamespaceEnvVar)
+	if !found {
+		return "", fmt.Errorf("%s must be set", watchNamespaceEnvVar)
 	}
 
-	log.Printf("[ERROR] %v", err)
+	return ns, nil
 }
 
-func GenerateAnnotationKey(entitySuffix string) string {
-	key := fmt.Sprintf("%v/%v", spec.EdpAnnotationsPrefix, entitySuffix)
-	return key
+// GetDebugMode returns the debug mode value.
+func GetDebugMode() (bool, error) {
+	mode, found := os.LookupEnv(debugModeEnvVar)
+	if !found {
+		return false, nil
+	}
+
+	b, err := strconv.ParseBool(mode)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse %s value: %w", debugModeEnvVar, err)
+	}
+
+	return b, nil
+}
+
+// RunningInCluster Check whether the operator is running in cluster or locally.
+func RunningInCluster() bool {
+	_, err := os.Stat(inClusterNamespacePath)
+	return !os.IsNotExist(err)
 }

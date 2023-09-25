@@ -1,70 +1,36 @@
 package v1alpha1
 
 import (
-	coreV1Api "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
-// NexusSpec defines the desired state of Nexus
-// +k8s:openapi-gen=true
+// NexusSpec defines the desired state of Nexus.
 type NexusSpec struct {
-	KeycloakSpec KeycloakSpec `json:"keycloakSpec"`
-	// +nullable
-	ImagePullSecrets []coreV1Api.LocalObjectReference `json:"imagePullSecrets,omitempty"`
-	Image            string                           `json:"image"`
-	Version          string                           `json:"version"`
-	BasePath         string                           `json:"basePath,omitempty"`
-	Volumes          []NexusVolumes                   `json:"volumes"`
-	Users            []NexusUsers                     `json:"users,omitempty"`
-	EdpSpec          EdpSpec                          `json:"edpSpec,omitempty"`
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	// Secret is the name of the k8s object Secret related to nexus.
+	// Secret should contain a user field with a nexus username and a password field with a nexus password.
+	Secret string `json:"secret"`
+
+	// Url is the url of nexus instance.
+	Url string `json:"url"`
 }
 
-type EdpSpec struct {
-	DnsWildcard string `json:"dnsWildcard,omitempty"`
-}
-
-type NexusVolumes struct {
-	Name         string `json:"name,omitempty"`
-	StorageClass string `json:"storage_class,omitempty"`
-	Capacity     string `json:"capacity,omitempty"`
-}
-
-type NexusUsers struct {
-	Username  string   `json:"username,omitempty"`
-	FirstName string   `json:"first_name,omitempty"`
-	LastName  string   `json:"last_name,omitempty"`
-	Email     string   `json:"email,omitempty"`
-	Roles     []string `json:"roles,omitempty"`
-}
-
-// NexusStatus defines the observed state of Nexus
-// +k8s:openapi-gen=true
+// NexusStatus defines the observed state of Nexus.
 type NexusStatus struct {
-	Available       bool        `json:"available,omitempty"`
-	LastTimeUpdated metav1.Time `json:"lastTimeUpdated,omitempty"`
-	Status          string      `json:"status,omitempty"`
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	// Error represents error message if something went wrong.
+	// +optional
+	Error string `json:"error,omitempty"`
+
+	// Connected shows if operator is connected to nexus.
+	// +optional
+	Connected bool `json:"connected"`
 }
 
-type KeycloakSpec struct {
-	Enabled    bool     `json:"enabled"`
-	Url        string   `json:"url,omitempty"`
-	Realm      string   `json:"realm,omitempty"`
-	Roles      []string `json:"roles,omitempty"`
-	ProxyImage string   `json:"proxyImage,omitempty"`
-}
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
+// +kubebuilder:printcolumn:name="Connected",type="boolean",JSONPath=".status.connected",description="Is connected to nexus"
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// Nexus is the Schema for the nexus API
-// +k8s:openapi-gen=true
-// +kubebuilder:deprecatedversion
+// Nexus is the Schema for the nexus API.
 type Nexus struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -73,7 +39,7 @@ type Nexus struct {
 	Status NexusStatus `json:"status,omitempty"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:object:root=true
 
 // NexusList contains a list of Nexus.
 type NexusList struct {
@@ -83,6 +49,5 @@ type NexusList struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&Nexus{},
-		&NexusList{})
+	SchemeBuilder.Register(&Nexus{}, &NexusList{})
 }

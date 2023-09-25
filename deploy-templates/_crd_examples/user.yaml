@@ -1,4 +1,4 @@
-apiVersion: v2.edp.epam.com/v1
+apiVersion: edp.epam.com/v1alpha1
 kind: NexusUser
 metadata:
   name: test-mk1

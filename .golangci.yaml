@@ -1,15 +1,14 @@
 run:
-  timeout: 5m
-  go: "1.19"
+  timeout: 10m
+  go: "1.20"
   issues-exit-code: 1
   skip-dirs:
     - "mocks"
   skip-dirs-use-default: true
   skip-files:
-    - "mock_.*\\.go"
+    - ".*_mock\\.go$"
 
   modules-download-mode: mod
-  allow-parallel-runners: false
 
 output:
   format: colored-line-number
@@ -51,7 +50,6 @@ linters:
     - containedctx
     - cyclop
     - decorder
-    - depguard
     - dogsled
     - dupl
     - durationcheck
@@ -79,13 +77,9 @@ linters:
     - unused
     - wrapcheck
     - wsl
-
-  disabled:
-    - gosec # Enable in future
-    - contextcheck #Disabled due to issue https://github.com/golangci/golangci-lint/issues/2649.
-    - bodyclose #Disabled due to issue https://github.com/timakin/bodyclose/issues/30
-    - errchkjson
-    - exhaustruct
+    - gosec
+    - contextcheck
+    - ginkgolinter
   fast: false
 
 issues:
@@ -114,24 +108,6 @@ issues:
       linters:
         - gochecknoinits
         - gocritic
-    # Disable for Reconcile func
-    # mostly because those function aggregators
-    - linters:
-        - funlen
-        - cyclop
-      text: "Reconcile"
-    # Disable for Configure func
-    - linters:
-        - funlen
-        - cyclop
-        - gocritic
-      text: "Configure"
-    - linters:
-        - cyclop
-      text: "ExposeConfiguration"
-    - linters:
-        - funlen
-      text: "Integration"
 
   # Independently of option `exclude` we use default exclude patterns,
   # it can be disabled by this option. To list all
@@ -192,15 +168,6 @@ linters-settings:
 
     # should ignore tests (default false)
     skip-tests: false
-
-  depguard:
-    list-type: blacklist
-    include-go-root: false
-    packages:
-      - github.com/sirupsen/logrus
-    packages-with-error-message:
-      # specify an error message to output when a blacklisted package is used
-      - github.com/sirupsen/logrus: "logging is allowed only by logutils.Log"
 
   dogsled:
     # checks assignments with too many blank identifiers; default is 2
@@ -334,10 +301,8 @@ linters-settings:
 
   gocritic:
     enabled-tags:
-      - diagnostic
       - style
       - performance
-      - experimental
       - opinionated
 
     # Settings passed to gocritic.

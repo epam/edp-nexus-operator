@@ -7,6 +7,40 @@ metadata:
   namespace: placeholder
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexuses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexuses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexuses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - v2.edp.epam.com
   resources:
   - nexususers

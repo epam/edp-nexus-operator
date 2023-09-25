@@ -1,21 +1,92 @@
 package helper
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/epam/edp-nexus-operator/v2/pkg/service/nexus/spec"
+	"github.com/stretchr/testify/require"
 )
 
-func TestLogErrorAndReturn(t *testing.T) {
-	err := errors.New("test")
-	assert.Equal(t, err, LogErrorAndReturn(err))
+func TestGetWatchNamespace(t *testing.T) {
+	tests := []struct {
+		name    string
+		prepare func(t *testing.T)
+		want    string
+		wantErr require.ErrorAssertionFunc
+	}{
+		{
+			name: "namespace is set",
+			prepare: func(t *testing.T) {
+				t.Setenv(watchNamespaceEnvVar, "test")
+			},
+			want:    "test",
+			wantErr: require.NoError,
+		},
+		{
+			name:    "namespace is  not set",
+			prepare: func(t *testing.T) {},
+			want:    "",
+			wantErr: func(t require.TestingT, err error, i ...interface{}) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "must be set")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepare(t)
+
+			got, err := GetWatchNamespace()
+
+			tt.wantErr(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
 
-func TestGenerateAnnotationKey(t *testing.T) {
-	str := "test"
-	assert.Equal(t, fmt.Sprintf("%v/%v", spec.EdpAnnotationsPrefix, str), GenerateAnnotationKey(str))
+func TestGetDebugMode(t *testing.T) {
+	tests := []struct {
+		name    string
+		prepare func(t *testing.T)
+		want    bool
+		wantErr require.ErrorAssertionFunc
+	}{
+		{
+			name: "debug mode is set",
+			prepare: func(t *testing.T) {
+				t.Setenv(debugModeEnvVar, "true")
+			},
+			want:    true,
+			wantErr: require.NoError,
+		},
+		{
+			name:    "debug mode is  not set",
+			prepare: func(t *testing.T) {},
+			want:    false,
+			wantErr: require.NoError,
+		},
+		{
+			name: "debug mode is not a bool",
+			prepare: func(t *testing.T) {
+				t.Setenv(debugModeEnvVar, "not-a-bool")
+			},
+			want: false,
+			wantErr: func(t require.TestingT, err error, i ...interface{}) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "invalid syntax")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepare(t)
+
+			got, err := GetDebugMode()
+
+			tt.wantErr(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
