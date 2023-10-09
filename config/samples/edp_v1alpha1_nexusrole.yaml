@@ -1,0 +1,12 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusRole
+metadata:
+  labels:
+    app.kubernetes.io/name: nexusrole
+    app.kubernetes.io/instance: nexusrole-sample
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: nexus-operator
+  name: nexusrole-sample
+spec:
+  # TODO(user): Add fields here

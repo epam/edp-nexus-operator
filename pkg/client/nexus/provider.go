@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/epam/edp-nexus-operator/api/common"
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
 )
 
@@ -46,4 +47,16 @@ func (p *ApiClientProvider) GetNexusApiClientFromNexus(ctx context.Context, nexu
 		Username: string(secret.Data["user"]),
 		Password: string(secret.Data["password"]),
 	}), nil
+}
+
+func (p *ApiClientProvider) GetNexusApiClientFromNexusRef(ctx context.Context, namespace string, ref common.HasNexusRef) (*nexus3.NexusClient, error) {
+	nexus := &nexusApi.Nexus{}
+	if err := p.k8sClient.Get(ctx, types.NamespacedName{
+		Name:      ref.GetNexusRef().Name,
+		Namespace: namespace,
+	}, nexus); err != nil {
+		return nil, fmt.Errorf("failed to get nexus instance: %w", err)
+	}
+
+	return p.GetNexusApiClientFromNexus(ctx, nexus)
 }

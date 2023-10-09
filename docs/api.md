@@ -10,6 +10,8 @@ Resource Types:
 
 - [Nexus](#nexus)
 
+- [NexusRole](#nexusrole)
+
 - [NexusUser](#nexususer)
 
 
@@ -131,6 +133,184 @@ NexusStatus defines the observed state of Nexus.
         <td>string</td>
         <td>
           Error represents error message if something went wrong.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+## NexusRole
+<sup><sup>[↩ Parent](#edpepamcomv1alpha1 )</sup></sup>
+
+
+
+
+
+
+NexusRole is the Schema for the nexusroles API.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+      <td><b>apiVersion</b></td>
+      <td>string</td>
+      <td>edp.epam.com/v1alpha1</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b>kind</b></td>
+      <td>string</td>
+      <td>NexusRole</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#objectmeta-v1-meta">metadata</a></b></td>
+      <td>object</td>
+      <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
+      <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusrolespec">spec</a></b></td>
+        <td>object</td>
+        <td>
+          NexusRoleSpec defines the desired state of NexusRole.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrolestatus">status</a></b></td>
+        <td>object</td>
+        <td>
+          NexusRoleStatus defines the observed state of NexusRole.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRole.spec
+<sup><sup>[↩ Parent](#nexusrole)</sup></sup>
+
+
+
+NexusRoleSpec defines the desired state of NexusRole.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>id</b></td>
+        <td>string</td>
+        <td>
+          ID is the id of the role. ID should be unique across all roles. Do not edit this field after creation. Otherwise, the role will be recreated.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name is the name of the role.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusrolespecnexusref">nexusRef</a></b></td>
+        <td>object</td>
+        <td>
+          NexusRef is a reference to Nexus custom resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>description</b></td>
+        <td>string</td>
+        <td>
+          Description of nexus role.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>privileges</b></td>
+        <td>[]string</td>
+        <td>
+          Privileges is a list of privileges assigned to role.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRole.spec.nexusRef
+<sup><sup>[↩ Parent](#nexusrolespec)</sup></sup>
+
+
+
+NexusRef is a reference to Nexus custom resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name specifies the name of the Nexus resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Kind specifies the kind of the Nexus resource.<br/>
+          <br/>
+            <i>Default</i>: Nexus<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRole.status
+<sup><sup>[↩ Parent](#nexusrole)</sup></sup>
+
+
+
+NexusRoleStatus defines the observed state of NexusRole.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>error</b></td>
+        <td>string</td>
+        <td>
+          Error is an error message if something went wrong.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>value</b></td>
+        <td>string</td>
+        <td>
+          Value is a status of the group.<br/>
         </td>
         <td>false</td>
       </tr></tbody>

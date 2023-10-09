@@ -8,3 +8,11 @@ import (
 type User interface {
 	Get(id string) (*security.User, error)
 }
+
+//go:generate mockery --name Role --filename role_mock.go
+type Role interface {
+	Get(id string) (*security.Role, error)
+	Create(role security.Role) error
+	Update(id string, role security.Role) error
+	Delete(id string) error
+}

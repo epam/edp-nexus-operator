@@ -41,6 +41,32 @@ rules:
   - patch
   - update
 - apiGroups:
+  - edp.epam.com
+  resources:
+  - nexusroles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexusroles/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexusroles/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - v2.edp.epam.com
   resources:
   - nexususers
