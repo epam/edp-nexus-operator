@@ -15,10 +15,10 @@ spec:
     singular: nexususer
   scope: Namespaced
   versions:
-  - deprecated: true
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
+        description: NexusUser is the Schema for the nexususers API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -33,42 +33,78 @@ spec:
           metadata:
             type: object
           spec:
+            description: NexusUserSpec defines the desired state of NexusUser.
             properties:
               email:
+                description: Email is the email address of the user.
+                maxLength: 254
                 type: string
               firstName:
+                description: FirstName of the user.
                 type: string
+              id:
+                description: ID is the username of the user. ID should be unique across
+                  all users.
+                maxLength: 512
+                type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               lastName:
+                description: LastName of the user.
                 type: string
-              ownerName:
-                type: string
+              nexusRef:
+                description: NexusRef is a reference to Nexus custom resource.
+                properties:
+                  kind:
+                    default: Nexus
+                    description: Kind specifies the kind of the Nexus resource.
+                    type: string
+                  name:
+                    description: Name specifies the name of the Nexus resource.
+                    type: string
+                required:
+                - name
+                type: object
               roles:
+                description: Roles is a list of roles assigned to user.
                 items:
                   type: string
+                minItems: 1
                 type: array
-              status:
+              secret:
+                description: 'Secret is the reference of the k8s object Secret for
+                  the user password. Format: $secret-name:secret-key. Updating user
+                  password is not supported.'
                 type: string
-              userId:
+              status:
+                default: active
+                description: Status is a status of the user.
+                enum:
+                - active
+                - disabled
                 type: string
             required:
             - email
             - firstName
+            - id
             - lastName
-            - ownerName
+            - nexusRef
             - roles
-            - status
-            - userId
+            - secret
             type: object
           status:
+            description: NexusUserStatus defines the observed state of NexusUser.
             properties:
-              id:
+              error:
+                description: Error is an error message if something went wrong.
                 type: string
               value:
+                description: Value is a status of the user.
                 type: string
-            required:
-            - id
-            - value
             type: object
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}

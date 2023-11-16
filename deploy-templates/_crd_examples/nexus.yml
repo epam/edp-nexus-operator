@@ -1,7 +1,17 @@
 apiVersion: edp.epam.com/v1alpha1
 kind: Nexus
 metadata:
-  name: nexus1
+  name: nexus-sample
 spec:
   url: https://nexus-example.com
   secret: nexus-secret
+
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nexus-secret
+data:
+  user: YWRtaW4=
+  password: YWRtaW4=

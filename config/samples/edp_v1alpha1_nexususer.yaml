@@ -1,0 +1,21 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusUser
+metadata:
+  labels:
+    app.kubernetes.io/name: nexususer
+    app.kubernetes.io/instance: nexususer-sample
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: nexus-operator
+  name: nexususer-sample
+spec:
+  id: test-user
+  firstName: John1
+  lastName: Doe
+  email: test@gmail.com
+  secret: $user-secret:password
+  roles:
+    - nx-admin
+  nexusRef:
+    name: nexus-sample
+    kind: Nexus

@@ -1,12 +1,23 @@
 apiVersion: edp.epam.com/v1alpha1
 kind: NexusUser
 metadata:
-  name: test-mk1
+  name: user-sample
 spec:
-  ownerName: nexus
-  firstName: John
+  id: test-user
+  firstName: John1
   lastName: Doe
-  email: john.doe@example.com
-  userId: jondoe14
-  roles: ["edp-admin"]
-  status: "active"
+  email: test@gmail.com
+  secret: $user-secret:password
+  roles:
+    - nx-admin
+  nexusRef:
+    name: nexus-sample
+    kind: Nexus
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-secret
+data:
+  password: dGVzdA==

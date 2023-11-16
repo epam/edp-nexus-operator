@@ -1,15 +1,17 @@
 package v1alpha1
 
 import (
-	"github.com/epam/edp-nexus-operator/api/common"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/epam/edp-nexus-operator/api/common"
 )
 
 // NexusRoleSpec defines the desired state of NexusRole.
 type NexusRoleSpec struct {
 	// ID is the id of the role.
 	// ID should be unique across all roles.
-	// Do not edit this field after creation. Otherwise, the role will be recreated.
+	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
+	// +kubebuilder:validation:MaxLength=512
 	// +required
 	// +kubebuilder:example="nx-admin"
 	ID string `json:"id"`
@@ -37,7 +39,7 @@ type NexusRoleSpec struct {
 
 // NexusRoleStatus defines the observed state of NexusRole.
 type NexusRoleStatus struct {
-	// Value is a status of the group.
+	// Value is a status of the role.
 	// +optional
 	Value string `json:"value,omitempty"`
 

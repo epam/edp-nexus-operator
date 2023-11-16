@@ -67,7 +67,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - v2.edp.epam.com
+  - edp.epam.com
   resources:
   - nexususers
   verbs:
@@ -79,13 +79,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - v2.edp.epam.com
+  - edp.epam.com
   resources:
   - nexususers/finalizers
   verbs:
   - update
 - apiGroups:
-  - v2.edp.epam.com
+  - edp.epam.com
   resources:
   - nexususers/status
   verbs:

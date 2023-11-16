@@ -212,7 +212,7 @@ NexusRoleSpec defines the desired state of NexusRole.
         <td><b>id</b></td>
         <td>string</td>
         <td>
-          ID is the id of the role. ID should be unique across all roles. Do not edit this field after creation. Otherwise, the role will be recreated.<br/>
+          ID is the id of the role. ID should be unique across all roles.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -310,7 +310,7 @@ NexusRoleStatus defines the observed state of NexusRole.
         <td><b>value</b></td>
         <td>string</td>
         <td>
-          Value is a status of the group.<br/>
+          Value is a status of the role.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -324,7 +324,7 @@ NexusRoleStatus defines the observed state of NexusRole.
 
 
 
-
+NexusUser is the Schema for the nexususers API.
 
 <table>
     <thead>
@@ -356,14 +356,14 @@ NexusRoleStatus defines the observed state of NexusRole.
         <td><b><a href="#nexususerspec">spec</a></b></td>
         <td>object</td>
         <td>
-          <br/>
+          NexusUserSpec defines the desired state of NexusUser.<br/>
         </td>
         <td>false</td>
       </tr><tr>
         <td><b><a href="#nexususerstatus">status</a></b></td>
         <td>object</td>
         <td>
-          <br/>
+          NexusUserStatus defines the observed state of NexusUser.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -375,7 +375,7 @@ NexusRoleStatus defines the observed state of NexusRole.
 
 
 
-
+NexusUserSpec defines the desired state of NexusUser.
 
 <table>
     <thead>
@@ -390,61 +390,71 @@ NexusRoleStatus defines the observed state of NexusRole.
         <td><b>email</b></td>
         <td>string</td>
         <td>
-          <br/>
+          Email is the email address of the user.<br/>
         </td>
         <td>true</td>
       </tr><tr>
         <td><b>firstName</b></td>
         <td>string</td>
         <td>
-          <br/>
+          FirstName of the user.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>id</b></td>
+        <td>string</td>
+        <td>
+          ID is the username of the user. ID should be unique across all users.<br/>
         </td>
         <td>true</td>
       </tr><tr>
         <td><b>lastName</b></td>
         <td>string</td>
         <td>
-          <br/>
+          LastName of the user.<br/>
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b>ownerName</b></td>
-        <td>string</td>
+        <td><b><a href="#nexususerspecnexusref">nexusRef</a></b></td>
+        <td>object</td>
         <td>
-          <br/>
+          NexusRef is a reference to Nexus custom resource.<br/>
         </td>
         <td>true</td>
       </tr><tr>
         <td><b>roles</b></td>
         <td>[]string</td>
         <td>
-          <br/>
+          Roles is a list of roles assigned to user.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>secret</b></td>
+        <td>string</td>
+        <td>
+          Secret is the reference of the k8s object Secret for the user password. Format: $secret-name:secret-key. Updating user password is not supported.<br/>
         </td>
         <td>true</td>
       </tr><tr>
         <td><b>status</b></td>
-        <td>string</td>
+        <td>enum</td>
         <td>
+          Status is a status of the user.<br/>
           <br/>
+            <i>Enum</i>: active, disabled<br/>
+            <i>Default</i>: active<br/>
         </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>userId</b></td>
-        <td>string</td>
-        <td>
-          <br/>
-        </td>
-        <td>true</td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
 
-### NexusUser.status
-<sup><sup>[↩ Parent](#nexususer)</sup></sup>
+### NexusUser.spec.nexusRef
+<sup><sup>[↩ Parent](#nexususerspec)</sup></sup>
 
 
 
-
+NexusRef is a reference to Nexus custom resource.
 
 <table>
     <thead>
@@ -456,18 +466,54 @@ NexusRoleStatus defines the observed state of NexusRole.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>id</b></td>
+        <td><b>name</b></td>
         <td>string</td>
         <td>
-          <br/>
+          Name specifies the name of the Nexus resource.<br/>
         </td>
         <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Kind specifies the kind of the Nexus resource.<br/>
+          <br/>
+            <i>Default</i>: Nexus<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusUser.status
+<sup><sup>[↩ Parent](#nexususer)</sup></sup>
+
+
+
+NexusUserStatus defines the observed state of NexusUser.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>error</b></td>
+        <td>string</td>
+        <td>
+          Error is an error message if something went wrong.<br/>
+        </td>
+        <td>false</td>
       </tr><tr>
         <td><b>value</b></td>
         <td>string</td>
         <td>
-          <br/>
+          Value is a status of the user.<br/>
         </td>
-        <td>true</td>
+        <td>false</td>
       </tr></tbody>
 </table>

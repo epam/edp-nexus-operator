@@ -7,6 +7,9 @@ import (
 //go:generate mockery --name User --filename user_mock.go
 type User interface {
 	Get(id string) (*security.User, error)
+	Create(user security.User) error
+	Update(id string, user security.User) error
+	Delete(id string) error
 }
 
 //go:generate mockery --name Role --filename role_mock.go

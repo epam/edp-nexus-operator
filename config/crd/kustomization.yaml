@@ -3,16 +3,16 @@
 # It should be run by config/default
 resources:
 - bases/v1.edp.epam.com_nexus.yaml
-- bases/v1.edp.epam.com_nexususers.yaml
 - bases/edp.epam.com_nexusroles.yaml
+- bases/edp.epam.com_nexususers.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
 # patches here are for enabling the conversion webhook for each CRD
 #- patches/webhook_in_nexus.yaml
-#- patches/webhook_in_nexususers.yaml
 #- patches/webhook_in_nexusroles.yaml
+#- patches/webhook_in_nexususers.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.

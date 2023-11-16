@@ -108,7 +108,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = user.NewReconcile(mgr.GetClient(), mgr.GetScheme()).SetupWithManager(mgr); err != nil {
+	if err = user.NewNexusUserReconciler(mgr.GetClient(), mgr.GetScheme(), apiClientProvider).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "user")
 		os.Exit(1)
 	}

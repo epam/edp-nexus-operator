@@ -40,9 +40,12 @@ spec:
                 type: string
               id:
                 description: ID is the id of the role. ID should be unique across
-                  all roles. Do not edit this field after creation. Otherwise, the
-                  role will be recreated.
+                  all roles.
+                maxLength: 512
                 type: string
+                x-kubernetes-validations:
+                - message: Value is immutable
+                  rule: self == oldSelf
               name:
                 description: Name is the name of the role.
                 type: string
@@ -77,7 +80,7 @@ spec:
                 description: Error is an error message if something went wrong.
                 type: string
               value:
-                description: Value is a status of the group.
+                description: Value is a status of the role.
                 type: string
             type: object
         type: object

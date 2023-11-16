@@ -26,8 +26,8 @@ resources:
   controller: true
   domain: epam.com
   group: edp
-  kind: NexusUser
-  path: github.com/epam/edp-nexus-operator/api/edp/v1alpha1
+  kind: NexusRole
+  path: github.com/epam/edp-nexus-operator/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -35,7 +35,7 @@ resources:
   controller: true
   domain: epam.com
   group: edp
-  kind: NexusRole
+  kind: NexusUser
   path: github.com/epam/edp-nexus-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

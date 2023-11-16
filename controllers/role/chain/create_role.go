@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/datadrivers/go-nexus-client/nexus3/schema/security"
-	"k8s.io/utils/strings/slices"
+	"golang.org/x/exp/slices"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
@@ -72,6 +72,6 @@ func specToRole(spec *nexusApi.NexusRoleSpec) security.Role {
 		ID:          spec.ID,
 		Name:        spec.Name,
 		Description: spec.Description,
-		Privileges:  spec.Privileges,
+		Privileges:  slices.Clone(spec.Privileges),
 	}
 }

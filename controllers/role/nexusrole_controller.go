@@ -95,10 +95,10 @@ func (r *NexusRoleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	oldStatus := role.Status
 
-	if err = chain.MakeChain(nexusApiClient).ServeRequest(ctx, role); err != nil {
+	if err = chain.NewCreateRole(nexusApiClient.Security.Role).ServeRequest(ctx, role); err != nil {
 		log.Error(err, "An error has occurred while handling NexusRole")
 
-		role.Status.Value = "error"
+		role.Status.Value = common.StatusCreated
 		role.Status.Error = err.Error()
 
 		if err = r.updateNexusRoleStatus(ctx, role, oldStatus); err != nil {

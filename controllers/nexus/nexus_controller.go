@@ -73,7 +73,7 @@ func (r *NexusReconciler) Reconcile(ctx context.Context, req reconcile.Request) 
 		return reconcile.Result{RequeueAfter: defaultRequeueTime}, fmt.Errorf("failed to get nexus api client: %w", err)
 	}
 
-	if err = chain.MakeChain(nexusApiClient).ServeRequest(ctx, nexus); err != nil {
+	if err = chain.NewCheckConnection(nexusApiClient.Security.User).ServeRequest(ctx, nexus); err != nil {
 		nexus.Status.Error = err.Error()
 
 		if statusErr := r.updateNexusStatus(ctx, nexus, oldStatus); statusErr != nil {

@@ -1,7 +1,11 @@
 package common
 
-// StatusCreated is success status for Nexus resources.
-const StatusCreated = "created"
+const (
+	// StatusCreated is success status for Nexus resources.
+	StatusCreated = "created"
+	// StatusError is error status for Nexus resources.
+	StatusError = "error"
+)
 
 // NexusRef is a reference to a Nexus instance.
 type NexusRef struct {
