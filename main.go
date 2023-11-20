@@ -22,6 +22,7 @@ import (
 	buildInfo "github.com/epam/edp-common/pkg/config"
 	nexusApiV1Alpha1 "github.com/epam/edp-nexus-operator/api/v1alpha1"
 	"github.com/epam/edp-nexus-operator/controllers/nexus"
+	"github.com/epam/edp-nexus-operator/controllers/role"
 	"github.com/epam/edp-nexus-operator/controllers/user"
 	nexusclient "github.com/epam/edp-nexus-operator/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/pkg/helper"
@@ -105,6 +106,11 @@ func main() {
 
 	if err = nexus.NewNexusReconciler(mgr.GetClient(), mgr.GetScheme(), apiClientProvider).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "nexus")
+		os.Exit(1)
+	}
+
+	if err = role.NewNexusRoleReconciler(mgr.GetClient(), mgr.GetScheme(), apiClientProvider).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "role")
 		os.Exit(1)
 	}
 

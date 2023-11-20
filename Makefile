@@ -119,7 +119,7 @@ helm-docs: helmdocs	## generate helm docs
 GOLANGCILINT = ${CURRENT_DIR}/bin/golangci-lint
 .PHONY: golangci-lint
 golangci-lint: ## Download golangci-lint locally if necessary.
-	$(call go-get-tool,$(GOLANGCILINT),github.com/golangci/golangci-lint/cmd/golangci-lint,v1.54.2)
+	$(call go-get-tool,$(GOLANGCILINT),github.com/golangci/golangci-lint/cmd/golangci-lint,v1.55.2)
 
 .PHONY: install
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
@@ -147,7 +147,7 @@ $(KUSTOMIZE): $(LOCALBIN)
 HELMDOCS = $(LOCALBIN)/helm-docs
 .PHONY: helmdocs
 helmdocs: ## Download helm-docs locally if necessary.
-	$(call go-get-tool,$(HELMDOCS),github.com/norwoodj/helm-docs/cmd/helm-docs,v1.11.0)
+	$(call go-get-tool,$(HELMDOCS),github.com/norwoodj/helm-docs/cmd/helm-docs,v1.11.3)
 
 GITCHGLOG = $(LOCALBIN)/git-chglog
 .PHONY: git-chglog
@@ -157,12 +157,12 @@ git-chglog: ## Download git-chglog locally if necessary.
 CRDOC = $(LOCALBIN)/crdoc
 .PHONY: crdoc
 crdoc: ## Download crdoc locally if necessary.
-	$(call go-get-tool,$(CRDOC),fybrik.io/crdoc,v0.6.1)
+	$(call go-get-tool,$(CRDOC),fybrik.io/crdoc,v0.6.3)
 
 CONTROLLER_GEN = $(LOCALBIN)/controller-gen
 .PHONY: controller-gen
 controller-gen: ## Download controller-gen locally if necessary.
-	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen,v0.9.2)
+	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen,v0.11.4)
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 define go-get-tool

@@ -3,8 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.9.0
-  creationTimestamp: null
+    controller-gen.kubebuilder.io/version: v0.11.4
   name: nexususers.edp.epam.com
 spec:
   group: edp.epam.com
@@ -37,14 +36,17 @@ spec:
             properties:
               email:
                 description: Email is the email address of the user.
+                example: john.doe@example
                 maxLength: 254
                 type: string
               firstName:
                 description: FirstName of the user.
+                example: John
                 type: string
               id:
                 description: ID is the username of the user. ID should be unique across
                   all users.
+                example: new-user
                 maxLength: 512
                 type: string
                 x-kubernetes-validations:
@@ -52,6 +54,7 @@ spec:
                   rule: self == oldSelf
               lastName:
                 description: LastName of the user.
+                example: Doe
                 type: string
               nexusRef:
                 description: NexusRef is a reference to Nexus custom resource.
@@ -68,6 +71,8 @@ spec:
                 type: object
               roles:
                 description: Roles is a list of roles assigned to user.
+                example:
+                - nx-admin
                 items:
                   type: string
                 minItems: 1
@@ -76,6 +81,7 @@ spec:
                 description: 'Secret is the reference of the k8s object Secret for
                   the user password. Format: $secret-name:secret-key. Updating user
                   password is not supported.'
+                example: $nexus-user-secret:password-filed
                 type: string
               status:
                 default: active
@@ -83,6 +89,7 @@ spec:
                 enum:
                 - active
                 - disabled
+                example: active
                 type: string
             required:
             - email

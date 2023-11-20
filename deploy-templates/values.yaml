@@ -1,17 +1,3 @@
-global:
-  # -- platform type that can be "kubernetes" or "openshift"
-  platform: "kubernetes"
-  # -- Administrators of your tenant
-  admins:
-    - "stub_user_one@example.com"
-  # -- a cluster DNS wildcard name
-  dnsWildCard:
-  # -- Keycloak Endpoint which is used for SSO integration. Format https://keycloak.example.com
-  keycloakUrl:
-  openshift:
-    # -- Which type of kind will be deployed to Openshift (values: deployments/deploymentConfigs)
-    deploymentType: "deployments"
-
 # -- component name
 name: nexus-operator
 annotations: {}
@@ -26,118 +12,9 @@ image:
   tag:
 imagePullPolicy: "IfNotPresent"
 
-nexusCR:
-  # -- Specifies whether Nexus CR should be created
-  create: true
-
 resources:
   limits:
     memory: 192Mi
   requests:
     cpu: 50m
     memory: 64Mi
-
-nexus:
-  # -- Flag to enable/disable Nexus deploy
-  deploy: true
-  # -- Nexus name
-  name: "nexus"
-  # --  Image for Nexus. The image can be found on [Dockerhub] (https://hub.docker.com/r/sonatype/nexus3)
-  image: "sonatype/nexus3"
-  # --  Nexus version. The released version can be found on [Dockerhub](https://hub.docker.com/r/sonatype/nexus3/tags)
-  version: "3.58.1"
-  imagePullPolicy: "IfNotPresent"
-
-  # --  Base path for Nexus URL e.g. "some/path". With no starting '/'. Default: '/'.
-  # basePath:
-
-  # --  Secrets to pull from private Docker registry
-  imagePullSecrets:
-  # -- Custom environment variables to be used by nexus pod
-  env:
-    # see recommendation https://help.sonatype.com/repomanager3/product-information/system-requirements
-    - name: INSTALL4J_ADD_VM_PARAMS
-      value: |-
-        -Xms2703M -Xmx2703M
-        -XX:MaxDirectMemorySize=2703M
-        -XX:+UnlockExperimentalVMOptions
-        -XX:+UseCGroupMemoryLimitForHeap
-        -Djava.util.prefs.userRoot=/nexus-data/javaprefs
-  storage:
-    # --  Storageclass for Nexus data volume
-    # class: gp2
-    # -- Nexus data volume capacity
-    size: 10Gi
-  annotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-  resources:
-    limits:
-      memory: 6Gi
-    requests:
-      cpu: 100m
-      memory: 2Gi
-
-# Proxy configuration section
-oauth2_proxy:
-  # -- Install oauth2-proxy as a part of nexus deployment. Default: true
-  enabled: true
-
-  image:
-    # -- oauth2-proxy image repository
-    repository: quay.io/oauth2-proxy/oauth2-proxy
-    # -- oauth2-proxy image tag
-    tag: v7.4.0
-
-  # Create a cookie-secret with the following command
-  # openssl rand -base64 32 | head -c 32 | base64
-  # Use an existing secret for OAuth2 cookie-secret
-  existingSecret:
-    # -- Secret name which stores cookie-secret
-    secretName: nexus-proxy-cookie-secret
-    # -- Secret key which stores cookie-secret
-    secretKey: cookie-secret
-
-  extraEnv: []
-  extraArgs: {}
-
-  # -- Additional volumes to be added to the oauth2-proxy pod
-  extraVolumes: []
-  #  - name: custom-ca
-  #    secret:
-  #      defaultMode: 420
-  #      secretName: custom-ca
-
-  # -- Additional volumeMounts to be added to the oauth2-proxy container
-  extraVolumeMounts: []
-  #  - name: custom-ca
-  #    mountPath: /etc/ssl/certs/CA.crt
-  #    readOnly: true
-  #    subPath: CA.crt
-
-  ingress:
-    annotations: {}
-    # -- pathType is only for k8s >= 1.1=
-    pathType: Prefix
-    # -- For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
-    # -- See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-    # ingressClassName: nginx
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
-
-  resources:
-    limits:
-      cpu: 100m
-      memory: 300Mi
-    requests:
-      cpu: 100m
-      memory: 300Mi
-
-  annotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}

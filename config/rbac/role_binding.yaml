@@ -1,17 +1,17 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: clusterrolebinding
+    app.kubernetes.io/name: rolebinding
     app.kubernetes.io/instance: manager-rolebinding
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: controller-operator
-    app.kubernetes.io/part-of: controller-operator
+    app.kubernetes.io/created-by: nexus-operator
+    app.kubernetes.io/part-of: nexus-operator
     app.kubernetes.io/managed-by: kustomize
   name: manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: Role
   name: manager-role
 subjects:
 - kind: ServiceAccount

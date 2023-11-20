@@ -26,50 +26,59 @@ annotations:
   artifacthub.io/images: |
     - name: nexus-operator:2.17.0
       image: epamedp/nexus-operator:2.17.0
-    - name: nexus3:3.58.1
-      image: sonatype/nexus3:3.58.1
   artifacthub.io/operatorCapabilities: Full Lifecycle
   artifacthub.io/crds: |
     - kind: Nexus
-      version: v2.edp.epam.com/v1
+      version: edp.epam.com/v1alpha1
       name: nexus
       displayName: Nexus
       description: Nexus server configuration
     - kind: NexusUser
-      version: v2.edp.epam.com/v1
+      version: edp.epam.com/v1alpha1
       name: nexususer
       displayName: NexusUser
       description: Nexus user management
+    - kind: NexusRole
+      version: edp.epam.com/v1alpha1
+      name: nexusrole
+      displayName: NexusRole
+      description: Nexus role management
   artifacthub.io/crdsExamples: |
-    - apiVersion: v2.edp.epam.com/v1
+    - apiVersion: edp.epam.com/v1alpha1
       kind: Nexus
       metadata:
-        name: nexus
+        name: nexus-sample
       spec:
-        basePath: 'blank'
-        edpSpec:
-          dnsWildcard: localhost.com
-        keycloakSpec:
-          enabled: false
-          roles:
-            - developer
-            - administrator
-        users:
-          - roles:
-              - nx-admin
-            username: nx@example.com
-    - apiVersion: v2.edp.epam.com/v1
+        url: https://nexus-example.com
+        secret: nexus-secret
+    - apiVersion: edp.epam.com/v1alpha1
+      kind: NexusRole
+      metadata:
+        name: nexusrole-sample
+      spec:
+        id: test-role
+        nexusRef:
+          name: nexus-sample
+          kind: Nexus
+        name: test-role
+        description: test-role
+        privileges:
+          - nx-blobstores-all
+    - apiVersion: edp.epam.com/v1alpha1
       kind: NexusUser
       metadata:
-        name: test
+        name: user-sample
       spec:
-        ownerName: nexus
-        firstName: John
+        id: test-user
+        firstName: John1
         lastName: Doe
-        email: john.doe@example.com
-        userId: jondoe14
-        roles: ["edp-admin"]
-        status: "active"
+        email: test@gmail.com
+        secret: $user-secret:password
+        roles:
+          - nx-admin
+        nexusRef:
+          name: nexus-sample
+          kind: Nexus
   artifacthub.io/links: |
     - name: EDP Documentation
       url: https://epam.github.io/edp-install/

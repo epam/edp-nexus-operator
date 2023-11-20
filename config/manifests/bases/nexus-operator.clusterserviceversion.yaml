@@ -1,0 +1,68 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Deep Insights
+    categories: Developer Tools
+    containerImage: docker.io/epamedp/nexus-operator:3.0.0
+    description: An Operator for managing Nexus entities.
+    repository: https://github.com/epam/edp-nexus-operator
+  name: nexus-operator.v3.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Nexus is the Schema for the nexus API.
+      displayName: Nexus
+      kind: Nexus
+      name: nexuses.edp.epam.com
+      version: v1alpha1
+    - description: NexusRole is the Schema for the nexusroles API.
+      displayName: Nexus Role
+      kind: NexusRole
+      name: nexusroles.edp.epam.com
+      version: v1alpha1
+    - description: NexusUser is the Schema for the nexususers API.
+      displayName: Nexus User
+      kind: NexusUser
+      name: nexususers.edp.epam.com
+      version: v1alpha1
+  description: Nexus Operator is an operator that is responsible for establishing
+    a connection to provided Nexus server, reconciling Nexus entities (users, roles,
+    etc) according to the created CRs.
+  displayName: EDP Nexus Operator
+  icon:
+  - base64data: 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
+    mediatype: image/png
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: false
+    type: AllNamespaces
+  keywords:
+  - edp
+  - nexus
+  - operator
+  - artifact
+  - storage
+  links:
+  - name: Nexus Operator
+    url: https://nexus-operator.domain
+  maintainers:
+  - email: SupportEPMD-EDP@epam.com
+    name: epmd-edp
+  maturity: alpha
+  provider:
+    name: EPAM Delivery Platform
+    url: https://epam.github.io/edp-install/
+  version: 3.0.0

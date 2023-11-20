@@ -1,23 +1,23 @@
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.11.4
-  name: nexusroles.edp.epam.com
+  creationTimestamp: null
+  name: nexususers.edp.epam.com
 spec:
   group: edp.epam.com
   names:
-    kind: NexusRole
-    listKind: NexusRoleList
-    plural: nexusroles
-    singular: nexusrole
+    kind: NexusUser
+    listKind: NexusUserList
+    plural: nexususers
+    singular: nexususer
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: NexusRole is the Schema for the nexusroles API.
+        description: NexusUser is the Schema for the nexususers API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -32,24 +32,29 @@ spec:
           metadata:
             type: object
           spec:
-            description: NexusRoleSpec defines the desired state of NexusRole.
+            description: NexusUserSpec defines the desired state of NexusUser.
             properties:
-              description:
-                description: Description of nexus role.
-                example: Administrator role
+              email:
+                description: Email is the email address of the user.
+                example: john.doe@example
+                maxLength: 254
+                type: string
+              firstName:
+                description: FirstName of the user.
+                example: John
                 type: string
               id:
-                description: ID is the id of the role. ID should be unique across
-                  all roles.
-                example: nx-admin
+                description: ID is the username of the user. ID should be unique across
+                  all users.
+                example: new-user
                 maxLength: 512
                 type: string
                 x-kubernetes-validations:
                 - message: Value is immutable
                   rule: self == oldSelf
-              name:
-                description: Name is the name of the role.
-                example: nx-admin
+              lastName:
+                description: LastName of the user.
+                example: Doe
                 type: string
               nexusRef:
                 description: NexusRef is a reference to Nexus custom resource.
@@ -64,27 +69,45 @@ spec:
                 required:
                 - name
                 type: object
-              privileges:
-                description: Privileges is a list of privileges assigned to role.
+              roles:
+                description: Roles is a list of roles assigned to user.
                 example:
-                - nx-all
+                - nx-admin
                 items:
                   type: string
-                nullable: true
+                minItems: 1
                 type: array
+              secret:
+                description: 'Secret is the reference of the k8s object Secret for
+                  the user password. Format: $secret-name:secret-key. Updating user
+                  password is not supported.'
+                example: $nexus-user-secret:password-filed
+                type: string
+              status:
+                default: active
+                description: Status is a status of the user.
+                enum:
+                - active
+                - disabled
+                example: active
+                type: string
             required:
+            - email
+            - firstName
             - id
-            - name
+            - lastName
             - nexusRef
+            - roles
+            - secret
             type: object
           status:
-            description: NexusRoleStatus defines the observed state of NexusRole.
+            description: NexusUserStatus defines the observed state of NexusUser.
             properties:
               error:
                 description: Error is an error message if something went wrong.
                 type: string
               value:
-                description: Value is a status of the role.
+                description: Value is a status of the user.
                 type: string
             type: object
         type: object
@@ -92,3 +115,9 @@ spec:
     storage: true
     subresources:
       status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: null
+  storedVersions: null

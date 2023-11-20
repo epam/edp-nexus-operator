@@ -1,0 +1,93 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuses
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuses/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuses/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusroles
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusroles/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusroles/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexususers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexususers/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexususers/status
+    verbs:
+      - get
+      - patch
+      - update

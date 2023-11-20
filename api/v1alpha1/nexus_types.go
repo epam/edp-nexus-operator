@@ -28,6 +28,7 @@ type NexusStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:storageversion
+// +kubebuilder:resource:path=nexuses
 // +kubebuilder:printcolumn:name="Connected",type="boolean",JSONPath=".status.connected",description="Is connected to nexus"
 
 // Nexus is the Schema for the nexus API.

@@ -1,0 +1,13 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: Nexus
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus
+    app.kubernetes.io/instance: nexus-sample
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: nexus-operator
+  name: nexus-sample
+spec:
+  url: https://nexus-example.com
+  secret: nexus-secret

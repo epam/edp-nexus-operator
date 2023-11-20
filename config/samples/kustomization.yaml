@@ -1,7 +1,6 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
-- v1_v1_nexus.yaml
-- v1_v1_nexususer.yaml
+- edp_v1alpha1_nexuses.yaml
 - edp_v1alpha1_nexusrole.yaml
 - edp_v1alpha1_nexususer.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples
