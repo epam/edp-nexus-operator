@@ -3,4 +3,5 @@ resources:
 - edp_v1alpha1_nexuses.yaml
 - edp_v1alpha1_nexusrole.yaml
 - edp_v1alpha1_nexususer.yaml
+- edp_v1alpha1_nexusrepository.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

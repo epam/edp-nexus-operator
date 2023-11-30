@@ -1,0 +1,73 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusRepository
+metadata:
+  name: go-proxy
+spec:
+  nexusRef:
+    name: nexus-sample
+  go:
+    proxy:
+      name: go-proxy
+      proxy:
+        remoteUrl: https://test.com
+        contentMaxAge: 1440
+        metadataMaxAge: 1440
+      online: true
+      routingRule: "routing-rule"
+      cleanup:
+        policyNames:
+          - "cleanup-policy"
+      httpClient:
+        autoBlock: true
+        blocked: true
+        connection:
+          timeout: 1440
+          retries: 1440
+          userAgentSuffix: "user-agent-suffix"
+      negativeCache:
+        enabled: true
+        timeToLive: 1440
+      storage:
+        blobStoreName: "blob-store-name"
+        strictContentTypeValidation: true
+
+---
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusRepository
+metadata:
+  name: go-group
+spec:
+  nexusRef:
+    name: nexus-sample
+  go:
+    group:
+      name: go-group
+      group:
+        memberNames:
+          - go-proxy
+      online: true
+      storage:
+        blobStoreName: "blob-store-name"
+        strictContentTypeValidation: true
+
+
+---
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusRepository
+metadata:
+  name: npm-hosted
+spec:
+  nexusRef:
+    name: nexus-sample
+  npm:
+    hosted:
+      name: npm-hosted
+      storage:
+          blobStoreName: "blob-store-name"
+          strictContentTypeValidation: true
+      online: true
+      component:
+        proprietaryComponents: true
+      cleanup:
+        policyNames:
+          - "cleanup-policy"

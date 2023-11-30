@@ -22,6 +22,7 @@ import (
 	buildInfo "github.com/epam/edp-common/pkg/config"
 	nexusApiV1Alpha1 "github.com/epam/edp-nexus-operator/api/v1alpha1"
 	"github.com/epam/edp-nexus-operator/controllers/nexus"
+	"github.com/epam/edp-nexus-operator/controllers/repository"
 	"github.com/epam/edp-nexus-operator/controllers/role"
 	"github.com/epam/edp-nexus-operator/controllers/user"
 	nexusclient "github.com/epam/edp-nexus-operator/pkg/client/nexus"
@@ -118,6 +119,13 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "user")
 		os.Exit(1)
 	}
+
+	if err = repository.NewNexusRepositoryReconciler(mgr.GetClient(), mgr.GetScheme(), apiClientProvider).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "user")
+		os.Exit(1)
+	}
+
+	//+kubebuilder:scaffold:builder
 
 	if err = mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")

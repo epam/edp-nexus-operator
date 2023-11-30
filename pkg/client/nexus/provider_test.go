@@ -245,3 +245,130 @@ func TestApiClientProvider_GetNexusApiClientFromNexusRef(t *testing.T) {
 		})
 	}
 }
+
+func TestApiClientProvider_GetNexusRepositoryClientFromNexusRef(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		ref       common.HasNexusRef
+		k8sClient func(t *testing.T) client.Client
+		want      require.ValueAssertionFunc
+		wantErr   require.ErrorAssertionFunc
+	}{
+		{
+			name: "successfully get nexus api client",
+			ref: &nexusApi.NexusRepository{
+				Spec: nexusApi.NexusRepositorySpec{
+					NexusRef: common.NexusRef{
+						Name: "nexus",
+					},
+				},
+			},
+			k8sClient: func(t *testing.T) client.Client {
+				sh := runtime.NewScheme()
+				require.NoError(t, nexusApi.AddToScheme(sh))
+				require.NoError(t, corev1.AddToScheme(sh))
+
+				return fake.NewClientBuilder().
+					WithScheme(sh).
+					WithObjects(
+						&corev1.Secret{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      "nexus-secret",
+								Namespace: "default",
+							},
+							Data: map[string][]byte{
+								"user":     []byte("user"),
+								"password": []byte("password"),
+							},
+						},
+						&nexusApi.Nexus{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      "nexus",
+								Namespace: "default",
+							},
+							Spec: nexusApi.NexusSpec{
+								Secret: "nexus-secret",
+							},
+						},
+					).
+					Build()
+			},
+			want:    require.NotNil,
+			wantErr: require.NoError,
+		},
+		{
+			name: "secret not found",
+			ref: &nexusApi.NexusRepository{
+				Spec: nexusApi.NexusRepositorySpec{
+					NexusRef: common.NexusRef{
+						Name: "nexus",
+					},
+				},
+			},
+			k8sClient: func(t *testing.T) client.Client {
+				sh := runtime.NewScheme()
+				require.NoError(t, nexusApi.AddToScheme(sh))
+				require.NoError(t, corev1.AddToScheme(sh))
+
+				return fake.NewClientBuilder().
+					WithScheme(sh).
+					WithObjects(
+						&nexusApi.Nexus{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      "nexus",
+								Namespace: "default",
+							},
+							Spec: nexusApi.NexusSpec{
+								Secret: "nexus-secret",
+							},
+						},
+					).
+					Build()
+			},
+			want: require.Nil,
+			wantErr: func(t require.TestingT, err error, i ...interface{}) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "failed to get nexus secret")
+			},
+		},
+		{
+			name: "failed to get nexus instance",
+			ref: &nexusApi.NexusRepository{
+				Spec: nexusApi.NexusRepositorySpec{
+					NexusRef: common.NexusRef{
+						Name: "nexus",
+					},
+				},
+			},
+			k8sClient: func(t *testing.T) client.Client {
+				sh := runtime.NewScheme()
+				require.NoError(t, nexusApi.AddToScheme(sh))
+				require.NoError(t, corev1.AddToScheme(sh))
+
+				return fake.NewClientBuilder().
+					WithScheme(sh).
+					Build()
+			},
+			want: require.Nil,
+			wantErr: func(t require.TestingT, err error, i ...interface{}) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "failed to get nexus instance")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			p := NewApiClientProvider(tt.k8sClient(t))
+			got, err := p.GetNexusRepositoryClientFromNexusRef(context.Background(), "default", tt.ref)
+
+			tt.wantErr(t, err)
+			tt.want(t, got)
+		})
+	}
+}

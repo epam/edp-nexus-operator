@@ -1,6 +1,8 @@
 package nexus
 
 import (
+	"context"
+
 	"github.com/datadrivers/go-nexus-client/nexus3/schema/security"
 )
 
@@ -18,4 +20,12 @@ type Role interface {
 	Create(role security.Role) error
 	Update(id string, role security.Role) error
 	Delete(id string) error
+}
+
+//go:generate mockery --name Repository --filename repository_mock.go
+type Repository interface {
+	Get(ctx context.Context, id, format, repoType string) (interface{}, error)
+	Create(ctx context.Context, format, repoType string, data interface{}) error
+	Update(ctx context.Context, id, format, repoType string, data interface{}) error
+	Delete(ctx context.Context, id string) error
 }

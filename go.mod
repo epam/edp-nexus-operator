@@ -6,6 +6,7 @@ require (
 	github.com/datadrivers/go-nexus-client v1.8.1
 	github.com/epam/edp-common v0.0.0-20230710145648-344bbce4120e
 	github.com/go-logr/logr v1.2.4
+	github.com/go-resty/resty/v2 v2.10.0
 	github.com/onsi/ginkgo/v2 v2.6.0
 	github.com/onsi/gomega v1.24.1
 	github.com/stretchr/testify v1.8.4

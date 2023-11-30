@@ -1,0 +1,38 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusRepository
+metadata:
+  labels:
+    app.kubernetes.io/name: nexusrepository
+    app.kubernetes.io/instance: nexusrepository-sample
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: nexus-operator
+  name: nexusrepository-sample
+spec:
+  nexusRef:
+    name: nexus-sample
+  go:
+    proxy:
+      name: go-proxy
+      proxy:
+        remoteUrl: https://test.com
+        contentMaxAge: 1440
+        metadataMaxAge: 1440
+      online: true
+      routingRule: "routing-rule"
+      cleanup:
+        policyNames:
+          - "cleanup-policy"
+      httpClient:
+        autoBlock: true
+        blocked: true
+        connection:
+          timeout: 1440
+          retries: 1440
+          userAgentSuffix: "user-agent-suffix"
+      negativeCache:
+        enabled: true
+        timeToLive: 1440
+      storage:
+        blobStoreName: "blob-store-name"
+        strictContentTypeValidation: true

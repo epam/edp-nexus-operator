@@ -26,20 +26,9 @@ func NewApiClientProvider(k8sClient client.Client) *ApiClientProvider {
 
 // GetNexusApiClientFromNexus returns nexus api client from Nexus CR.
 func (p *ApiClientProvider) GetNexusApiClientFromNexus(ctx context.Context, nexus *nexusApi.Nexus) (*nexus3.NexusClient, error) {
-	secret := corev1.Secret{}
-	if err := p.k8sClient.Get(ctx, types.NamespacedName{
-		Name:      nexus.Spec.Secret,
-		Namespace: nexus.Namespace,
-	}, &secret); err != nil {
-		return nil, fmt.Errorf("failed to get nexus secret: %w", err)
-	}
-
-	if secret.Data["user"] == nil {
-		return nil, fmt.Errorf("nexus secret doesn't contain user")
-	}
-
-	if secret.Data["password"] == nil {
-		return nil, fmt.Errorf("nexus secret doesn't contain password")
+	secret, err := p.getNexusSecret(ctx, nexus)
+	if err != nil {
+		return nil, err
 	}
 
 	return nexus3.NewClient(nexus3client.Config{
@@ -59,4 +48,45 @@ func (p *ApiClientProvider) GetNexusApiClientFromNexusRef(ctx context.Context, n
 	}
 
 	return p.GetNexusApiClientFromNexus(ctx, nexus)
+}
+
+func (p *ApiClientProvider) GetNexusRepositoryClientFromNexusRef(ctx context.Context, namespace string, ref common.HasNexusRef) (*RepoClient, error) {
+	nexus := &nexusApi.Nexus{}
+	if err := p.k8sClient.Get(ctx, types.NamespacedName{
+		Name:      ref.GetNexusRef().Name,
+		Namespace: namespace,
+	}, nexus); err != nil {
+		return nil, fmt.Errorf("failed to get nexus instance: %w", err)
+	}
+
+	secret, err := p.getNexusSecret(ctx, nexus)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewRepoClient(ClientConfig{
+		BaseURL:  nexus.Spec.Url,
+		UserName: string(secret.Data["user"]),
+		Password: string(secret.Data["password"]),
+	}), nil
+}
+
+func (p *ApiClientProvider) getNexusSecret(ctx context.Context, nexus *nexusApi.Nexus) (corev1.Secret, error) {
+	secret := corev1.Secret{}
+	if err := p.k8sClient.Get(ctx, types.NamespacedName{
+		Name:      nexus.Spec.Secret,
+		Namespace: nexus.Namespace,
+	}, &secret); err != nil {
+		return corev1.Secret{}, fmt.Errorf("failed to get nexus secret: %w", err)
+	}
+
+	if secret.Data["user"] == nil {
+		return corev1.Secret{}, fmt.Errorf("nexus secret doesn't contain user")
+	}
+
+	if secret.Data["password"] == nil {
+		return corev1.Secret{}, fmt.Errorf("nexus secret doesn't contain password")
+	}
+
+	return secret, nil
 }

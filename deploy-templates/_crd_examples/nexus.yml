@@ -3,7 +3,7 @@ kind: Nexus
 metadata:
   name: nexus-sample
 spec:
-  url: http://192.168.0.150:8091
+  url: http://nexus-sample
   secret: nexus-secret
 
 
