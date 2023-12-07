@@ -75,6 +75,7 @@ func (r *NexusReconciler) Reconcile(ctx context.Context, req reconcile.Request) 
 
 	if err = chain.NewCheckConnection(nexusApiClient.Security.User).ServeRequest(ctx, nexus); err != nil {
 		nexus.Status.Error = err.Error()
+		nexus.Status.Connected = false
 
 		if statusErr := r.updateNexusStatus(ctx, nexus, oldStatus); statusErr != nil {
 			return reconcile.Result{}, statusErr
