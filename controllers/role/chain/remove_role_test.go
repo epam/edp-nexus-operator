@@ -31,7 +31,7 @@ func TestRemoveRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Delete", "role-id").
 					Return(nil)
@@ -48,7 +48,7 @@ func TestRemoveRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Delete", "role-id").
 					Return(errors.New("not found"))
@@ -65,7 +65,7 @@ func TestRemoveRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Delete", "role-id").
 					Return(errors.New("failed to remove role"))

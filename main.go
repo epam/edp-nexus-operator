@@ -24,6 +24,7 @@ import (
 	"github.com/epam/edp-nexus-operator/controllers/nexus"
 	"github.com/epam/edp-nexus-operator/controllers/repository"
 	"github.com/epam/edp-nexus-operator/controllers/role"
+	"github.com/epam/edp-nexus-operator/controllers/script"
 	"github.com/epam/edp-nexus-operator/controllers/user"
 	nexusclient "github.com/epam/edp-nexus-operator/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/pkg/helper"
@@ -125,6 +126,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = script.NewNexusScriptReconciler(mgr.GetClient(), apiClientProvider).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "NexusScript")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err = mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

@@ -27,7 +27,7 @@ func TestCheckConnection_ServeRequest(t *testing.T) {
 			name:  "connection is established",
 			nexus: &nexusApi.Nexus{},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user").Return(nil, nil)
 
@@ -39,7 +39,7 @@ func TestCheckConnection_ServeRequest(t *testing.T) {
 			name:  "failed to connect",
 			nexus: &nexusApi.Nexus{},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user").Return(nil, errors.New("failed to connect"))
 

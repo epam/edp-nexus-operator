@@ -1,0 +1,11 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusScript
+metadata:
+  name: nexusscript-sample
+spec:
+  name: anonymous
+  content: |
+    security.setAnonymousAccess(Boolean.valueOf(args))
+  payload: "true"
+  nexusRef:
+    name: nexus-sample

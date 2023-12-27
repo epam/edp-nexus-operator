@@ -12,7 +12,7 @@ GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_TAG=$(shell if [ -z "`git status --porcelain`" ]; then git describe --exact-match --tags HEAD 2>/dev/null; fi)
 KUBECTL_VERSION=$(shell go list -m all | grep k8s.io/client-go| cut -d' ' -f2)
 ENVTEST ?= $(LOCALBIN)/setup-envtest
-ENVTEST_K8S_VERSION = 1.23.5
+ENVTEST_K8S_VERSION = 1.27.1
 
 override LDFLAGS += \
   -X ${PACKAGE}.version=${VERSION} \
@@ -190,3 +190,11 @@ ENVTEST=$(LOCALBIN)/setup-envtest
 envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	$(call go-get-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,latest)
+
+mocks:
+	$(MOCKERY)
+
+MOCKERY = $(LOCALBIN)/mockery
+.PHONY: mockery
+mockery: ## Download mockery locally if necessary.
+	$(call go-get-tool,$(MOCKERY),github.com/vektra/mockery/v2,v2.38.0)

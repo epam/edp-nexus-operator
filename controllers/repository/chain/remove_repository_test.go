@@ -38,7 +38,7 @@ func TestRemoveRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Delete", testifymock.Anything, "go-proxy").Return(nil)
 
@@ -60,7 +60,7 @@ func TestRemoveRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Delete", testifymock.Anything, "go-proxy").Return(nexus.ErrNotFound)
 
@@ -82,7 +82,7 @@ func TestRemoveRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Delete", testifymock.Anything, "go-proxy").
 					Return(errors.New("failed to remove repository"))

@@ -68,7 +68,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user-id").Return(nil, nil)
 
@@ -107,7 +107,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 				return fake.NewClientBuilder().Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user-id").Return(&security.User{
 					UserID:       "user-id",
@@ -154,7 +154,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 				return fake.NewClientBuilder().Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user-id").Return(nil, nil)
 
@@ -203,7 +203,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user-id").Return(nil, nil)
 
@@ -245,7 +245,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 				return fake.NewClientBuilder().Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user-id").Return(&security.User{
 					UserID:       "user-id",
@@ -295,7 +295,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 				return fake.NewClientBuilder().Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Get", "user-id").
 					Return(nil, errors.New("failed to get user"))

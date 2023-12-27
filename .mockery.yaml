@@ -1,0 +1,11 @@
+with-expecter: True
+inpackage: False
+dir: "{{.InterfaceDir}}/mocks"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "mocks"
+filename: "{{.InterfaceName | lower}}_mock.go"
+all: True
+packages:
+  github.com/epam/edp-nexus-operator/pkg/client/nexus:
+    config:
+      recursive: True

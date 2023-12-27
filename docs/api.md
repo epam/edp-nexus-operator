@@ -14,6 +14,8 @@ Resource Types:
 
 - [NexusRole](#nexusrole)
 
+- [NexusScript](#nexusscript)
+
 - [NexusUser](#nexususer)
 
 
@@ -12263,6 +12265,186 @@ NexusRoleStatus defines the observed state of NexusRole.
         <td>string</td>
         <td>
           Value is a status of the role.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+## NexusScript
+<sup><sup>[↩ Parent](#edpepamcomv1alpha1 )</sup></sup>
+
+
+
+
+
+
+NexusScript is the Schema for the nexusscripts API.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+      <td><b>apiVersion</b></td>
+      <td>string</td>
+      <td>edp.epam.com/v1alpha1</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b>kind</b></td>
+      <td>string</td>
+      <td>NexusScript</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta">metadata</a></b></td>
+      <td>object</td>
+      <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
+      <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusscriptspec">spec</a></b></td>
+        <td>object</td>
+        <td>
+          NexusScriptSpec defines the desired state of NexusScript.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusscriptstatus">status</a></b></td>
+        <td>object</td>
+        <td>
+          NexusScriptStatus defines the observed state of NexusScript.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusScript.spec
+<sup><sup>[↩ Parent](#nexusscript)</sup></sup>
+
+
+
+NexusScriptSpec defines the desired state of NexusScript.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>content</b></td>
+        <td>string</td>
+        <td>
+          Content is the content of the script.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name is the id of the script. Name should be unique across all scripts.<br/>
+          <br/>
+            <i>Validations</i>:<li>self == oldSelf: Value is immutable</li>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusscriptspecnexusref">nexusRef</a></b></td>
+        <td>object</td>
+        <td>
+          NexusRef is a reference to Nexus custom resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>payload</b></td>
+        <td>string</td>
+        <td>
+          Payload is the payload of the script.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusScript.spec.nexusRef
+<sup><sup>[↩ Parent](#nexusscriptspec)</sup></sup>
+
+
+
+NexusRef is a reference to Nexus custom resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name specifies the name of the Nexus resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Kind specifies the kind of the Nexus resource.<br/>
+          <br/>
+            <i>Default</i>: Nexus<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusScript.status
+<sup><sup>[↩ Parent](#nexusscript)</sup></sup>
+
+
+
+NexusScriptStatus defines the observed state of NexusScript.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>error</b></td>
+        <td>string</td>
+        <td>
+          Error is an error message if something went wrong.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>executed</b></td>
+        <td>boolean</td>
+        <td>
+          Executed defines if script was executed.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>value</b></td>
+        <td>string</td>
+        <td>
+          Value is a status of the script.<br/>
         </td>
         <td>false</td>
       </tr></tbody>

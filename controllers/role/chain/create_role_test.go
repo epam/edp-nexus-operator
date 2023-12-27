@@ -35,7 +35,7 @@ func TestCreateRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Get", "role-id").Return(nil, errors.New("not found"))
 
@@ -61,7 +61,7 @@ func TestCreateRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Get", "role-id").Return(&security.Role{
 					ID:          "role-id",
@@ -92,7 +92,7 @@ func TestCreateRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Get", "role-id").Return(&security.Role{
 					ID:          "role-id",
@@ -116,7 +116,7 @@ func TestCreateRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Get", "role-id").Return(&security.Role{
 					ID:          "role-id",
@@ -150,7 +150,7 @@ func TestCreateRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Get", "role-id").Return(nil, errors.New("failed to get role"))
 
@@ -172,7 +172,7 @@ func TestCreateRole_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.Role {
-				m := mocks.NewRole(t)
+				m := mocks.NewMockRole(t)
 
 				m.On("Get", "role-id").Return(nil, errors.New("not found"))
 

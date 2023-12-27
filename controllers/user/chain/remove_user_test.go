@@ -31,7 +31,7 @@ func TestRemoveUser_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Delete", "user-id").
 					Return(nil)
@@ -48,7 +48,7 @@ func TestRemoveUser_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Delete", "user-id").
 					Return(errors.New("not found"))
@@ -65,7 +65,7 @@ func TestRemoveUser_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
-				m := mocks.NewUser(t)
+				m := mocks.NewMockUser(t)
 
 				m.On("Delete", "user-id").
 					Return(errors.New("failed to remove user"))

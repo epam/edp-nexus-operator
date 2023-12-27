@@ -1,0 +1,17 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusScript
+metadata:
+  labels:
+    app.kubernetes.io/name: nexusscript
+    app.kubernetes.io/instance: nexusscript-sample
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: nexus-operator
+  name: nexusscript-sample
+spec:
+  name: anonymous
+  content: |
+    security.setAnonymousAccess(Boolean.valueOf(args))
+  payload: "true"
+  nexusRef:
+    name: nexus-sample

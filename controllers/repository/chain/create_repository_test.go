@@ -38,7 +38,7 @@ func TestCreateRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Get", testifymock.Anything, "go-proxy", nexus.FormatGo, nexus.TypeProxy).
 					Return(nil, nexus.ErrNotFound)
@@ -67,7 +67,7 @@ func TestCreateRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Get", testifymock.Anything, "go-proxy", nexus.FormatGo, nexus.TypeProxy).
 					Return(nil, nil)
@@ -97,7 +97,7 @@ func TestCreateRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Get", testifymock.Anything, "go-proxy", nexus.FormatGo, nexus.TypeProxy).
 					Return(nil, nil)
@@ -129,7 +129,7 @@ func TestCreateRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Get", testifymock.Anything, "go-proxy", nexus.FormatGo, nexus.TypeProxy).
 					Return(nil, nexus.ErrNotFound)
@@ -160,7 +160,7 @@ func TestCreateRepository_ServeRequest(t *testing.T) {
 				},
 			},
 			nexusRepositoryApiClient: func(t *testing.T) nexus.Repository {
-				m := mocks.NewRepository(t)
+				m := mocks.NewMockRepository(t)
 
 				m.On("Get", testifymock.Anything, "go-proxy", nexus.FormatGo, nexus.TypeProxy).
 					Return(nil, errors.New("failed to get repository"))

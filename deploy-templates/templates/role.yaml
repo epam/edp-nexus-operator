@@ -42,6 +42,32 @@ rules:
   - apiGroups:
       - edp.epam.com
     resources:
+      - nexusrepositories
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusrepositories/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusrepositories/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
       - nexusroles
     verbs:
       - create
@@ -68,6 +94,32 @@ rules:
   - apiGroups:
       - edp.epam.com
     resources:
+      - nexusscripts
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusscripts/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusscripts/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
       - nexususers
     verbs:
       - create
@@ -87,32 +139,6 @@ rules:
       - edp.epam.com
     resources:
       - nexususers/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - edp.epam.com
-    resources:
-      - nexusrepositories
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - edp.epam.com
-    resources:
-      - nexusrepositories/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - edp.epam.com
-    resources:
-      - nexusrepositories/status
     verbs:
       - get
       - patch
