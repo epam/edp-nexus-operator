@@ -182,7 +182,7 @@ NexusRepository is the Schema for the nexusrepositories API.
         <td><b><a href="#nexusrepositoryspec">spec</a></b></td>
         <td>object</td>
         <td>
-          NexusRepositorySpec defines the desired state of NexusRepository.<br/>
+          NexusRepositorySpec defines the desired state of NexusRepository. It should contain only one format of repository - go, maven, npm, etc. and only one type - proxy, hosted or group.<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -201,7 +201,7 @@ NexusRepository is the Schema for the nexusrepositories API.
 
 
 
-NexusRepositorySpec defines the desired state of NexusRepository.
+NexusRepositorySpec defines the desired state of NexusRepository. It should contain only one format of repository - go, maven, npm, etc. and only one type - proxy, hosted or group.
 
 <table>
     <thead>

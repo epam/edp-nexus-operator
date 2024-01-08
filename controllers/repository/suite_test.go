@@ -97,7 +97,6 @@ var _ = BeforeSuite(func() {
 
 	err = NewNexusRepositoryReconciler(
 		k8sManager.GetClient(),
-		k8sManager.GetScheme(),
 		nexusclient.NewApiClientProvider(k8sManager.GetClient()),
 	).
 		SetupWithManager(k8sManager)

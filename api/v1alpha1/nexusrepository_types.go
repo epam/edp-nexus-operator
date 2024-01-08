@@ -7,6 +7,7 @@ import (
 )
 
 // NexusRepositorySpec defines the desired state of NexusRepository.
+// It should contain only one format of repository - go, maven, npm, etc. and only one type - proxy, hosted or group.
 type NexusRepositorySpec struct {
 	Apt       *AptSpec       `json:"apt,omitempty"`
 	Bower     *BowerSpec     `json:"bower,omitempty"`

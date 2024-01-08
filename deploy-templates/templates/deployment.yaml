@@ -25,6 +25,14 @@ spec:
         - name: {{ .Values.name }}
           # Replace this with the built image name
           image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          ports:
+            - containerPort: 9443
+              name: webhook-server
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: cert
+              readOnly: true
           imagePullPolicy: "{{ .Values.imagePullPolicy }}"
           command:
             - /manager
@@ -49,3 +57,8 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: edp-nexus-operator-webhook-certs

@@ -63,8 +63,8 @@ spec:
     hosted:
       name: npm-hosted
       storage:
-          blobStoreName: "blob-store-name"
-          strictContentTypeValidation: true
+        blobStoreName: "blob-store-name"
+        strictContentTypeValidation: true
       online: true
       component:
         proprietaryComponents: true

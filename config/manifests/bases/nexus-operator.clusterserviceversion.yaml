@@ -29,6 +29,11 @@ spec:
       kind: NexusRole
       name: nexusroles.edp.epam.com
       version: v1alpha1
+    - description: NexusScript is the Schema for the nexusscripts API.
+      displayName: Nexus Script
+      kind: NexusScript
+      name: nexusscripts.edp.epam.com
+      version: v1alpha1
     - description: NexusUser is the Schema for the nexususers API.
       displayName: Nexus User
       kind: NexusUser
@@ -78,13 +83,13 @@ spec:
       deployments: null
     strategy: ""
   installModes:
-  - supported: true
+  - supported: false
     type: OwnNamespace
-  - supported: true
+  - supported: false
     type: SingleNamespace
   - supported: false
     type: MultiNamespace
-  - supported: false
+  - supported: true
     type: AllNamespaces
   keywords:
   - edp

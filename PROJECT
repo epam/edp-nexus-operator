@@ -18,7 +18,7 @@ resources:
   domain: epam.com
   group: edp
   kind: Nexus
-  path: github.com/epam/edp-nexus-operator/api/edp/v1alpha1
+  path: github.com/epam/edp-nexus-operator/api/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -47,6 +47,9 @@ resources:
   kind: NexusRepository
   path: github.com/epam/edp-nexus-operator/api/v1alpha1
   version: v1alpha1
+  webhooks:
+    validation: true
+    webhookVersion: v1
 - api:
     crdVersion: v1
     namespaced: true

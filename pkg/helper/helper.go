@@ -7,19 +7,15 @@ import (
 )
 
 const (
-	watchNamespaceEnvVar   = "WATCH_NAMESPACE"
+	WatchNamespaceEnvVar   = "WATCH_NAMESPACE"
 	debugModeEnvVar        = "DEBUG_MODE"
 	inClusterNamespacePath = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 )
 
 // GetWatchNamespace returns the namespace the operator should be watching for changes.
-func GetWatchNamespace() (string, error) {
-	ns, found := os.LookupEnv(watchNamespaceEnvVar)
-	if !found {
-		return "", fmt.Errorf("%s must be set", watchNamespaceEnvVar)
-	}
-
-	return ns, nil
+// If the value is not set, it returns an empty string and the operator will watch for changes in all namespaces.
+func GetWatchNamespace() string {
+	return os.Getenv(WatchNamespaceEnvVar)
 }
 
 // GetDebugMode returns the debug mode value.

@@ -103,6 +103,28 @@ metadata:
         },
         {
           "apiVersion": "edp.epam.com/v1alpha1",
+          "kind": "NexusScript",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "nexus-operator",
+              "app.kubernetes.io/instance": "nexusscript-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "nexusscript",
+              "app.kubernetes.io/part-of": "nexus-operator"
+            },
+            "name": "nexusscript-sample"
+          },
+          "spec": {
+            "content": "security.setAnonymousAccess(Boolean.valueOf(args))\n",
+            "name": "anonymous",
+            "nexusRef": {
+              "name": "nexus-sample"
+            },
+            "payload": "true"
+          }
+        },
+        {
+          "apiVersion": "edp.epam.com/v1alpha1",
           "kind": "NexusUser",
           "metadata": {
             "labels": {
@@ -133,9 +155,9 @@ metadata:
     capabilities: Deep Insights
     categories: Developer Tools
     containerImage: docker.io/epamedp/nexus-operator:3.0.0
-    createdAt: "2023-12-11T12:54:50Z"
+    createdAt: "2024-01-09T11:37:44Z"
     description: An Operator for managing Nexus entities.
-    operators.operatorframework.io/builder: operator-sdk-v1.32.0
+    operators.operatorframework.io/builder: operator-sdk-v1.33.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/epam/edp-nexus-operator
   name: nexus-operator.v3.0.0
@@ -158,6 +180,11 @@ spec:
       displayName: Nexus Role
       kind: NexusRole
       name: nexusroles.edp.epam.com
+      version: v1alpha1
+    - description: NexusScript is the Schema for the nexusscripts API.
+      displayName: Nexus Script
+      kind: NexusScript
+      name: nexusscripts.edp.epam.com
       version: v1alpha1
     - description: NexusUser is the Schema for the nexususers API.
       displayName: Nexus User
@@ -234,10 +261,8 @@ spec:
                 command:
                 - /manager
                 env:
-                - name: WATCH_NAMESPACE
-                  valueFrom:
-                    fieldRef:
-                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: SETUP_SELF_SIGNED_CERTIFICATES
+                  value: "false"
                 image: docker.io/epamedp/nexus-operator:3.0.0
                 livenessProbe:
                   httpGet:
@@ -246,6 +271,10 @@ spec:
                   initialDelaySeconds: 15
                   periodSeconds: 20
                 name: manager
+                ports:
+                - containerPort: 9443
+                  name: webhook-server
+                  protocol: TCP
                 readinessProbe:
                   httpGet:
                     path: /readyz
@@ -264,10 +293,19 @@ spec:
                   capabilities:
                     drop:
                     - ALL
+                volumeMounts:
+                - mountPath: /tmp/k8s-webhook-server/serving-certs
+                  name: cert
+                  readOnly: true
               securityContext:
                 runAsNonRoot: true
               serviceAccountName: nexus-operator-controller-manager
               terminationGracePeriodSeconds: 10
+              volumes:
+              - name: cert
+                secret:
+                  defaultMode: 420
+                  secretName: webhook-server-cert
       permissions:
       - rules:
         - apiGroups:
@@ -390,6 +428,32 @@ spec:
         - apiGroups:
           - edp.epam.com
           resources:
+          - nexusscripts
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexusscripts/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexusscripts/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - edp.epam.com
+          resources:
           - nexususers
           verbs:
           - create
@@ -416,13 +480,13 @@ spec:
         serviceAccountName: nexus-operator-controller-manager
     strategy: deployment
   installModes:
-  - supported: true
+  - supported: false
     type: OwnNamespace
-  - supported: true
+  - supported: false
     type: SingleNamespace
   - supported: false
     type: MultiNamespace
-  - supported: false
+  - supported: true
     type: AllNamespaces
   keywords:
   - edp
@@ -441,3 +505,24 @@ spec:
     name: EPAM Delivery Platform
     url: https://epam.github.io/edp-install/
   version: 3.0.0
+  webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: nexus-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vnexusrepository.kb.io
+    rules:
+    - apiGroups:
+      - edp.epam.com
+      apiVersions:
+      - v1alpha1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - nexusrepositories
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-edp-epam-com-v1alpha1-nexusrepository

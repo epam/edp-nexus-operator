@@ -12,24 +12,18 @@ func TestGetWatchNamespace(t *testing.T) {
 		name    string
 		prepare func(t *testing.T)
 		want    string
-		wantErr require.ErrorAssertionFunc
 	}{
 		{
 			name: "namespace is set",
 			prepare: func(t *testing.T) {
-				t.Setenv(watchNamespaceEnvVar, "test")
+				t.Setenv(WatchNamespaceEnvVar, "test")
 			},
-			want:    "test",
-			wantErr: require.NoError,
+			want: "test",
 		},
 		{
 			name:    "namespace is  not set",
 			prepare: func(t *testing.T) {},
 			want:    "",
-			wantErr: func(t require.TestingT, err error, i ...interface{}) {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), "must be set")
-			},
 		},
 	}
 
@@ -37,9 +31,8 @@ func TestGetWatchNamespace(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.prepare(t)
 
-			got, err := GetWatchNamespace()
+			got := GetWatchNamespace()
 
-			tt.wantErr(t, err)
 			assert.Equal(t, tt.want, got)
 		})
 	}

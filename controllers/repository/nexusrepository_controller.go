@@ -6,7 +6,6 @@ import (
 	"time"
 
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -29,12 +28,11 @@ type apiClientProvider interface {
 // NexusRepositoryReconciler reconciles a NexusRepository object.
 type NexusRepositoryReconciler struct {
 	client            client.Client
-	scheme            *runtime.Scheme
 	apiClientProvider apiClientProvider
 }
 
-func NewNexusRepositoryReconciler(k8sClient client.Client, scheme *runtime.Scheme, apiClientProvider apiClientProvider) *NexusRepositoryReconciler {
-	return &NexusRepositoryReconciler{client: k8sClient, scheme: scheme, apiClientProvider: apiClientProvider}
+func NewNexusRepositoryReconciler(k8sClient client.Client, apiClientProvider apiClientProvider) *NexusRepositoryReconciler {
+	return &NexusRepositoryReconciler{client: k8sClient, apiClientProvider: apiClientProvider}
 }
 
 //+kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusrepositories,verbs=get;list;watch;create;update;patch;delete

@@ -28,6 +28,7 @@ import (
 	"github.com/epam/edp-nexus-operator/controllers/user"
 	nexusclient "github.com/epam/edp-nexus-operator/pkg/client/nexus"
 	"github.com/epam/edp-nexus-operator/pkg/helper"
+	"github.com/epam/edp-nexus-operator/pkg/webhook"
 )
 
 var (
@@ -79,12 +80,7 @@ func main() {
 		"platform", v.Platform,
 	)
 
-	ns, err := helper.GetWatchNamespace()
-	if err != nil {
-		setupLog.Error(err, "unable to get watch namespace")
-		os.Exit(1)
-	}
-
+	ns := helper.GetWatchNamespace()
 	cfg := ctrl.GetConfigOrDie()
 
 	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
@@ -121,8 +117,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = repository.NewNexusRepositoryReconciler(mgr.GetClient(), mgr.GetScheme(), apiClientProvider).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "user")
+	if err = repository.NewNexusRepositoryReconciler(mgr.GetClient(), apiClientProvider).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "repository")
 		os.Exit(1)
 	}
 
@@ -130,7 +126,17 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "NexusScript")
 		os.Exit(1)
 	}
+
 	//+kubebuilder:scaffold:builder
+
+	ctx := ctrl.SetupSignalHandler()
+
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = webhook.RegisterValidationWebHook(ctx, mgr, ns); err != nil {
+			setupLog.Error(err, "failed to create webhook", "webhook", "NexusRepositoryß")
+			os.Exit(1)
+		}
+	}
 
 	if err = mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
@@ -144,7 +150,7 @@ func main() {
 
 	setupLog.Info("starting manager")
 
-	if err = mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err = mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}

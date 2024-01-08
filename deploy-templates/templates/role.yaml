@@ -14,6 +14,17 @@ rules:
       - list
       - watch
   - apiGroups:
+      - ''
+    verbs:
+      - get
+      - patch
+      - update
+      - create
+    resources:
+      - secrets
+    resourceNames:
+      - edp-nexus-operator-webhook-certs
+  - apiGroups:
       - edp.epam.com
     resources:
       - nexuses
