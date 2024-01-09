@@ -34,7 +34,8 @@ In order to install the Nexus operator, follow the steps below:
      ```bash
      helm search repo epamedp/nexus-operator -l
      NAME                        CHART VERSION   APP VERSION     DESCRIPTION
-     epamedp/nexus-operator      3.0.0          3.0.0          A Helm chart for EDP Nexus Operator
+     epamedp/nexus-operator      3.1.0           3.1.0           A Helm chart for EDP Nexus Operator
+     epamedp/nexus-operator      3.0.0           3.0.0           A Helm chart for EDP Nexus Operator
      ```
 
     _**NOTE:** It is highly recommended to use the latest released version._
@@ -53,7 +54,7 @@ In order to install the Nexus operator, follow the steps below:
 
 In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](https://epam.github.io/edp-install/developer-guide/local-development/) page.
 
-Development versions are also available, please refer to the [snapshot helm chart repository](https://epam.github.io/edp-helm-charts/snapshot/) page.
+Development versions are also available, please refer to the [snapshot Helm Chart repository](https://epam.github.io/edp-helm-charts/snapshot/) page.
 
 ### Related Articles
 
