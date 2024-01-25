@@ -8,5 +8,5 @@ func IsErrNotFound(err error) bool {
 		return false
 	}
 
-	return strings.Contains(err.Error(), "not found")
+	return strings.Contains(err.Error(), "not found") || strings.Contains(err.Error(), "Unable to find")
 }

@@ -3,9 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/datadrivers/go-nexus-client/nexus3"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -14,26 +12,18 @@ import (
 
 	"github.com/epam/edp-nexus-operator/api/common"
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/controllers"
 	"github.com/epam/edp-nexus-operator/controllers/user/chain"
 )
-
-const (
-	nexusOperatorFinalizer = "edp.epam.com/finalizer"
-	errorRequeueTime       = time.Second * 30
-)
-
-type apiClientProvider interface {
-	GetNexusApiClientFromNexusRef(ctx context.Context, namespace string, ref common.HasNexusRef) (*nexus3.NexusClient, error)
-}
 
 // NexusUserReconciler reconciles a NexusUser object.
 type NexusUserReconciler struct {
 	client            client.Client
 	scheme            *runtime.Scheme
-	apiClientProvider apiClientProvider
+	apiClientProvider controllers.ApiClientProvider
 }
 
-func NewNexusUserReconciler(k8sClient client.Client, scheme *runtime.Scheme, apiClientProvider apiClientProvider) *NexusUserReconciler {
+func NewNexusUserReconciler(k8sClient client.Client, scheme *runtime.Scheme, apiClientProvider controllers.ApiClientProvider) *NexusUserReconciler {
 	return &NexusUserReconciler{client: k8sClient, scheme: scheme, apiClientProvider: apiClientProvider}
 }
 
@@ -62,23 +52,23 @@ func (r *NexusUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		log.Error(err, "An error has occurred while getting nexus api client")
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 
 	if user.GetDeletionTimestamp() != nil {
-		if controllerutil.ContainsFinalizer(user, nexusOperatorFinalizer) {
+		if controllerutil.ContainsFinalizer(user, controllers.NexusOperatorFinalizer) {
 			log.Info("Deleting NexusUser")
 
 			if err = chain.NewRemoveUser(nexusApiClient.Security.User).ServeRequest(ctx, user); err != nil {
 				log.Error(err, "An error has occurred while deleting NexusUser")
 
 				return ctrl.Result{
-					RequeueAfter: errorRequeueTime,
+					RequeueAfter: controllers.ErrorRequeueTime,
 				}, nil
 			}
 
-			controllerutil.RemoveFinalizer(user, nexusOperatorFinalizer)
+			controllerutil.RemoveFinalizer(user, controllers.NexusOperatorFinalizer)
 
 			if err = r.client.Update(ctx, user); err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed to update NexusUser: %w", err)
@@ -90,7 +80,7 @@ func (r *NexusUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, nil
 	}
 
-	if controllerutil.AddFinalizer(user, nexusOperatorFinalizer) {
+	if controllerutil.AddFinalizer(user, controllers.NexusOperatorFinalizer) {
 		err = r.client.Update(ctx, user)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update NexusUser: %w", err)
@@ -110,7 +100,7 @@ func (r *NexusUserReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 

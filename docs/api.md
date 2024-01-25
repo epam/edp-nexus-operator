@@ -8,6 +8,8 @@ Packages:
 
 Resource Types:
 
+- [NexusBlobStore](#nexusblobstore)
+
 - [Nexus](#nexus)
 
 - [NexusRepository](#nexusrepository)
@@ -20,6 +22,245 @@ Resource Types:
 
 
 
+
+## NexusBlobStore
+<sup><sup>[↩ Parent](#edpepamcomv1alpha1 )</sup></sup>
+
+
+
+
+
+
+NexusBlobStore is the Schema for the nexusblobstores API.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+      <td><b>apiVersion</b></td>
+      <td>string</td>
+      <td>edp.epam.com/v1alpha1</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b>kind</b></td>
+      <td>string</td>
+      <td>NexusBlobStore</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta">metadata</a></b></td>
+      <td>object</td>
+      <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
+      <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusblobstorespec">spec</a></b></td>
+        <td>object</td>
+        <td>
+          NexusBlobStoreSpec defines the desired state of NexusBlobStore.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusblobstorestatus">status</a></b></td>
+        <td>object</td>
+        <td>
+          NexusBlobStoreStatus defines the observed state of NexusBlobStore.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusBlobStore.spec
+<sup><sup>[↩ Parent](#nexusblobstore)</sup></sup>
+
+
+
+NexusBlobStoreSpec defines the desired state of NexusBlobStore.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the BlobStore. Name should be unique across all BlobStores.<br/>
+          <br/>
+            <i>Validations</i>:<li>self == oldSelf: Value is immutable</li>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusblobstorespecnexusref">nexusRef</a></b></td>
+        <td>object</td>
+        <td>
+          NexusRef is a reference to Nexus custom resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexusblobstorespecfile">file</a></b></td>
+        <td>object</td>
+        <td>
+          File type blobstore.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusblobstorespecsoftquota">softQuota</a></b></td>
+        <td>object</td>
+        <td>
+          Settings to control the soft quota.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusBlobStore.spec.nexusRef
+<sup><sup>[↩ Parent](#nexusblobstorespec)</sup></sup>
+
+
+
+NexusRef is a reference to Nexus custom resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name specifies the name of the Nexus resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Kind specifies the kind of the Nexus resource.<br/>
+          <br/>
+            <i>Default</i>: Nexus<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusBlobStore.spec.file
+<sup><sup>[↩ Parent](#nexusblobstorespec)</sup></sup>
+
+
+
+File type blobstore.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>path</b></td>
+        <td>string</td>
+        <td>
+          The path to the blobstore contents. This can be an absolute path to anywhere on the system Nexus Repository Manager has access to it or can be a path relative to the sonatype-work directory.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusBlobStore.spec.softQuota
+<sup><sup>[↩ Parent](#nexusblobstorespec)</sup></sup>
+
+
+
+Settings to control the soft quota.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>limit</b></td>
+        <td>integer</td>
+        <td>
+          The limit in MB.<br/>
+          <br/>
+            <i>Format</i>: int64<br/>
+            <i>Minimum</i>: 1<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>type</b></td>
+        <td>enum</td>
+        <td>
+          Type of the soft quota.<br/>
+          <br/>
+            <i>Enum</i>: spaceRemainingQuota, spaceUsedQuota<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusBlobStore.status
+<sup><sup>[↩ Parent](#nexusblobstore)</sup></sup>
+
+
+
+NexusBlobStoreStatus defines the observed state of NexusBlobStore.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>error</b></td>
+        <td>string</td>
+        <td>
+          Error is an error message if something went wrong.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>value</b></td>
+        <td>string</td>
+        <td>
+          Value is a status of the blob store.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
 
 ## Nexus
 <sup><sup>[↩ Parent](#edpepamcomv1alpha1 )</sup></sup>

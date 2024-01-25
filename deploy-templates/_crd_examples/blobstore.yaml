@@ -1,0 +1,13 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusBlobStore
+metadata:
+  name: nexusblobstore-sample
+spec:
+  name: nexusblobstore-sample
+  file:
+    path: storage-blobstore/nexusblobstore-sample
+  softQuota:
+    limit: 1000
+    type: spaceUsedQuota
+  nexusRef:
+    name: nexus-sample

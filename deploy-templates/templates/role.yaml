@@ -154,3 +154,29 @@ rules:
       - get
       - patch
       - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusblobstores
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusblobstores/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusblobstores/status
+    verbs:
+      - get
+      - patch
+      - update

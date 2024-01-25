@@ -3,9 +3,7 @@ package role
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/datadrivers/go-nexus-client/nexus3"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -14,26 +12,18 @@ import (
 
 	"github.com/epam/edp-nexus-operator/api/common"
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/controllers"
 	"github.com/epam/edp-nexus-operator/controllers/role/chain"
 )
-
-const (
-	nexusOperatorFinalizer = "edp.epam.com/finalizer"
-	errorRequeueTime       = time.Second * 30
-)
-
-type apiClientProvider interface {
-	GetNexusApiClientFromNexusRef(ctx context.Context, namespace string, ref common.HasNexusRef) (*nexus3.NexusClient, error)
-}
 
 // NexusRoleReconciler reconciles a NexusRole object.
 type NexusRoleReconciler struct {
 	client            client.Client
 	scheme            *runtime.Scheme
-	apiClientProvider apiClientProvider
+	apiClientProvider controllers.ApiClientProvider
 }
 
-func NewNexusRoleReconciler(k8sClient client.Client, scheme *runtime.Scheme, apiClientProvider apiClientProvider) *NexusRoleReconciler {
+func NewNexusRoleReconciler(k8sClient client.Client, scheme *runtime.Scheme, apiClientProvider controllers.ApiClientProvider) *NexusRoleReconciler {
 	return &NexusRoleReconciler{client: k8sClient, scheme: scheme, apiClientProvider: apiClientProvider}
 }
 
@@ -62,21 +52,21 @@ func (r *NexusRoleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		log.Error(err, "An error has occurred while getting nexus api client")
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 
 	if role.GetDeletionTimestamp() != nil {
-		if controllerutil.ContainsFinalizer(role, nexusOperatorFinalizer) {
+		if controllerutil.ContainsFinalizer(role, controllers.NexusOperatorFinalizer) {
 			if err = chain.NewRemoveRole(nexusApiClient.Security.Role).ServeRequest(ctx, role); err != nil {
 				log.Error(err, "An error has occurred while deleting NexusRole")
 
 				return ctrl.Result{
-					RequeueAfter: errorRequeueTime,
+					RequeueAfter: controllers.ErrorRequeueTime,
 				}, nil
 			}
 
-			controllerutil.RemoveFinalizer(role, nexusOperatorFinalizer)
+			controllerutil.RemoveFinalizer(role, controllers.NexusOperatorFinalizer)
 
 			if err = r.client.Update(ctx, role); err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed to update NexusRole: %w", err)
@@ -86,7 +76,7 @@ func (r *NexusRoleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, nil
 	}
 
-	if controllerutil.AddFinalizer(role, nexusOperatorFinalizer) {
+	if controllerutil.AddFinalizer(role, controllers.NexusOperatorFinalizer) {
 		err = r.client.Update(ctx, role)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update NexusRole: %w", err)
@@ -106,7 +96,7 @@ func (r *NexusRoleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 

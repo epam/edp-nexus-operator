@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/datadrivers/go-nexus-client/nexus3/schema"
+	"github.com/datadrivers/go-nexus-client/nexus3/schema/blobstore"
 	"github.com/datadrivers/go-nexus-client/nexus3/schema/security"
 )
 
@@ -34,4 +35,11 @@ type Script interface {
 	Update(script *schema.Script) error
 	Delete(name string) error
 	RunWithPayload(name, payload string) error
+}
+
+type FileBlobStore interface {
+	Get(name string) (*blobstore.File, error)
+	Create(bs *blobstore.File) error
+	Update(name string, bs *blobstore.File) error
+	Delete(name string) error
 }

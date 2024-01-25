@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"fmt"
-	"time"
 
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -12,13 +11,9 @@ import (
 
 	"github.com/epam/edp-nexus-operator/api/common"
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/controllers"
 	"github.com/epam/edp-nexus-operator/controllers/repository/chain"
 	"github.com/epam/edp-nexus-operator/pkg/client/nexus"
-)
-
-const (
-	nexusOperatorFinalizer = "edp.epam.com/finalizer"
-	errorRequeueTime       = time.Second * 30
 )
 
 type apiClientProvider interface {
@@ -60,23 +55,23 @@ func (r *NexusRepositoryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		log.Error(err, "An error has occurred while getting nexus api client")
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 
 	if repository.GetDeletionTimestamp() != nil {
-		if controllerutil.ContainsFinalizer(repository, nexusOperatorFinalizer) {
+		if controllerutil.ContainsFinalizer(repository, controllers.NexusOperatorFinalizer) {
 			log.Info("Deleting NexusRepository")
 
 			if err = chain.NewRemoveRepository(nexusApiClient).ServeRequest(ctx, repository); err != nil {
 				log.Error(err, "An error has occurred while deleting NexusRepository")
 
 				return ctrl.Result{
-					RequeueAfter: errorRequeueTime,
+					RequeueAfter: controllers.ErrorRequeueTime,
 				}, nil
 			}
 
-			controllerutil.RemoveFinalizer(repository, nexusOperatorFinalizer)
+			controllerutil.RemoveFinalizer(repository, controllers.NexusOperatorFinalizer)
 
 			if err = r.client.Update(ctx, repository); err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed to update NexusRepository: %w", err)
@@ -88,7 +83,7 @@ func (r *NexusRepositoryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		return ctrl.Result{}, nil
 	}
 
-	if controllerutil.AddFinalizer(repository, nexusOperatorFinalizer) {
+	if controllerutil.AddFinalizer(repository, controllers.NexusOperatorFinalizer) {
 		err = r.client.Update(ctx, repository)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update NexusRepository: %w", err)
@@ -108,7 +103,7 @@ func (r *NexusRepositoryReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 		}
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 

@@ -1,0 +1,27 @@
+# permissions for end users to view nexusblobstores.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: nexusblobstore-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: nexus-operator
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: nexusblobstore-viewer-role
+rules:
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexusblobstores
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexusblobstores/status
+  verbs:
+  - get

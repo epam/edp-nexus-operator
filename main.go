@@ -21,6 +21,7 @@ import (
 
 	buildInfo "github.com/epam/edp-common/pkg/config"
 	nexusApiV1Alpha1 "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/controllers/blobstore"
 	"github.com/epam/edp-nexus-operator/controllers/nexus"
 	"github.com/epam/edp-nexus-operator/controllers/repository"
 	"github.com/epam/edp-nexus-operator/controllers/role"
@@ -124,6 +125,11 @@ func main() {
 
 	if err = script.NewNexusScriptReconciler(mgr.GetClient(), apiClientProvider).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "NexusScript")
+		os.Exit(1)
+	}
+
+	if err = blobstore.NewNexusBlobStoreReconciler(mgr.GetClient(), apiClientProvider).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "NexusBlobStore")
 		os.Exit(1)
 	}
 

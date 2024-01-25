@@ -3,9 +3,7 @@ package script
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/datadrivers/go-nexus-client/nexus3"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -13,25 +11,17 @@ import (
 
 	"github.com/epam/edp-nexus-operator/api/common"
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/controllers"
 	"github.com/epam/edp-nexus-operator/controllers/script/chain"
 )
-
-const (
-	nexusOperatorFinalizer = "edp.epam.com/finalizer"
-	errorRequeueTime       = time.Second * 30
-)
-
-type apiClientProvider interface {
-	GetNexusApiClientFromNexusRef(ctx context.Context, namespace string, ref common.HasNexusRef) (*nexus3.NexusClient, error)
-}
 
 // NexusScriptReconciler reconciles a NexusScript object.
 type NexusScriptReconciler struct {
 	k8sclient         client.Client
-	apiClientProvider apiClientProvider
+	apiClientProvider controllers.ApiClientProvider
 }
 
-func NewNexusScriptReconciler(k8sclient client.Client, apiClientProvider apiClientProvider) *NexusScriptReconciler {
+func NewNexusScriptReconciler(k8sclient client.Client, apiClientProvider controllers.ApiClientProvider) *NexusScriptReconciler {
 	return &NexusScriptReconciler{k8sclient: k8sclient, apiClientProvider: apiClientProvider}
 }
 
@@ -60,21 +50,21 @@ func (r *NexusScriptReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		log.Error(err, "An error has occurred while getting nexus api k8sclient")
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 
 	if script.GetDeletionTimestamp() != nil {
-		if controllerutil.ContainsFinalizer(script, nexusOperatorFinalizer) {
+		if controllerutil.ContainsFinalizer(script, controllers.NexusOperatorFinalizer) {
 			if err = chain.NewRemoveScript(nexusApiClient.Script).ServeRequest(ctx, script); err != nil {
 				log.Error(err, "An error has occurred while deleting NexusScript")
 
 				return ctrl.Result{
-					RequeueAfter: errorRequeueTime,
+					RequeueAfter: controllers.ErrorRequeueTime,
 				}, nil
 			}
 
-			controllerutil.RemoveFinalizer(script, nexusOperatorFinalizer)
+			controllerutil.RemoveFinalizer(script, controllers.NexusOperatorFinalizer)
 
 			if err = r.k8sclient.Update(ctx, script); err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed to update NexusScript: %w", err)
@@ -84,7 +74,7 @@ func (r *NexusScriptReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, nil
 	}
 
-	if controllerutil.AddFinalizer(script, nexusOperatorFinalizer) {
+	if controllerutil.AddFinalizer(script, controllers.NexusOperatorFinalizer) {
 		err = r.k8sclient.Update(ctx, script)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update NexusScript: %w", err)
@@ -104,7 +94,7 @@ func (r *NexusScriptReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		}
 
 		return ctrl.Result{
-			RequeueAfter: errorRequeueTime,
+			RequeueAfter: controllers.ErrorRequeueTime,
 		}, nil
 	}
 
