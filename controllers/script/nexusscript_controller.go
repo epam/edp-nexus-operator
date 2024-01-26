@@ -83,7 +83,7 @@ func (r *NexusScriptReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	oldStatus := script.Status
 
-	if err = chain.NewCreateScript(nexusApiClient.Script).ServeRequest(ctx, script); err != nil {
+	if err = chain.CreateChain(nexusApiClient.Script).ServeRequest(ctx, script); err != nil {
 		log.Error(err, "An error has occurred while handling NexusScript")
 
 		script.Status.Value = common.StatusError

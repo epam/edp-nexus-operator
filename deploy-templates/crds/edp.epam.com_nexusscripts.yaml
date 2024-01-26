@@ -38,6 +38,10 @@ spec:
                 description: Content is the content of the script.
                 example: security.setAnonymousAccess(Boolean.valueOf(args))
                 type: string
+              execute:
+                default: false
+                description: Execute defines if script should be executed after creation.
+                type: boolean
               name:
                 description: Name is the id of the script. Name should be unique across
                   all scripts.

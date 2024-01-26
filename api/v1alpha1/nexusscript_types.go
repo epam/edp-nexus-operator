@@ -26,6 +26,11 @@ type NexusScriptSpec struct {
 	// +kubebuilder:example="true"
 	Payload string `json:"payload,omitempty"`
 
+	// Execute defines if script should be executed after creation.
+	// +optional
+	// +kubebuilder:default=false
+	Execute bool `json:"execute"`
+
 	// NexusRef is a reference to Nexus custom resource.
 	// +required
 	NexusRef common.NexusRef `json:"nexusRef"`

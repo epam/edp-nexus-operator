@@ -12605,6 +12605,15 @@ NexusScriptSpec defines the desired state of NexusScript.
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b>execute</b></td>
+        <td>boolean</td>
+        <td>
+          Execute defines if script should be executed after creation.<br/>
+          <br/>
+            <i>Default</i>: false<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>payload</b></td>
         <td>string</td>
         <td>

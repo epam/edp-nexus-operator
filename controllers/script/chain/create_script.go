@@ -48,16 +48,6 @@ func (c *CreateScript) ServeRequest(ctx context.Context, script *nexusApi.NexusS
 		log.Info("Script has been updated")
 	}
 
-	if !script.Status.Executed {
-		if err := c.nexusScriptApiClient.RunWithPayload(script.Spec.Name, script.Spec.Payload); err != nil {
-			return fmt.Errorf("failed to run script: %w", err)
-		}
-
-		script.Status.Executed = true
-
-		log.Info("Script has been run")
-	}
-
 	return nil
 }
 

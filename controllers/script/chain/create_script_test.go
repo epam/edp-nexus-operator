@@ -48,8 +48,6 @@ func TestCreateScript_ServeRequest(t *testing.T) {
 					Content: "println('test')",
 					Type:    scriptTypeGroovy,
 				}).Return(nil)
-				m.On("RunWithPayload", "test-script", "test-payload").
-					Return(nil)
 
 				return m
 			},
@@ -66,72 +64,6 @@ func TestCreateScript_ServeRequest(t *testing.T) {
 					Name:    "test-script",
 					Content: "println('test')",
 					Payload: "test-payload",
-				},
-			},
-			nexusScriptApiClient: func(t *testing.T) nexus.Script {
-				m := mocks.NewMockScript(t)
-
-				m.On("Get", "test-script").
-					Return(&schema.Script{}, nil)
-				m.On("Update", &schema.Script{
-					Name:    "test-script",
-					Content: "println('test')",
-					Type:    scriptTypeGroovy,
-				}).Return(nil)
-				m.On("RunWithPayload", "test-script", "test-payload").
-					Return(nil)
-
-				return m
-			},
-			wantErr: require.NoError,
-		},
-		{
-			name: "failed to run script",
-			script: &nexusApi.NexusScript{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-script",
-					Namespace: "default",
-				},
-				Spec: nexusApi.NexusScriptSpec{
-					Name:    "test-script",
-					Content: "println('test')",
-					Payload: "test-payload",
-				},
-			},
-			nexusScriptApiClient: func(t *testing.T) nexus.Script {
-				m := mocks.NewMockScript(t)
-
-				m.On("Get", "test-script").
-					Return(&schema.Script{}, nil)
-				m.On("Update", &schema.Script{
-					Name:    "test-script",
-					Content: "println('test')",
-					Type:    scriptTypeGroovy,
-				}).Return(nil)
-				m.On("RunWithPayload", "test-script", "test-payload").
-					Return(errors.New("failed to run script"))
-
-				return m
-			},
-			wantErr: func(t require.TestingT, err error, i ...interface{}) {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), "failed to run script")
-			},
-		},
-		{
-			name: "script already executed",
-			script: &nexusApi.NexusScript{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "test-script",
-					Namespace: "default",
-				},
-				Spec: nexusApi.NexusScriptSpec{
-					Name:    "test-script",
-					Content: "println('test')",
-					Payload: "test-payload",
-				},
-				Status: nexusApi.NexusScriptStatus{
-					Executed: true,
 				},
 			},
 			nexusScriptApiClient: func(t *testing.T) nexus.Script {

@@ -25,6 +25,7 @@ var _ = Describe("NexusScript controller", func() {
 				Name:    "test-script",
 				Content: "println('test')",
 				Payload: "test-payload",
+				Execute: true,
 				NexusRef: common.NexusRef{
 					Name: nexusCRName,
 				},
