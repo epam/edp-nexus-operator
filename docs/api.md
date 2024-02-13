@@ -5730,6 +5730,15 @@ Storage configuration.
         </td>
         <td>true</td>
       </tr><tr>
+        <td><b><a href="#nexusrepositoryspecmavengroupmaven">maven</a></b></td>
+        <td>object</td>
+        <td>
+          Maven contains additional data of maven repository.<br/>
+          <br/>
+            <i>Default</i>: map[contentDisposition:INLINE layoutPolicy:STRICT versionPolicy:RELEASE]<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>online</b></td>
         <td>boolean</td>
         <td>
@@ -5774,6 +5783,56 @@ Group configuration.
           Member repositories' names.<br/>
         </td>
         <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.maven.group.maven
+<sup><sup>[↩ Parent](#nexusrepositoryspecmavengroup)</sup></sup>
+
+
+
+Maven contains additional data of maven repository.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>contentDisposition</b></td>
+        <td>enum</td>
+        <td>
+          Add Content-Disposition header as 'Attachment' to disable some content from being inline in a browser.<br/>
+          <br/>
+            <i>Enum</i>: INLINE, ATTACHMENT<br/>
+            <i>Default</i>: INLINE<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>layoutPolicy</b></td>
+        <td>enum</td>
+        <td>
+          Validate that all paths are maven artifact or metadata paths.<br/>
+          <br/>
+            <i>Enum</i>: STRICT, PERMISSIVE<br/>
+            <i>Default</i>: STRICT<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>versionPolicy</b></td>
+        <td>enum</td>
+        <td>
+          VersionPolicy is a type of artifact that this repository stores.<br/>
+          <br/>
+            <i>Enum</i>: RELEASE, SNAPSHOT, MIXED<br/>
+            <i>Default</i>: RELEASE<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -5833,13 +5892,6 @@ Storage configuration.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b><a href="#nexusrepositoryspecmavenhostedmaven">maven</a></b></td>
-        <td>object</td>
-        <td>
-          Maven contains additional data of maven repository.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>name</b></td>
         <td>string</td>
         <td>
@@ -5861,6 +5913,15 @@ Storage configuration.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b><a href="#nexusrepositoryspecmavenhostedmaven">maven</a></b></td>
+        <td>object</td>
+        <td>
+          Maven contains additional data of maven repository.<br/>
+          <br/>
+            <i>Default</i>: map[contentDisposition:INLINE layoutPolicy:STRICT versionPolicy:RELEASE]<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>online</b></td>
         <td>boolean</td>
         <td>
@@ -5876,56 +5937,6 @@ Storage configuration.
           Storage configuration.<br/>
           <br/>
             <i>Default</i>: map[blobStoreName:default strictContentTypeValidation:true]<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### NexusRepository.spec.maven.hosted.maven
-<sup><sup>[↩ Parent](#nexusrepositoryspecmavenhosted)</sup></sup>
-
-
-
-Maven contains additional data of maven repository.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>contentDisposition</b></td>
-        <td>enum</td>
-        <td>
-          Add Content-Disposition header as 'Attachment' to disable some content from being inline in a browser.<br/>
-          <br/>
-            <i>Enum</i>: INLINE, ATTACHMENT<br/>
-            <i>Default</i>: INLINE<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>layoutPolicy</b></td>
-        <td>enum</td>
-        <td>
-          Validate that all paths are maven artifact or metadata paths.<br/>
-          <br/>
-            <i>Enum</i>: STRICT, PERMISSIVE<br/>
-            <i>Default</i>: STRICT<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>versionPolicy</b></td>
-        <td>enum</td>
-        <td>
-          VersionPolicy is a type of artifact that this repository stores.<br/>
-          <br/>
-            <i>Enum</i>: RELEASE, SNAPSHOT, MIXED<br/>
-            <i>Default</i>: RELEASE<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -5982,6 +5993,56 @@ Maven contains additional data of maven repository.
           Components in this repository count as proprietary for namespace conflict attacks (requires Sonatype Nexus Firewall)<br/>
         </td>
         <td>true</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.maven.hosted.maven
+<sup><sup>[↩ Parent](#nexusrepositoryspecmavenhosted)</sup></sup>
+
+
+
+Maven contains additional data of maven repository.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>contentDisposition</b></td>
+        <td>enum</td>
+        <td>
+          Add Content-Disposition header as 'Attachment' to disable some content from being inline in a browser.<br/>
+          <br/>
+            <i>Enum</i>: INLINE, ATTACHMENT<br/>
+            <i>Default</i>: INLINE<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>layoutPolicy</b></td>
+        <td>enum</td>
+        <td>
+          Validate that all paths are maven artifact or metadata paths.<br/>
+          <br/>
+            <i>Enum</i>: STRICT, PERMISSIVE<br/>
+            <i>Default</i>: STRICT<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>versionPolicy</b></td>
+        <td>enum</td>
+        <td>
+          VersionPolicy is a type of artifact that this repository stores.<br/>
+          <br/>
+            <i>Enum</i>: RELEASE, SNAPSHOT, MIXED<br/>
+            <i>Default</i>: RELEASE<br/>
+        </td>
+        <td>false</td>
       </tr></tbody>
 </table>
 
@@ -7607,13 +7668,6 @@ Storage configuration.
         </td>
         <td>true</td>
       </tr><tr>
-        <td><b><a href="#nexusrepositoryspecnugetproxynugetproxy">nugetProxy</a></b></td>
-        <td>object</td>
-        <td>
-          NugetProxy contains data specific to proxy repositories of format Nuget.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b><a href="#nexusrepositoryspecnugetproxyproxy">proxy</a></b></td>
         <td>object</td>
         <td>
@@ -7646,6 +7700,15 @@ Storage configuration.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b><a href="#nexusrepositoryspecnugetproxynugetproxy">nugetProxy</a></b></td>
+        <td>object</td>
+        <td>
+          NugetProxy contains data specific to proxy repositories of format Nuget.<br/>
+          <br/>
+            <i>Default</i>: map[nugetVersion:V3 queryCacheItemMaxAge:3600]<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>online</b></td>
         <td>boolean</td>
         <td>
@@ -7668,45 +7731,6 @@ Storage configuration.
           Storage configuration.<br/>
           <br/>
             <i>Default</i>: map[blobStoreName:default strictContentTypeValidation:true]<br/>
-        </td>
-        <td>false</td>
-      </tr></tbody>
-</table>
-
-
-### NexusRepository.spec.nuget.proxy.nugetProxy
-<sup><sup>[↩ Parent](#nexusrepositoryspecnugetproxy)</sup></sup>
-
-
-
-NugetProxy contains data specific to proxy repositories of format Nuget.
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Required</th>
-        </tr>
-    </thead>
-    <tbody><tr>
-        <td><b>nugetVersion</b></td>
-        <td>enum</td>
-        <td>
-          NugetVersion is the used Nuget protocol version.<br/>
-          <br/>
-            <i>Enum</i>: V2, V3<br/>
-            <i>Default</i>: V3<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>queryCacheItemMaxAge</b></td>
-        <td>integer</td>
-        <td>
-          How long to cache query results from the proxied repository (in seconds)<br/>
-          <br/>
-            <i>Default</i>: 3600<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -7987,6 +8011,45 @@ Negative cache configuration.
           How long to cache the fact that a file was not found in the repository (in minutes).<br/>
           <br/>
             <i>Default</i>: 1440<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.nuget.proxy.nugetProxy
+<sup><sup>[↩ Parent](#nexusrepositoryspecnugetproxy)</sup></sup>
+
+
+
+NugetProxy contains data specific to proxy repositories of format Nuget.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>nugetVersion</b></td>
+        <td>enum</td>
+        <td>
+          NugetVersion is the used Nuget protocol version.<br/>
+          <br/>
+            <i>Enum</i>: V2, V3<br/>
+            <i>Default</i>: V3<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>queryCacheItemMaxAge</b></td>
+        <td>integer</td>
+        <td>
+          How long to cache query results from the proxied repository (in seconds)<br/>
+          <br/>
+            <i>Default</i>: 3600<br/>
         </td>
         <td>false</td>
       </tr></tbody>

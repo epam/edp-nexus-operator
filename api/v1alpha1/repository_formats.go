@@ -162,10 +162,18 @@ type MavenLayoutPolicy string
 type MavenContentDisposition string
 
 type MavenGroupRepository struct {
+	// Maven contains additional data of maven repository.
+	// +optional
+	// +kubebuilder:default={"versionPolicy":"RELEASE","layoutPolicy":"STRICT","contentDisposition":"INLINE"}
+	Maven `json:"maven"`
+
 	GroupSpec `json:",inline"`
 }
 
 type MavenHostedRepository struct {
+	// Maven contains additional data of maven repository.
+	// +optional
+	// +kubebuilder:default={"versionPolicy":"RELEASE","layoutPolicy":"STRICT","contentDisposition":"INLINE"}
 	Maven `json:"maven"`
 
 	HostedSpec `json:",inline"`
@@ -268,6 +276,9 @@ type NugetHostedRepository struct {
 type NugetProxyRepository struct {
 	ProxySpec `json:",inline"`
 
+	// NugetProxy contains data specific to proxy repositories of format Nuget.
+	// +optional
+	// +kubebuilder:default={"queryCacheItemMaxAge":3600,"nugetVersion":"V3"}
 	NugetProxy `json:"nugetProxy"`
 }
 
