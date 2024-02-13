@@ -631,6 +631,52 @@ func TestGetRepoData(t *testing.T) {
 			wantErr: require.NoError,
 		},
 		{
+			name: "pypi hosted repository",
+			repo: &v1alpha1.NexusRepositorySpec{
+				Pypi: &v1alpha1.PypiSpec{
+					Hosted: &v1alpha1.PypiHostedRepository{
+						HostedSpec: v1alpha1.HostedSpec{
+							Name: "pypi-hosted",
+						},
+					},
+				},
+			},
+			want: &RepoData{
+				Format: FormatPypi,
+				Type:   TypeHosted,
+				Name:   "pypi-hosted",
+				Data: &v1alpha1.PypiHostedRepository{
+					HostedSpec: v1alpha1.HostedSpec{
+						Name: "pypi-hosted",
+					},
+				},
+			},
+			wantErr: require.NoError,
+		},
+		{
+			name: "pypi group repository",
+			repo: &v1alpha1.NexusRepositorySpec{
+				Pypi: &v1alpha1.PypiSpec{
+					Group: &v1alpha1.PypiGroupRepository{
+						GroupSpec: v1alpha1.GroupSpec{
+							Name: "pypi-group",
+						},
+					},
+				},
+			},
+			want: &RepoData{
+				Format: FormatPypi,
+				Type:   TypeGroup,
+				Name:   "pypi-group",
+				Data: &v1alpha1.PypiGroupRepository{
+					GroupSpec: v1alpha1.GroupSpec{
+						Name: "pypi-group",
+					},
+				},
+			},
+			wantErr: require.NoError,
+		},
+		{
 			name: "r proxy repository",
 			repo: &v1alpha1.NexusRepositorySpec{
 				R: &v1alpha1.RSpec{

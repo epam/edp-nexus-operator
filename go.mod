@@ -3,17 +3,17 @@ module github.com/epam/edp-nexus-operator
 go 1.20
 
 require (
-	github.com/datadrivers/go-nexus-client v1.8.1
+	github.com/datadrivers/go-nexus-client v1.10.0
 	github.com/epam/edp-common v0.0.0-20230710145648-344bbce4120e
 	github.com/go-logr/logr v1.2.4
 	github.com/go-resty/resty/v2 v2.9.1
 	github.com/onsi/ginkgo/v2 v2.6.0
 	github.com/onsi/gomega v1.24.1
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
-	k8s.io/api v0.26.10
-	k8s.io/apimachinery v0.26.10
-	k8s.io/client-go v0.26.10
+	golang.org/x/exp v0.0.0-20240205201215-2c58cdc269a3
+	k8s.io/api v0.26.13
+	k8s.io/apimachinery v0.26.13
+	k8s.io/client-go v0.26.13
 	knative.dev/pkg v0.0.0-20231002064126-c9c48d70590c
 	sigs.k8s.io/controller-runtime v0.14.7
 )

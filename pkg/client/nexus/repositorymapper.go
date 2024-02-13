@@ -337,6 +337,24 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 			}, nil
 		}
 
+		if repo.Pypi.Hosted != nil {
+			return &RepoData{
+				Type:   TypeHosted,
+				Format: FormatPypi,
+				Name:   repo.Pypi.Hosted.Name,
+				Data:   repo.Pypi.Hosted,
+			}, nil
+		}
+
+		if repo.Pypi.Group != nil {
+			return &RepoData{
+				Type:   TypeGroup,
+				Format: FormatPypi,
+				Name:   repo.Pypi.Group.Name,
+				Data:   repo.Pypi.Group,
+			}, nil
+		}
+
 		return nil, errors.New("no pypi repository set")
 	}
 
@@ -387,6 +405,15 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatRaw,
 				Name:   repo.Raw.Proxy.Name,
 				Data:   repo.Raw.Proxy,
+			}, nil
+		}
+
+		if repo.Raw.Group != nil {
+			return &RepoData{
+				Type:   TypeGroup,
+				Format: FormatRaw,
+				Name:   repo.Raw.Group.Name,
+				Data:   repo.Raw.Group,
 			}, nil
 		}
 
