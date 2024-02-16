@@ -1,0 +1,12 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusCleanupPolicy
+metadata:
+  name: nexuscleanuppolicy-sample
+spec:
+  nexusRef:
+    name: nexus-sample
+  name: go-cleanup-policy
+  format: "go"
+  description: "Cleanup policy for go"
+  criteria:
+    lastBlobUpdated: 30

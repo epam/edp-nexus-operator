@@ -68,4 +68,13 @@ resources:
   kind: NexusBlobStore
   path: github.com/epam/edp-nexus-operator/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: epam.com
+  group: edp
+  kind: NexusCleanupPolicy
+  path: github.com/epam/edp-nexus-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

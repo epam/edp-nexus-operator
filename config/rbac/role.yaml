@@ -42,6 +42,32 @@ rules:
 - apiGroups:
   - edp.epam.com
   resources:
+  - nexuscleanuppolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexuscleanuppolicies/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexuscleanuppolicies/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - edp.epam.com
+  resources:
   - nexuses
   verbs:
   - create

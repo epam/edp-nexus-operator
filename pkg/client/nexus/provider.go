@@ -71,6 +71,31 @@ func (p *ApiClientProvider) GetNexusRepositoryClientFromNexusRef(ctx context.Con
 	}), nil
 }
 
+func (p *ApiClientProvider) GetNexusNexusCleanupPolicyClientFromNexusRef(
+	ctx context.Context,
+	namespace string,
+	ref common.HasNexusRef,
+) (*NexusCleanupPolicyClient, error) {
+	nexus := &nexusApi.Nexus{}
+	if err := p.k8sClient.Get(ctx, types.NamespacedName{
+		Name:      ref.GetNexusRef().Name,
+		Namespace: namespace,
+	}, nexus); err != nil {
+		return nil, fmt.Errorf("failed to get nexus instance: %w", err)
+	}
+
+	secret, err := p.getNexusSecret(ctx, nexus)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewNexusCleanupPolicyClient(ClientConfig{
+		BaseURL:  nexus.Spec.Url,
+		UserName: string(secret.Data["user"]),
+		Password: string(secret.Data["password"]),
+	}), nil
+}
+
 func (p *ApiClientProvider) getNexusSecret(ctx context.Context, nexus *nexusApi.Nexus) (corev1.Secret, error) {
 	secret := corev1.Secret{}
 	if err := p.k8sClient.Get(ctx, types.NamespacedName{

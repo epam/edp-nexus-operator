@@ -6,4 +6,5 @@ resources:
 - edp_v1alpha1_nexusrepository.yaml
 - edp_v1alpha1_nexusscript.yaml
 - edp_v1alpha1_nexusblobstore.yaml
+- edp_v1alpha1_nexuscleanuppolicy.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

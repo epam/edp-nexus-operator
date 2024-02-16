@@ -1,0 +1,31 @@
+# permissions for end users to edit cleanuppolicies.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: nexuscleanuppolicy-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: nexus-operator
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: nexuscleanuppolicy-editor-role
+rules:
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - cleanuppolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - cleanuppolicies/status
+  verbs:
+  - get

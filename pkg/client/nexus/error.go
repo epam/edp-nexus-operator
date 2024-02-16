@@ -1,6 +1,9 @@
 package nexus
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 // IsErrNotFound checks if error is not found error.
 func IsErrNotFound(err error) bool {
@@ -8,5 +11,13 @@ func IsErrNotFound(err error) bool {
 		return false
 	}
 
-	return strings.Contains(err.Error(), "not found") || strings.Contains(err.Error(), "Unable to find")
+	if strings.Contains(err.Error(), "not found") || strings.Contains(err.Error(), "Unable to find") {
+		return true
+	}
+
+	if errors.Is(err, ErrNotFound) {
+		return true
+	}
+
+	return false
 }

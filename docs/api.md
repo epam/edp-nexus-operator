@@ -10,6 +10,8 @@ Resource Types:
 
 - [NexusBlobStore](#nexusblobstore)
 
+- [NexusCleanupPolicy](#nexuscleanuppolicy)
+
 - [Nexus](#nexus)
 
 - [NexusRepository](#nexusrepository)
@@ -257,6 +259,244 @@ NexusBlobStoreStatus defines the observed state of NexusBlobStore.
         <td>string</td>
         <td>
           Value is a status of the blob store.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+## NexusCleanupPolicy
+<sup><sup>[↩ Parent](#edpepamcomv1alpha1 )</sup></sup>
+
+
+
+
+
+
+NexusCleanupPolicy is the Schema for the cleanuppolicies API
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+      <td><b>apiVersion</b></td>
+      <td>string</td>
+      <td>edp.epam.com/v1alpha1</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b>kind</b></td>
+      <td>string</td>
+      <td>NexusCleanupPolicy</td>
+      <td>true</td>
+      </tr>
+      <tr>
+      <td><b><a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta">metadata</a></b></td>
+      <td>object</td>
+      <td>Refer to the Kubernetes API documentation for the fields of the `metadata` field.</td>
+      <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexuscleanuppolicyspec">spec</a></b></td>
+        <td>object</td>
+        <td>
+          NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexuscleanuppolicystatus">status</a></b></td>
+        <td>object</td>
+        <td>
+          NexusCleanupPolicyStatus defines the observed state of NexusCleanupPolicy.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusCleanupPolicy.spec
+<sup><sup>[↩ Parent](#nexuscleanuppolicy)</sup></sup>
+
+
+
+NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b><a href="#nexuscleanuppolicyspeccriteria">criteria</a></b></td>
+        <td>object</td>
+        <td>
+          Criteria for the cleanup policy.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>format</b></td>
+        <td>enum</td>
+        <td>
+          Format that this cleanup policy can be applied to.<br/>
+          <br/>
+            <i>Enum</i>: apt, bower, cocoapods, conan, conda, docker, gitlfs, go, helm, maven2, npm, nuget, p2, pypi, r, raw, rubygems, yum<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name is a unique name for the cleanup policy.<br/>
+          <br/>
+            <i>Validations</i>:<li>self == oldSelf: Value is immutable</li>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b><a href="#nexuscleanuppolicyspecnexusref">nexusRef</a></b></td>
+        <td>object</td>
+        <td>
+          NexusRef is a reference to Nexus custom resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>description</b></td>
+        <td>string</td>
+        <td>
+          Description of the cleanup policy.<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusCleanupPolicy.spec.criteria
+<sup><sup>[↩ Parent](#nexuscleanuppolicyspec)</sup></sup>
+
+
+
+Criteria for the cleanup policy.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>assetRegex</b></td>
+        <td>string</td>
+        <td>
+          AssetRegex removes components that match the given regex.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>lastBlobUpdated</b></td>
+        <td>integer</td>
+        <td>
+          LastBlobUpdated removes components published over “x” days ago.<br/>
+          <br/>
+            <i>Minimum</i>: 1<br/>
+            <i>Maximum</i>: 24855<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>lastDownloaded</b></td>
+        <td>integer</td>
+        <td>
+          LastDownloaded removes components downloaded over “x” days.<br/>
+          <br/>
+            <i>Minimum</i>: 1<br/>
+            <i>Maximum</i>: 24855<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>releaseType</b></td>
+        <td>enum</td>
+        <td>
+          ReleaseType removes components that are of the following release type.<br/>
+          <br/>
+            <i>Enum</i>: RELEASES, PRERELEASES, <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusCleanupPolicy.spec.nexusRef
+<sup><sup>[↩ Parent](#nexuscleanuppolicyspec)</sup></sup>
+
+
+
+NexusRef is a reference to Nexus custom resource.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name specifies the name of the Nexus resource.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>kind</b></td>
+        <td>string</td>
+        <td>
+          Kind specifies the kind of the Nexus resource.<br/>
+          <br/>
+            <i>Default</i>: Nexus<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusCleanupPolicy.status
+<sup><sup>[↩ Parent](#nexuscleanuppolicy)</sup></sup>
+
+
+
+NexusCleanupPolicyStatus defines the observed state of NexusCleanupPolicy.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>error</b></td>
+        <td>string</td>
+        <td>
+          Error is an error message if something went wrong.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>value</b></td>
+        <td>string</td>
+        <td>
+          Value is a status of the cleanup policy.<br/>
         </td>
         <td>false</td>
       </tr></tbody>

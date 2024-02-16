@@ -1,0 +1,18 @@
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusCleanupPolicy
+metadata:
+  labels:
+    app.kubernetes.io/name: nexuscleanuppolicy
+    app.kubernetes.io/instance: nexuscleanuppolicy-sample
+    app.kubernetes.io/part-of: nexus-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: nexus-operator
+  name: nexuscleanuppolicy-sample
+spec:
+  nexusRef:
+    name: nexus-sample
+  name: go-cleanup-policy
+  format: "go"
+  description: "Cleanup policy for go"
+  criteria:
+    lastBlobUpdated: 30
