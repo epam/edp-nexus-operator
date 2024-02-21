@@ -1,6 +1,27 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Features
+
+- Add NexusCleanupPolicy Custom Resource ([#25](https://github.com/epam/edp-nexus-operator/issues/25))
+- Add resources for integration tests ([#22](https://github.com/epam/edp-nexus-operator/issues/22))
+- Add NexusScript execute property ([#21](https://github.com/epam/edp-nexus-operator/issues/21))
+- Add NexusBlobStore custom resource ([#20](https://github.com/epam/edp-nexus-operator/issues/20))
+
+### Bug Fixes
+
+- Creation of the nexus repository with default values failed ([#24](https://github.com/epam/edp-nexus-operator/issues/24))
+- The repository type pypi hosted is not created ([#23](https://github.com/epam/edp-nexus-operator/issues/23))
+
+### Routine
+
+- Generate bundle for v3.1.0 OperatorHub ([#19](https://github.com/epam/edp-nexus-operator/issues/19))
+- Update current development version ([#19](https://github.com/epam/edp-nexus-operator/issues/19))
+
+### Documentation
+
+- Update README md file ([#132](https://github.com/epam/edp-nexus-operator/issues/132))
+
 
 <a name="v3.1.0"></a>
 ## [v3.1.0] - 2024-01-11
