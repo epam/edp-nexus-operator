@@ -5,15 +5,25 @@ metadata:
     alm-examples: '[]'
     capabilities: Deep Insights
     categories: Developer Tools
-    containerImage: docker.io/epamedp/nexus-operator:3.1.0
+    containerImage: docker.io/epamedp/nexus-operator:3.2.0
     description: An Operator for managing Nexus entities.
     repository: https://github.com/epam/edp-nexus-operator
-  name: nexus-operator.v3.1.0
+  name: nexus-operator.v3.2.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: NexusBlobStore is the Schema for the nexusblobstores API.
+      displayName: Nexus Blob Store
+      kind: NexusBlobStore
+      name: nexusblobstores.edp.epam.com
+      version: v1alpha1
+    - description: NexusCleanupPolicy is the Schema for the cleanuppolicies API.
+      displayName: Nexus Cleanup Policy
+      kind: NexusCleanupPolicy
+      name: nexuscleanuppolicies.edp.epam.com
+      version: v1alpha1
     - description: Nexus is the Schema for the nexus API.
       displayName: Nexus
       kind: Nexus
@@ -104,8 +114,8 @@ spec:
   - email: SupportEPMD-EDP@epam.com
     name: epmd-edp
   maturity: stable
-  minKubeVersion: 1.22.0
+  minKubeVersion: 1.20.0
   provider:
     name: EPAM Delivery Platform
     url: https://epam.github.io/edp-install/
-  version: 3.1.0
+  version: 3.2.0

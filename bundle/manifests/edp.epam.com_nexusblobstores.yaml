@@ -4,20 +4,25 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
   creationTimestamp: null
-  name: nexusscripts.edp.epam.com
+  name: nexusblobstores.edp.epam.com
 spec:
   group: edp.epam.com
   names:
-    kind: NexusScript
-    listKind: NexusScriptList
-    plural: nexusscripts
-    singular: nexusscript
+    kind: NexusBlobStore
+    listKind: NexusBlobStoreList
+    plural: nexusblobstores
+    singular: nexusblobstore
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Status of the blob store
+      jsonPath: .status.value
+      name: Status
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: NexusScript is the Schema for the nexusscripts API.
+        description: NexusBlobStore is the Schema for the nexusblobstores API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -32,21 +37,21 @@ spec:
           metadata:
             type: object
           spec:
-            description: NexusScriptSpec defines the desired state of NexusScript.
+            description: NexusBlobStoreSpec defines the desired state of NexusBlobStore.
             properties:
-              content:
-                description: Content is the content of the script.
-                example: security.setAnonymousAccess(Boolean.valueOf(args))
-                type: string
-              execute:
-                default: false
-                description: Execute defines if script should be executed after creation.
-                type: boolean
+              file:
+                description: File type blobstore.
+                properties:
+                  path:
+                    description: The path to the blobstore contents. This can be an
+                      absolute path to anywhere on the system Nexus Repository Manager
+                      has access to it or can be a path relative to the sonatype-work
+                      directory.
+                    type: string
+                type: object
               name:
-                description: Name is the id of the script. Name should be unique across
-                  all scripts.
-                example: anonymous
-                maxLength: 512
+                description: Name of the BlobStore. Name should be unique across all
+                  BlobStores.
                 type: string
                 x-kubernetes-validations:
                 - message: Value is immutable
@@ -64,26 +69,33 @@ spec:
                 required:
                 - name
                 type: object
-              payload:
-                description: Payload is the payload of the script.
-                example: "true"
-                type: string
+              softQuota:
+                description: Settings to control the soft quota.
+                properties:
+                  limit:
+                    description: The limit in MB.
+                    format: int64
+                    minimum: 1
+                    type: integer
+                  type:
+                    description: Type of the soft quota.
+                    enum:
+                    - spaceRemainingQuota
+                    - spaceUsedQuota
+                    type: string
+                type: object
             required:
-            - content
             - name
             - nexusRef
             type: object
           status:
-            description: NexusScriptStatus defines the observed state of NexusScript.
+            description: NexusBlobStoreStatus defines the observed state of NexusBlobStore.
             properties:
               error:
                 description: Error is an error message if something went wrong.
                 type: string
-              executed:
-                description: Executed defines if script was executed.
-                type: boolean
               value:
-                description: Value is a status of the script.
+                description: Value is a status of the blob store.
                 type: string
             type: object
         type: object

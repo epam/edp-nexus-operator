@@ -17,7 +17,7 @@ spec:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: NexusCleanupPolicy is the Schema for the cleanuppolicies API
+        description: NexusCleanupPolicy is the Schema for the cleanuppolicies API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -32,7 +32,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy
+            description: NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy.
             properties:
               criteria:
                 description: Criteria for the cleanup policy.

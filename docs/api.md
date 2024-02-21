@@ -272,7 +272,7 @@ NexusBlobStoreStatus defines the observed state of NexusBlobStore.
 
 
 
-NexusCleanupPolicy is the Schema for the cleanuppolicies API
+NexusCleanupPolicy is the Schema for the cleanuppolicies API.
 
 <table>
     <thead>
@@ -304,7 +304,7 @@ NexusCleanupPolicy is the Schema for the cleanuppolicies API
         <td><b><a href="#nexuscleanuppolicyspec">spec</a></b></td>
         <td>object</td>
         <td>
-          NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy<br/>
+          NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy.<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -323,7 +323,7 @@ NexusCleanupPolicy is the Schema for the cleanuppolicies API
 
 
 
-NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy
+NexusCleanupPolicySpec defines the desired state of NexusCleanupPolicy.
 
 <table>
     <thead>

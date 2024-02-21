@@ -24,6 +24,58 @@ metadata:
         },
         {
           "apiVersion": "edp.epam.com/v1alpha1",
+          "kind": "NexusBlobStore",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "nexus-operator",
+              "app.kubernetes.io/instance": "nexusblobstore-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "nexusblobstore",
+              "app.kubernetes.io/part-of": "nexus-operator"
+            },
+            "name": "nexusblobstore-sample"
+          },
+          "spec": {
+            "file": {
+              "path": "storage-blobstore/nexusblobstore-sample"
+            },
+            "name": "nexusblobstore-sample",
+            "nexusRef": {
+              "name": "nexus-sample"
+            },
+            "softQuota": {
+              "limit": 1000,
+              "type": "spaceUsedQuota"
+            }
+          }
+        },
+        {
+          "apiVersion": "edp.epam.com/v1alpha1",
+          "kind": "NexusCleanupPolicy",
+          "metadata": {
+            "labels": {
+              "app.kubernetes.io/created-by": "nexus-operator",
+              "app.kubernetes.io/instance": "nexuscleanuppolicy-sample",
+              "app.kubernetes.io/managed-by": "kustomize",
+              "app.kubernetes.io/name": "nexuscleanuppolicy",
+              "app.kubernetes.io/part-of": "nexus-operator"
+            },
+            "name": "nexuscleanuppolicy-sample"
+          },
+          "spec": {
+            "criteria": {
+              "lastBlobUpdated": 30
+            },
+            "description": "Cleanup policy for go",
+            "format": "go",
+            "name": "go-cleanup-policy",
+            "nexusRef": {
+              "name": "nexus-sample"
+            }
+          }
+        },
+        {
+          "apiVersion": "edp.epam.com/v1alpha1",
           "kind": "NexusRepository",
           "metadata": {
             "labels": {
@@ -154,18 +206,28 @@ metadata:
       ]
     capabilities: Deep Insights
     categories: Developer Tools
-    containerImage: docker.io/epamedp/nexus-operator:3.1.0
-    createdAt: "2024-01-11T16:11:25Z"
+    containerImage: docker.io/epamedp/nexus-operator:3.2.0
+    createdAt: "2024-02-21T18:00:19Z"
     description: An Operator for managing Nexus entities.
     operators.operatorframework.io/builder: operator-sdk-v1.33.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/epam/edp-nexus-operator
-  name: nexus-operator.v3.1.0
+  name: nexus-operator.v3.2.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - description: NexusBlobStore is the Schema for the nexusblobstores API.
+      displayName: Nexus Blob Store
+      kind: NexusBlobStore
+      name: nexusblobstores.edp.epam.com
+      version: v1alpha1
+    - description: NexusCleanupPolicy is the Schema for the cleanuppolicies API.
+      displayName: Nexus Cleanup Policy
+      kind: NexusCleanupPolicy
+      name: nexuscleanuppolicies.edp.epam.com
+      version: v1alpha1
     - description: Nexus is the Schema for the nexus API.
       displayName: Nexus
       kind: Nexus
@@ -263,7 +325,7 @@ spec:
                 env:
                 - name: SETUP_SELF_SIGNED_CERTIFICATES
                   value: "false"
-                image: docker.io/epamedp/nexus-operator:3.1.0
+                image: docker.io/epamedp/nexus-operator:3.2.0
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -347,6 +409,58 @@ spec:
           - get
           - list
           - watch
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexusblobstores
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexusblobstores/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexusblobstores/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexuscleanuppolicies
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexuscleanuppolicies/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexuscleanuppolicies/status
+          verbs:
+          - get
+          - patch
+          - update
         - apiGroups:
           - edp.epam.com
           resources:
@@ -501,11 +615,11 @@ spec:
   - email: SupportEPMD-EDP@epam.com
     name: epmd-edp
   maturity: stable
-  minKubeVersion: 1.22.0
+  minKubeVersion: 1.20.0
   provider:
     name: EPAM Delivery Platform
     url: https://epam.github.io/edp-install/
-  version: 3.1.0
+  version: 3.2.0
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

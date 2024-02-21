@@ -1909,6 +1909,39 @@ spec:
                         required:
                         - memberNames
                         type: object
+                      maven:
+                        default:
+                          contentDisposition: INLINE
+                          layoutPolicy: STRICT
+                          versionPolicy: RELEASE
+                        description: Maven contains additional data of maven repository.
+                        properties:
+                          contentDisposition:
+                            default: INLINE
+                            description: Add Content-Disposition header as 'Attachment'
+                              to disable some content from being inline in a browser.
+                            enum:
+                            - INLINE
+                            - ATTACHMENT
+                            type: string
+                          layoutPolicy:
+                            default: STRICT
+                            description: Validate that all paths are maven artifact
+                              or metadata paths.
+                            enum:
+                            - STRICT
+                            - PERMISSIVE
+                            type: string
+                          versionPolicy:
+                            default: RELEASE
+                            description: VersionPolicy is a type of artifact that
+                              this repository stores.
+                            enum:
+                            - RELEASE
+                            - SNAPSHOT
+                            - MIXED
+                            type: string
+                        type: object
                       name:
                         description: A unique identifier for this repository. Only
                           letters, digits, underscores(_), hyphens(-), and dots(.)
@@ -1966,6 +1999,10 @@ spec:
                         - proprietaryComponents
                         type: object
                       maven:
+                        default:
+                          contentDisposition: INLINE
+                          layoutPolicy: STRICT
+                          versionPolicy: RELEASE
                         description: Maven contains additional data of maven repository.
                         properties:
                           contentDisposition:
@@ -2034,7 +2071,6 @@ spec:
                             type: string
                         type: object
                     required:
-                    - maven
                     - name
                     type: object
                   proxy:
@@ -2737,6 +2773,9 @@ spec:
                             type: integer
                         type: object
                       nugetProxy:
+                        default:
+                          nugetVersion: V3
+                          queryCacheItemMaxAge: 3600
                         description: NugetProxy contains data specific to proxy repositories
                           of format Nuget.
                         properties:
@@ -2803,7 +2842,6 @@ spec:
                         type: object
                     required:
                     - name
-                    - nugetProxy
                     - proxy
                     type: object
                 type: object
