@@ -9,7 +9,7 @@ Get acquainted with the Nexus Operator and the installation process as well as t
 
 ## Overview
 
-Nexus Operator is an EDP operator that is responsible for installing and configuring Nexus. Operator installation can be applied on two container orchestration platforms: OpenShift and Kubernetes.
+Nexus Operator is an EDP operator that is responsible for configuring Nexus.
 
 _**NOTE:** Operator is platform-independent, that is why there is a unified instruction for deploying._
 
@@ -17,7 +17,6 @@ _**NOTE:** Operator is platform-independent, that is why there is a unified inst
 
 1. Linux machine or Windows Subsystem for Linux instance with [Helm 3](https://helm.sh/docs/intro/install/) installed;
 2. Cluster admin access to the cluster;
-3. EDP project/namespace is deployed by following one the [Install EDP](https://epam.github.io/edp-install/operator-guide/install-edp/) instruction.
 
 ## Installation
 
@@ -34,8 +33,8 @@ In order to install the Nexus operator, follow the steps below:
      ```bash
      helm search repo epamedp/nexus-operator -l
      NAME                        CHART VERSION   APP VERSION     DESCRIPTION
+     epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for EDP Nexus Operator
      epamedp/nexus-operator      3.1.0           3.1.0           A Helm chart for EDP Nexus Operator
-     epamedp/nexus-operator      3.0.0           3.0.0           A Helm chart for EDP Nexus Operator
      ```
 
     _**NOTE:** It is highly recommended to use the latest released version._
@@ -45,10 +44,66 @@ In order to install the Nexus operator, follow the steps below:
 4. Install operator in the `nexus-operator` namespace with the helm command; find below the installation command example:
 
     ```bash
-    helm install nexus-operator epamedp/nexus-operator --version <chart_version> --namespace nexus-operator
+    helm install nexus-operator epamedp/nexus-operator --version <chart_version> --namespace nexus
     ```
 
 5. Check the `nexus-operator` namespace that should contain operator deployment with your operator in a running status.
+
+## Quick Start
+
+1. Login into Nexus and create user. Attach permissions to user such as scripts, rules, blobs etc. Insert user credentials into Kubernetes secret.
+
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: nexus-admin-password
+    data:
+      password: cGFzcw==  # base64-encoded value of "pass"
+      user:     dXNlcg==  # base64-encoded value of "user"
+    ```
+
+2. Create Custom Resource `kind: Nexus` with Nexus instance URL and secret created on the previous step:
+
+    ```yaml
+    apiVersion: edp.epam.com/v1alpha1
+    kind: Nexus
+    metadata:
+      name: nexus
+    spec:
+      secret: nexus-admin-password
+      url: http://nexus.example.com
+    ```
+
+    Wait for the `.status` field with  `status.connected: true`
+
+3. Create Role using Custom Resources NexusRole:
+
+   ```yaml
+  apiVersion: edp.epam.com/v1alpha1
+  kind: NexusRole
+  metadata:
+    name: edp-admin
+  spec:
+    description: Read and write access to all repos and scripts
+    id: edp-admin
+    name: edp-admin
+    nexusRef:
+      kind: Nexus
+      name: nexus
+    privileges:
+      - nx-apikey-all
+      - nx-repository-view-*-*-add
+      - nx-repository-view-*-*-browse
+      - nx-repository-view-*-*-edit
+      - nx-repository-view-*-*-read
+      - nx-script-*-add
+      - nx-script-*-delete
+      - nx-script-*-run
+      - nx-search-read
+    ```
+
+    Inspect [CR templates folder](./deploy-templates/_crd_examples/) for more examples
 
 ## Local Development
 
