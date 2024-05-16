@@ -99,7 +99,8 @@ NexusBlobStoreSpec defines the desired state of NexusBlobStore.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          Name of the BlobStore. Name should be unique across all BlobStores.<br/>
+          Name of the BlobStore.
+Name should be unique across all BlobStores.<br/>
           <br/>
             <i>Validations</i>:<li>self == oldSelf: Value is immutable</li>
         </td>
@@ -185,7 +186,8 @@ File type blobstore.
         <td><b>path</b></td>
         <td>string</td>
         <td>
-          The path to the blobstore contents. This can be an absolute path to anywhere on the system Nexus Repository Manager has access to it or can be a path relative to the sonatype-work directory.<br/>
+          The path to the blobstore contents.
+This can be an absolute path to anywhere on the system Nexus Repository Manager has access to it or can be a path relative to the sonatype-work directory.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -576,7 +578,8 @@ NexusSpec defines the desired state of Nexus.
         <td><b>secret</b></td>
         <td>string</td>
         <td>
-          Secret is the name of the k8s object Secret related to nexus. Secret should contain a user field with a nexus username and a password field with a nexus password.<br/>
+          Secret is the name of the k8s object Secret related to nexus.
+Secret should contain a user field with a nexus username and a password field with a nexus password.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -663,7 +666,8 @@ NexusRepository is the Schema for the nexusrepositories API.
         <td><b><a href="#nexusrepositoryspec">spec</a></b></td>
         <td>object</td>
         <td>
-          NexusRepositorySpec defines the desired state of NexusRepository. It should contain only one format of repository - go, maven, npm, etc. and only one type - proxy, hosted or group.<br/>
+          NexusRepositorySpec defines the desired state of NexusRepository.
+It should contain only one format of repository - go, maven, npm, etc. and only one type - proxy, hosted or group.<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -682,7 +686,8 @@ NexusRepository is the Schema for the nexusrepositories API.
 
 
 
-NexusRepositorySpec defines the desired state of NexusRepository. It should contain only one format of repository - go, maven, npm, etc. and only one type - proxy, hosted or group.
+NexusRepositorySpec defines the desired state of NexusRepository.
+It should contain only one format of repository - go, maven, npm, etc. and only one type - proxy, hosted or group.
 
 <table>
     <thead>
@@ -934,7 +939,8 @@ NexusRef is a reference to Nexus custom resource.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1054,7 +1060,7 @@ AptSigning contains signing data of hosted repositores of format Apt.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -1163,7 +1169,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1328,7 +1335,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -1649,7 +1656,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1759,7 +1767,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -1818,7 +1827,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -1927,7 +1936,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2083,7 +2093,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -2383,7 +2393,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2512,7 +2523,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -2812,7 +2823,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -2941,7 +2953,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -3241,7 +3253,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -3370,7 +3383,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -3691,7 +3704,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -3870,7 +3884,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -3977,7 +3992,7 @@ Docker contains data of a Docker Repositoriy.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -4093,7 +4108,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -4235,7 +4251,8 @@ DockerProxy contains data of a Docker Proxy Repository.
         <td><b>indexUrl</b></td>
         <td>string</td>
         <td>
-          Url of Docker Index to use. TODO: add cel validation. (Required if indexType is CUSTOM)<br/>
+          Url of Docker Index to use.
+TODO: add cel validation. (Required if indexType is CUSTOM)<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -4307,7 +4324,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -4607,7 +4624,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -4666,7 +4684,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -4809,7 +4827,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -4919,7 +4938,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -5048,7 +5068,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -5355,7 +5375,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -5414,7 +5435,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -5516,7 +5537,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -5645,7 +5667,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -5966,7 +5988,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -6135,7 +6158,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -6203,7 +6227,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -6355,7 +6379,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -6493,7 +6518,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -6871,7 +6896,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -6981,7 +7007,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -7040,7 +7067,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -7142,7 +7169,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -7278,7 +7306,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -7633,7 +7661,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -7743,7 +7772,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -7802,7 +7832,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -7904,7 +7934,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -8042,7 +8073,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -8381,7 +8412,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -8510,7 +8542,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -8831,7 +8863,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -8941,7 +8974,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -9000,7 +9034,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -9102,7 +9136,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -9231,7 +9266,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -9552,7 +9587,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -9662,7 +9698,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -9721,7 +9758,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -9823,7 +9860,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -9952,7 +9990,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -10273,7 +10311,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -10419,7 +10458,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -10485,7 +10525,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -10616,7 +10656,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -10752,7 +10793,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -11102,7 +11143,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -11212,7 +11254,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -11271,7 +11314,7 @@ Storage configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -11373,7 +11416,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -11502,7 +11546,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -11823,7 +11867,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -11974,7 +12019,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -12076,7 +12122,7 @@ Yum contains data of hosted repositories of format Yum.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -12178,7 +12224,8 @@ Storage configuration.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          A unique identifier for this repository. Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
+          A unique identifier for this repository.
+Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.<br/>
         </td>
         <td>true</td>
       </tr><tr>
@@ -12314,7 +12361,7 @@ Proxy configuration.
         <td><b>policyNames</b></td>
         <td>[]string</td>
         <td>
-          Components that match any of the applied policies will be deleted.<br/>
+           Components that match any of the applied policies will be deleted.<br/>
         </td>
         <td>true</td>
       </tr></tbody>
@@ -12708,7 +12755,8 @@ NexusRoleSpec defines the desired state of NexusRole.
         <td><b>id</b></td>
         <td>string</td>
         <td>
-          ID is the id of the role. ID should be unique across all roles.<br/>
+          ID is the id of the role.
+ID should be unique across all roles.<br/>
           <br/>
             <i>Validations</i>:<li>self == oldSelf: Value is immutable</li>
         </td>
@@ -12895,7 +12943,8 @@ NexusScriptSpec defines the desired state of NexusScript.
         <td><b>name</b></td>
         <td>string</td>
         <td>
-          Name is the id of the script. Name should be unique across all scripts.<br/>
+          Name is the id of the script.
+Name should be unique across all scripts.<br/>
           <br/>
             <i>Validations</i>:<li>self == oldSelf: Value is immutable</li>
         </td>
@@ -13091,7 +13140,8 @@ NexusUserSpec defines the desired state of NexusUser.
         <td><b>id</b></td>
         <td>string</td>
         <td>
-          ID is the username of the user. ID should be unique across all users.<br/>
+          ID is the username of the user.
+ID should be unique across all users.<br/>
           <br/>
             <i>Validations</i>:<li>self == oldSelf: Value is immutable</li>
         </td>
@@ -13121,7 +13171,9 @@ NexusUserSpec defines the desired state of NexusUser.
         <td><b>secret</b></td>
         <td>string</td>
         <td>
-          Secret is the reference of the k8s object Secret for the user password. Format: $secret-name:secret-key. Updating user password is not supported.<br/>
+          Secret is the reference of the k8s object Secret for the user password.
+Format: $secret-name:secret-key.
+Updating user password is not supported.<br/>
         </td>
         <td>true</td>
       </tr><tr>
