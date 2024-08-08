@@ -2,14 +2,14 @@
 
 # Nexus Operator
 
-| :heavy_exclamation_mark: Please refer to [EDP documentation](https://epam.github.io/edp-install/) to get the notion of the main concepts and guidelines. |
+| :heavy_exclamation_mark: Please refer to [KubeRocketCI documentation](https://docs.kuberocketci.io/) to get the notion of the main concepts and guidelines. |
 | --- |
 
 Get acquainted with the Nexus Operator and the installation process as well as the local development, and architecture scheme.
 
 ## Overview
 
-Nexus Operator is an EDP operator that is responsible for configuring Nexus.
+Nexus Operator is a KubeRocketCI operator that is responsible for configuring Nexus.
 
 _**NOTE:** Operator is platform-independent, that is why there is a unified instruction for deploying._
 
@@ -33,8 +33,7 @@ In order to install the Nexus operator, follow the steps below:
      ```bash
      helm search repo epamedp/nexus-operator -l
      NAME                        CHART VERSION   APP VERSION     DESCRIPTION
-     epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for EDP Nexus Operator
-     epamedp/nexus-operator      3.1.0           3.1.0           A Helm chart for EDP Nexus Operator
+     epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for KRCI Nexus Operator
      ```
 
     _**NOTE:** It is highly recommended to use the latest released version._
@@ -107,10 +106,10 @@ In order to install the Nexus operator, follow the steps below:
 
 ## Local Development
 
-In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](https://epam.github.io/edp-install/developer-guide/local-development/) page.
+In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](https://docs.kuberocketci.io/docs/developer-guide/local-development) page.
 
 Development versions are also available, please refer to the [snapshot Helm Chart repository](https://epam.github.io/edp-helm-charts/snapshot/) page.
 
 ### Related Articles
 
-* [Install EDP](https://epam.github.io/edp-install/operator-guide/install-edp/)
+* [Install KubeRocketCI](https://docs.kuberocketci.io/docs/operator-guide/install-kuberocketci)

@@ -2,13 +2,13 @@
 
 ![Version: 3.3.0-SNAPSHOT](https://img.shields.io/badge/Version-3.3.0--SNAPSHOT-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.3.0-SNAPSHOT](https://img.shields.io/badge/AppVersion-3.3.0--SNAPSHOT-informational?style=flat-square)
 
-A Helm chart for EDP Nexus Operator
+A Helm chart for KubeRocketCI Nexus Operator
 
-**Homepage:** <https://epam.github.io/edp-install/>
+**Homepage:** <https://docs.kuberocketci.io/>
 
 ## Overview
 
-Nexus Operator is an EDP operator that is responsible for configuring Nexus.
+Nexus Operator is a KubeRocketCI operator that is responsible for configuring Nexus.
 
 _**NOTE:** Operator is platform-independent, that is why there is a unified instruction for deploying._
 
@@ -32,8 +32,7 @@ In order to install the Nexus operator, follow the steps below:
      ```bash
      helm search repo epamedp/nexus-operator -l
      NAME                        CHART VERSION   APP VERSION     DESCRIPTION
-     epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for EDP Nexus Operator
-     epamedp/nexus-operator      3.1.0           3.1.0           A Helm chart for EDP Nexus Operator
+     epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for KRCI Nexus Operator
      ```
 
     _**NOTE:** It is highly recommended to use the latest released version._
@@ -106,19 +105,19 @@ In order to install the Nexus operator, follow the steps below:
 
 ## Local Development
 
-In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](https://epam.github.io/edp-install/developer-guide/local-development/) page.
+In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](https://docs.kuberocketci.io/docs/developer-guide/local-development) page.
 
 Development versions are also available, please refer to the [snapshot Helm Chart repository](https://epam.github.io/edp-helm-charts/snapshot/) page.
 
 ### Related Articles
 
-* [Install EDP](https://epam.github.io/edp-install/operator-guide/install-edp/)
+* [Install KubeRocketCI](https://docs.kuberocketci.io/docs/operator-guide/install-kuberocketci)
 
 ## Maintainers
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| epmd-edp | <SupportEPMD-EDP@epam.com> | <https://solutionshub.epam.com/solution/epam-delivery-platform> |
+| epmd-edp | <SupportEPMD-EDP@epam.com> | <https://solutionshub.epam.com/solution/kuberocketci> |
 | sergk |  | <https://github.com/SergK> |
 
 ## Source Code
@@ -131,8 +130,8 @@ Development versions are also available, please refer to the [snapshot Helm Char
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
 | annotations | object | `{}` |  |
-| image.repository | string | `"epamedp/nexus-operator"` | EDP nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator) |
-| image.tag | string | `nil` | EDP nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags) |
+| image.repository | string | `"epamedp/nexus-operator"` | KubeRocketCI nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator) |
+| image.tag | string | `nil` | KubeRocketCI nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags) |
 | imagePullPolicy | string | `"IfNotPresent"` |  |
 | name | string | `"nexus-operator"` | component name |
 | nodeSelector | object | `{}` |  |
