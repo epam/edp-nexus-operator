@@ -1,11 +1,11 @@
 apiVersion: v2
-description: A Helm chart for EDP Nexus Operator
-home: https://epam.github.io/edp-install/
+description: A Helm chart for KubeRocketCI Nexus Operator
+home: https://docs.kuberocketci.io/
 name: nexus-operator
 type: application
 version: 3.3.0-SNAPSHOT
 appVersion: 3.3.0-SNAPSHOT
-icon: https://epam.github.io/edp-install/assets/logo.png
+icon: https://docs.kuberocketci.io/img/logo.svg
 keywords:
   - edp
   - nexus
@@ -15,7 +15,7 @@ keywords:
 maintainers:
   - name: epmd-edp
     email: SupportEPMD-EDP@epam.com
-    url: https://solutionshub.epam.com/solution/epam-delivery-platform
+    url: https://solutionshub.epam.com/solution/kuberocketci
   - name: sergk
     url: https://github.com/SergK
 sources:
@@ -80,7 +80,7 @@ annotations:
           name: nexus-sample
           kind: Nexus
   artifacthub.io/links: |
-    - name: EDP Documentation
-      url: https://epam.github.io/edp-install/
+    - name: KubeRocketCI Documentation
+      url: https://docs.kuberocketci.io
     - name: EPAM SolutionHub
-      url: https://solutionshub.epam.com/solution/epam-delivery-platform
+      url: https://solutionshub.epam.com/solution/kuberocketci

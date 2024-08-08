@@ -5,10 +5,10 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 image:
-   # -- EDP nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator)
+   # -- KubeRocketCI nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator)
   repository: epamedp/nexus-operator
   # if not defined then .Chart.AppVersion is used
-  # -- EDP nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags)
+  # -- KubeRocketCI nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags)
   tag:
 imagePullPolicy: "IfNotPresent"
 
