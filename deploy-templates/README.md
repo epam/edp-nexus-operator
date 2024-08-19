@@ -23,17 +23,17 @@ In order to install the Nexus operator, follow the steps below:
 
 1. To add the Helm EPAMEDP Charts for local client, run "helm repo add":
 
-     ```bash
-     helm repo add epamedp https://epam.github.io/edp-helm-charts/stable
-     ```
+    ```bash
+    helm repo add epamedp https://epam.github.io/edp-helm-charts/stable
+    ```
 
 2. Choose available Helm chart version:
 
-     ```bash
-     helm search repo epamedp/nexus-operator -l
-     NAME                        CHART VERSION   APP VERSION     DESCRIPTION
-     epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for KRCI Nexus Operator
-     ```
+    ```bash
+    helm search repo epamedp/nexus-operator -l
+    NAME                        CHART VERSION   APP VERSION     DESCRIPTION
+    epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for KRCI Nexus Operator
+    ```
 
     _**NOTE:** It is highly recommended to use the latest released version._
 
@@ -77,28 +77,28 @@ In order to install the Nexus operator, follow the steps below:
 
 3. Create Role using Custom Resources NexusRole:
 
-   ```yaml
-  apiVersion: edp.epam.com/v1alpha1
-  kind: NexusRole
-  metadata:
-    name: edp-admin
-  spec:
-    description: Read and write access to all repos and scripts
-    id: edp-admin
-    name: edp-admin
-    nexusRef:
-      kind: Nexus
-      name: nexus
-    privileges:
-      - nx-apikey-all
-      - nx-repository-view-*-*-add
-      - nx-repository-view-*-*-browse
-      - nx-repository-view-*-*-edit
-      - nx-repository-view-*-*-read
-      - nx-script-*-add
-      - nx-script-*-delete
-      - nx-script-*-run
-      - nx-search-read
+    ```yaml
+    apiVersion: edp.epam.com/v1alpha1
+    kind: NexusRole
+    metadata:
+      name: edp-admin
+    spec:
+      description: Read and write access to all repos and scripts
+      id: edp-admin
+      name: edp-admin
+      nexusRef:
+        kind: Nexus
+        name: nexus
+      privileges:
+        - nx-apikey-all
+        - nx-repository-view-*-*-add
+        - nx-repository-view-*-*-browse
+        - nx-repository-view-*-*-edit
+        - nx-repository-view-*-*-read
+        - nx-script-*-add
+        - nx-script-*-delete
+        - nx-script-*-run
+        - nx-search-read
     ```
 
     Inspect [CR templates folder](./deploy-templates/_crd_examples/) for more examples
