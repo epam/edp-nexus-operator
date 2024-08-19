@@ -102,7 +102,7 @@ In order to install the Nexus operator, follow the steps below:
         - nx-search-read
     ```
 
-    Inspect [CR templates folder](./deploy-templates/_crd_examples/) for more examples
+    Inspect [CR templates folder](./deploy-templates/_crd_examples/) for more examples.
 
 ## Local Development
 
