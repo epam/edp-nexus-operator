@@ -78,31 +78,31 @@ In order to install the Nexus operator, follow the steps below:
 
 3. Create Role using Custom Resources NexusRole:
 
-   ```yaml
-  apiVersion: edp.epam.com/v1alpha1
-  kind: NexusRole
-  metadata:
-    name: edp-admin
-  spec:
-    description: Read and write access to all repos and scripts
-    id: edp-admin
-    name: edp-admin
-    nexusRef:
-      kind: Nexus
-      name: nexus
-    privileges:
-      - nx-apikey-all
-      - nx-repository-view-*-*-add
-      - nx-repository-view-*-*-browse
-      - nx-repository-view-*-*-edit
-      - nx-repository-view-*-*-read
-      - nx-script-*-add
-      - nx-script-*-delete
-      - nx-script-*-run
-      - nx-search-read
+    ```yaml
+    apiVersion: edp.epam.com/v1alpha1
+    kind: NexusRole
+    metadata:
+      name: edp-admin
+    spec:
+      description: Read and write access to all repos and scripts
+      id: edp-admin
+      name: edp-admin
+      nexusRef:
+        kind: Nexus
+        name: nexus
+      privileges:
+        - nx-apikey-all
+        - nx-repository-view-*-*-add
+        - nx-repository-view-*-*-browse
+        - nx-repository-view-*-*-edit
+        - nx-repository-view-*-*-read
+        - nx-script-*-add
+        - nx-script-*-delete
+        - nx-script-*-run
+        - nx-search-read
     ```
 
-    Inspect [CR templates folder](./deploy-templates/_crd_examples/) for more examples
+    Inspect [CR templates folder](./deploy-templates/_crd_examples/) for more examples.
 
 ## Local Development
 
