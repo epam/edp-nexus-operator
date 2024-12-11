@@ -11,3 +11,40 @@ spec:
     type: spaceUsedQuota
   nexusRef:
     name: nexus-sample
+
+---
+
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusBlobStore
+metadata:
+  name: s3-sample
+spec:
+  name: s3-sample
+  s3:
+    bucket:
+      name: test
+      region: us-east-1
+    bucketSecurity:
+      accessKeyId:
+        configMapKeyRef:
+          name: s3-config
+          key: accessKeyId
+      secretAccessKey:
+        configMapKeyRef:
+          name: s3-config
+          key: secretAccessKey
+  softQuota:
+    limit: 1000
+    type: spaceUsedQuota
+  nexusRef:
+    name: nexus-sample
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: s3-config
+data:
+  accessKeyId: "test access key id"
+  secretAccessKey: "test access key"

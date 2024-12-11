@@ -82,7 +82,11 @@ func (r *NexusBlobStoreReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 
 	oldStatus := store.Status
 
-	if err = chain.NewCreateBlobStore(nexusApiClient.BlobStore.File).ServeRequest(ctx, store); err != nil {
+	if err = chain.NewCreateBlobStore(
+		nexusApiClient.BlobStore.S3,
+		nexusApiClient.BlobStore.File,
+		r.client,
+	).ServeRequest(ctx, store); err != nil {
 		log.Error(err, "An error has occurred while handling NexusBlobStore")
 
 		store.Status.Value = common.StatusError

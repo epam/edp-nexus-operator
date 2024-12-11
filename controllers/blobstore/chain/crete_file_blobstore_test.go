@@ -15,7 +15,7 @@ import (
 	"github.com/epam/edp-nexus-operator/pkg/client/nexus/mocks"
 )
 
-func TestCreateBlobStore_ServeRequest(t *testing.T) {
+func TestCreateFileBlobStore_ServeRequest(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -33,7 +33,7 @@ func TestCreateBlobStore_ServeRequest(t *testing.T) {
 						Type:  nexusApi.SoftQuotaSpaceRemainingQuota,
 						Limit: 100,
 					},
-					File: nexusApi.File{
+					File: &nexusApi.File{
 						Path: "/test",
 					},
 				},
@@ -66,7 +66,7 @@ func TestCreateBlobStore_ServeRequest(t *testing.T) {
 						Type:  nexusApi.SoftQuotaSpaceRemainingQuota,
 						Limit: 100,
 					},
-					File: nexusApi.File{
+					File: &nexusApi.File{
 						Path: "/test",
 					},
 				},
@@ -102,7 +102,7 @@ func TestCreateBlobStore_ServeRequest(t *testing.T) {
 						Type:  nexusApi.SoftQuotaSpaceUsedQuota,
 						Limit: 100,
 					},
-					File: nexusApi.File{
+					File: &nexusApi.File{
 						Path: "/test",
 					},
 				},
@@ -133,7 +133,7 @@ func TestCreateBlobStore_ServeRequest(t *testing.T) {
 						Type:  nexusApi.SoftQuotaSpaceRemainingQuota,
 						Limit: 100,
 					},
-					File: nexusApi.File{
+					File: &nexusApi.File{
 						Path: "/test",
 					},
 				},
@@ -172,7 +172,7 @@ func TestCreateBlobStore_ServeRequest(t *testing.T) {
 						Type:  nexusApi.SoftQuotaSpaceRemainingQuota,
 						Limit: 100,
 					},
-					File: nexusApi.File{
+					File: &nexusApi.File{
 						Path: "/test",
 					},
 				},
@@ -204,7 +204,7 @@ func TestCreateBlobStore_ServeRequest(t *testing.T) {
 			blobStore: &nexusApi.NexusBlobStore{
 				Spec: nexusApi.NexusBlobStoreSpec{
 					Name: "test-blobstore",
-					File: nexusApi.File{
+					File: &nexusApi.File{
 						Path: "/test",
 					},
 				},
@@ -229,7 +229,7 @@ func TestCreateBlobStore_ServeRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			c := NewCreateBlobStore(tt.nexusBlobStoreApiClient(t))
+			c := NewCreateFileBlobStore(tt.nexusBlobStoreApiClient(t))
 
 			err := c.ServeRequest(ctrl.LoggerInto(context.Background(), logr.Discard()), tt.blobStore)
 			tt.wantErr(t, err)

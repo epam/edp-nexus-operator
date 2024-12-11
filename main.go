@@ -144,7 +144,7 @@ func main() {
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = webhook.RegisterValidationWebHook(ctx, mgr, ns); err != nil {
-			setupLog.Error(err, "failed to create webhook", "webhook", "NexusRepositoryß")
+			setupLog.Error(err, "failed to create webhook", "webhook", "NexusRepository")
 			os.Exit(1)
 		}
 	}

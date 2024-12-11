@@ -27,7 +27,7 @@ var _ = Describe("NexusBlobStore controller", func() {
 					Type:  nexusApi.SoftQuotaSpaceUsedQuota,
 					Limit: 100,
 				},
-				File: nexusApi.File{
+				File: &nexusApi.File{
 					Path: "test-blobstore",
 				},
 				NexusRef: common.NexusRef{
