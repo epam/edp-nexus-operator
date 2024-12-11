@@ -11,19 +11,23 @@ import (
 	"github.com/epam/edp-nexus-operator/pkg/client/nexus"
 )
 
-type CreateBlobStore struct {
-	nexusBlobStoreApiClient nexus.FileBlobStore
+type CreateFileBlobStore struct {
+	nexusFileBlobStoreApiClient nexus.FileBlobStore
 }
 
-func NewCreateBlobStore(nexusBlobStoreApiClient nexus.FileBlobStore) *CreateBlobStore {
-	return &CreateBlobStore{nexusBlobStoreApiClient: nexusBlobStoreApiClient}
+func NewCreateFileBlobStore(nexusFileBlobStoreApiClient nexus.FileBlobStore) *CreateFileBlobStore {
+	return &CreateFileBlobStore{nexusFileBlobStoreApiClient: nexusFileBlobStoreApiClient}
 }
 
-func (c *CreateBlobStore) ServeRequest(ctx context.Context, blobStore *nexusApi.NexusBlobStore) error {
+func (c *CreateFileBlobStore) ServeRequest(ctx context.Context, blobStore *nexusApi.NexusBlobStore) error {
+	if blobStore.Spec.File == nil {
+		return nil
+	}
+
 	log := ctrl.LoggerFrom(ctx).WithValues("blobstore_name", blobStore.Spec.Name)
-	log.Info("Start creating blobstore")
+	log.Info("Start creating file blobstore")
 
-	nexusBlobStore, err := c.nexusBlobStoreApiClient.Get(blobStore.Spec.Name)
+	nexusBlobStore, err := c.nexusFileBlobStoreApiClient.Get(blobStore.Spec.Name)
 	if err != nil {
 		if !nexus.IsErrNotFound(err) {
 			return fmt.Errorf("failed to get blobstore: %w", err)
@@ -31,7 +35,7 @@ func (c *CreateBlobStore) ServeRequest(ctx context.Context, blobStore *nexusApi.
 
 		log.Info("Blobstore doesn't exist, creating new one")
 
-		if err = c.nexusBlobStoreApiClient.Create(specToBlobstore(&blobStore.Spec)); err != nil {
+		if err = c.nexusFileBlobStoreApiClient.Create(specToFileBlobstore(&blobStore.Spec)); err != nil {
 			return fmt.Errorf("failed to create blobstore: %w", err)
 		}
 
@@ -40,12 +44,12 @@ func (c *CreateBlobStore) ServeRequest(ctx context.Context, blobStore *nexusApi.
 		return nil
 	}
 
-	newNexusBlobStore := specToBlobstore(&blobStore.Spec)
+	newNexusBlobStore := specToFileBlobstore(&blobStore.Spec)
 
-	if blobstoreChanged(newNexusBlobStore, nexusBlobStore) {
+	if fileBlobstoreChanged(newNexusBlobStore, nexusBlobStore) {
 		log.Info("Updating blobstore")
 
-		if err = c.nexusBlobStoreApiClient.Update(blobStore.Spec.Name, newNexusBlobStore); err != nil {
+		if err = c.nexusFileBlobStoreApiClient.Update(blobStore.Spec.Name, newNexusBlobStore); err != nil {
 			return fmt.Errorf("failed to update blobstore: %w", err)
 		}
 
@@ -55,7 +59,7 @@ func (c *CreateBlobStore) ServeRequest(ctx context.Context, blobStore *nexusApi.
 	return nil
 }
 
-func specToBlobstore(spec *nexusApi.NexusBlobStoreSpec) *blobstore.File {
+func specToFileBlobstore(spec *nexusApi.NexusBlobStoreSpec) *blobstore.File {
 	f := &blobstore.File{
 		Name: spec.Name,
 		Path: spec.File.Path,
@@ -71,7 +75,7 @@ func specToBlobstore(spec *nexusApi.NexusBlobStoreSpec) *blobstore.File {
 	return f
 }
 
-func blobstoreChanged(newNexusBlobStore, nexusBlobStore *blobstore.File) bool {
+func fileBlobstoreChanged(newNexusBlobStore, nexusBlobStore *blobstore.File) bool {
 	if newNexusBlobStore.Path != nexusBlobStore.Path {
 		return true
 	}

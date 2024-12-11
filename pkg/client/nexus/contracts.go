@@ -44,6 +44,13 @@ type FileBlobStore interface {
 	Delete(name string) error
 }
 
+type S3BlobStore interface {
+	Get(name string) (*blobstore.S3, error)
+	Create(bs *blobstore.S3) error
+	Update(name string, bs *blobstore.S3) error
+	Delete(name string) error
+}
+
 type NexusCleanupPolicyManager interface {
 	Get(ctx context.Context, name string) (*NexusCleanupPolicy, error)
 	Create(ctx context.Context, policy *NexusCleanupPolicy) error

@@ -191,10 +191,10 @@ envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	$(call go-get-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,release-0.16)
 
-mocks:
+mocks: mockery
 	$(MOCKERY)
 
 MOCKERY = $(LOCALBIN)/mockery
 .PHONY: mockery
 mockery: ## Download mockery locally if necessary.
-	$(call go-get-tool,$(MOCKERY),github.com/vektra/mockery/v2,v2.38.0)
+	$(call go-get-tool,$(MOCKERY),github.com/vektra/mockery/v2,v2.50.0)

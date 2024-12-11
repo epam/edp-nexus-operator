@@ -13,6 +13,8 @@ import (
 )
 
 var _ = Describe("NexusScript controller", func() {
+	GinkgoWriter.Print("Nexus Script API should be enabled. Details: https://help.sonatype.com/en/script-api.html#enabling-scripting")
+
 	nexusScriptCRName := "nexus-script"
 	It("Should create NexusScript object", func() {
 		By("By creating a new NexusScript object")
