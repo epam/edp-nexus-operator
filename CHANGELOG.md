@@ -1,6 +1,33 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+<a name="v3.3.0"></a>
+## [v3.3.0] - 2024-12-12
+### Features
+
+- Add support for S3 Nexus blobstore configuration ([#43](https://github.com/epam/edp-nexus-operator/issues/43))
+
+### Routine
+
+- Update Pull Request Template ([#10](https://github.com/epam/edp-nexus-operator/issues/10))
+- Update KubeRocketCI names and documentation links ([#37](https://github.com/epam/edp-nexus-operator/issues/37))
+- Bump to Go 1.22 ([#35](https://github.com/epam/edp-nexus-operator/issues/35))
+- Add codeowners file to the repo ([#31](https://github.com/epam/edp-nexus-operator/issues/31))
+- Migrate from gerrit to github pipelines ([#29](https://github.com/epam/edp-nexus-operator/issues/29))
+- Setup setup-envtest version instead latest ([#16](https://github.com/epam/edp-nexus-operator/issues/16))
+- Prepare bundle version 3.2.0 for OperatorHub ([#26](https://github.com/epam/edp-nexus-operator/issues/26))
+- Update current development version ([#26](https://github.com/epam/edp-nexus-operator/issues/26))
+
+### Documentation
+
+- Fix broken format in README md ([#39](https://github.com/epam/edp-nexus-operator/issues/39))
+- Fix README.md ([#28](https://github.com/epam/edp-nexus-operator/issues/28))
+- Add the Quick Start section to the README ([#28](https://github.com/epam/edp-nexus-operator/issues/28))
+
+
+<a name="v3.2.0"></a>
+## [v3.2.0] - 2024-02-21
 ### Features
 
 - Add NexusCleanupPolicy Custom Resource ([#25](https://github.com/epam/edp-nexus-operator/issues/25))
@@ -74,7 +101,9 @@
 <a name="v2.16.0"></a>
 ## [v2.16.0] - 2023-08-17
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.3.0...HEAD
+[v3.3.0]: https://github.com/epam/edp-nexus-operator/compare/v3.2.0...v3.3.0
+[v3.2.0]: https://github.com/epam/edp-nexus-operator/compare/v3.1.0...v3.2.0
 [v3.1.0]: https://github.com/epam/edp-nexus-operator/compare/v3.0.0...v3.1.0
 [v3.0.0]: https://github.com/epam/edp-nexus-operator/compare/v2.17.0...v3.0.0
 [v2.17.0]: https://github.com/epam/edp-nexus-operator/compare/v2.16.0...v2.17.0
