@@ -32,7 +32,7 @@ In order to install the Nexus operator, follow the steps below:
     ```bash
     helm search repo epamedp/nexus-operator -l
     NAME                        CHART VERSION   APP VERSION     DESCRIPTION
-    epamedp/nexus-operator      3.2.0           3.2.0           A Helm chart for KRCI Nexus Operator
+    epamedp/nexus-operator      3.3.0           3.3.0           A Helm chart for KRCI Nexus Operator
     ```
 
     _**NOTE:** It is highly recommended to use the latest released version._
