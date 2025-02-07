@@ -13737,7 +13737,7 @@ ID should be unique across all users.<br/>
         <td>
           Secret is the reference of the k8s object Secret for the user password.
 Format: $secret-name:secret-key.
-Updating user password is not supported.<br/>
+After updating Secret user password will be updated.<br/>
         </td>
         <td>true</td>
       </tr><tr>

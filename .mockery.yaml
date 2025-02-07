@@ -5,6 +5,7 @@ mockname: "Mock{{.InterfaceName}}"
 outpkg: "mocks"
 filename: "{{.InterfaceName | lower}}_mock.go"
 all: True
+issue-845-fix: True
 packages:
   github.com/epam/edp-nexus-operator/pkg/client/nexus:
     config:

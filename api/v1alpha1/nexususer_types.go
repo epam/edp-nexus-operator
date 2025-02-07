@@ -39,9 +39,9 @@ type NexusUserSpec struct {
 
 	// Secret is the reference of the k8s object Secret for the user password.
 	// Format: $secret-name:secret-key.
-	// Updating user password is not supported.
+	// After updating Secret user password will be updated.
 	// +required
-	// +kubebuilder:example="$nexus-user-secret:password-filed"
+	// +kubebuilder:example="$nexus-user-secret:secret-key"
 	Secret string `json:"secret"`
 
 	// Status is a status of the user.

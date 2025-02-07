@@ -36,14 +36,14 @@ func (c *CreateUser) ServeRequest(ctx context.Context, user *nexusApi.NexusUser)
 		return fmt.Errorf("failed to get user: %w", err)
 	}
 
+	var pass string
+
+	if pass, err = c.getSecretFromRef(ctx, user.Spec.Secret, user.Namespace); err != nil {
+		return fmt.Errorf("failed to get password from secret: %w", err)
+	}
+
 	if nexusUser == nil {
 		log.Info("User doesn't exist, creating new one")
-
-		var pass string
-
-		if pass, err = c.getSecretFromRef(ctx, user.Spec.Secret, user.Namespace); err != nil {
-			return fmt.Errorf("failed to get password from secret: %w", err)
-		}
 
 		if err = c.nexusUserApiClient.Create(specToUser(&user.Spec, pass)); err != nil {
 			return fmt.Errorf("failed to create user: %w", err)
@@ -64,11 +64,15 @@ func (c *CreateUser) ServeRequest(ctx context.Context, user *nexusApi.NexusUser)
 		}
 
 		log.Info("User has been updated")
-
-		return nil
 	}
 
-	log.Info("User unchanged, skip updating")
+	log.Info("Configuring password")
+
+	if err = c.nexusUserApiClient.ChangePassword(nexusUser.UserID, pass); err != nil {
+		return fmt.Errorf("failed to change password: %w", err)
+	}
+
+	log.Info("Password has been configured")
 
 	return nil
 }
@@ -105,27 +109,36 @@ func specToUser(spec *nexusApi.NexusUserSpec, password string) security.User {
 	}
 }
 
-func (c *CreateUser) getSecretFromRef(ctx context.Context, refVal, secretNamespace string) (string, error) {
+func ParseSecretRef(refVal string) (name, key string, err error) {
 	if !hasSecretRef(refVal) {
-		return "", fmt.Errorf("invalid config secret reference %s is not in format '$secretName:secretKey'", refVal)
+		return "", "", fmt.Errorf("invalid config secret reference %s is not in format '$secretName:secretKey'", refVal)
 	}
 
 	ref := strings.Split(refVal[1:], ":")
 	if len(ref) != 2 {
-		return "", fmt.Errorf("invalid config secret  reference %s is not in format '$secretName:secretKey'", refVal)
+		return "", "", fmt.Errorf("invalid config secret  reference %s is not in format '$secretName:secretKey'", refVal)
+	}
+
+	return ref[0], ref[1], nil
+}
+
+func (c *CreateUser) getSecretFromRef(ctx context.Context, refVal, secretNamespace string) (string, error) {
+	name, key, err := ParseSecretRef(refVal)
+	if err != nil {
+		return "", err
 	}
 
 	secret := &corev1.Secret{}
-	if err := c.client.Get(ctx, client.ObjectKey{
+	if err = c.client.Get(ctx, client.ObjectKey{
 		Namespace: secretNamespace,
-		Name:      ref[0],
+		Name:      name,
 	}, secret); err != nil {
-		return "", fmt.Errorf("failed to get secret %s: %w", ref[0], err)
+		return "", fmt.Errorf("failed to get secret %s: %w", name, err)
 	}
 
-	secretVal, ok := secret.Data[ref[1]]
+	secretVal, ok := secret.Data[key]
 	if !ok {
-		return "", fmt.Errorf("secret %s does not contain key %s", ref[0], ref[1])
+		return "", fmt.Errorf("secret %s does not contain key %s", name, key)
 	}
 
 	return string(secretVal), nil
