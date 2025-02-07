@@ -13,6 +13,7 @@ type User interface {
 	Create(user security.User) error
 	Update(id string, user security.User) error
 	Delete(id string) error
+	ChangePassword(id string, password string) error
 }
 
 type Role interface {

@@ -21,6 +21,53 @@ func (_m *MockUser) EXPECT() *MockUser_Expecter {
 	return &MockUser_Expecter{mock: &_m.Mock}
 }
 
+// ChangePassword provides a mock function with given fields: id, password
+func (_m *MockUser) ChangePassword(id string, password string) error {
+	ret := _m.Called(id, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChangePassword")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(id, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockUser_ChangePassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangePassword'
+type MockUser_ChangePassword_Call struct {
+	*mock.Call
+}
+
+// ChangePassword is a helper method to define mock.On call
+//   - id string
+//   - password string
+func (_e *MockUser_Expecter) ChangePassword(id interface{}, password interface{}) *MockUser_ChangePassword_Call {
+	return &MockUser_ChangePassword_Call{Call: _e.mock.On("ChangePassword", id, password)}
+}
+
+func (_c *MockUser_ChangePassword_Call) Run(run func(id string, password string)) *MockUser_ChangePassword_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockUser_ChangePassword_Call) Return(_a0 error) *MockUser_ChangePassword_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockUser_ChangePassword_Call) RunAndReturn(run func(string, string) error) *MockUser_ChangePassword_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Create provides a mock function with given fields: user
 func (_m *MockUser) Create(user security.User) error {
 	ret := _m.Called(user)

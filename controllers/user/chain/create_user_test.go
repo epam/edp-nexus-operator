@@ -23,6 +23,20 @@ import (
 func TestCreateUser_ServeRequest(t *testing.T) {
 	t.Parallel()
 
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	userSecret := &corev1.Secret{
+		ObjectMeta: ctrl.ObjectMeta{
+			Name:      "secret",
+			Namespace: "default",
+		},
+		Data: map[string][]byte{
+			"secret-field": []byte("user-password"),
+		},
+	}
+	userSecretRef := "$secret:secret-field"
+
 	tests := []struct {
 		name           string
 		user           *nexusApi.NexusUser
@@ -42,29 +56,15 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					FirstName: "new-user-name",
 					LastName:  "new-user-last-name",
 					Email:     "new-user-email@gmail.com",
-					Secret:    "$secret:secret-filed",
+					Secret:    userSecretRef,
 					Status:    nexusApi.UserStatusActive,
 					Roles:     []string{"nx-admin"},
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				s := runtime.NewScheme()
-
-				require.NoError(t, corev1.AddToScheme(s))
-
 				return fake.NewClientBuilder().
-					WithScheme(s).
-					WithObjects(
-						&corev1.Secret{
-							ObjectMeta: ctrl.ObjectMeta{
-								Name:      "secret",
-								Namespace: "default",
-							},
-							Data: map[string][]byte{
-								"secret-filed": []byte("user-password"),
-							},
-						},
-					).
+					WithScheme(scheme).
+					WithObjects(userSecret).
 					Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
@@ -98,13 +98,16 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					FirstName: "new-user-name",
 					LastName:  "new-user-last-name",
 					Email:     "new-user-email@gmail.com",
-					Secret:    "$secret:secret-filed",
+					Secret:    userSecretRef,
 					Status:    nexusApi.UserStatusActive,
 					Roles:     []string{"nx-admin"},
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				return fake.NewClientBuilder().Build()
+				return fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithObjects(userSecret).
+					Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
 				m := mocks.NewMockUser(t)
@@ -129,9 +132,49 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					Roles:        []string{"nx-admin"},
 				}).Return(nil)
 
+				m.On("ChangePassword", "user-id", "user-password").
+					Return(nil)
+
 				return m
 			},
 			wantErr: require.NoError,
+		},
+		{
+			name: "failed to update user password",
+			user: &nexusApi.NexusUser{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "user",
+					Namespace: "default",
+				},
+				Spec: nexusApi.NexusUserSpec{
+					ID:        "user-id",
+					FirstName: "user-name",
+					Secret:    userSecretRef,
+				},
+			},
+			k8sClient: func(t *testing.T) client.Client {
+				return fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithObjects(userSecret).
+					Build()
+			},
+			nexusApiClient: func(t *testing.T) nexus.User {
+				m := mocks.NewMockUser(t)
+
+				m.On("Get", "user-id").Return(&security.User{
+					UserID:    "user-id",
+					FirstName: "user-name",
+				}, nil)
+
+				m.On("ChangePassword", "user-id", "user-password").
+					Return(errors.New("failed to change password"))
+
+				return m
+			},
+			wantErr: func(t require.TestingT, err error, i ...interface{}) {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), "failed to change password")
+			},
 		},
 		{
 			name: "user secret not found",
@@ -145,7 +188,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					FirstName: "new-user-name",
 					LastName:  "new-user-last-name",
 					Email:     "new-user-email@gmail.com",
-					Secret:    "$secret:secret-filed",
+					Secret:    userSecretRef,
 					Status:    nexusApi.UserStatusActive,
 					Roles:     []string{"nx-admin"},
 				},
@@ -177,29 +220,15 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					FirstName: "new-user-name",
 					LastName:  "new-user-last-name",
 					Email:     "new-user-email@gmail.com",
-					Secret:    "$secret:secret-filed",
+					Secret:    userSecretRef,
 					Status:    nexusApi.UserStatusActive,
 					Roles:     []string{"nx-admin"},
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				s := runtime.NewScheme()
-
-				require.NoError(t, corev1.AddToScheme(s))
-
 				return fake.NewClientBuilder().
-					WithScheme(s).
-					WithObjects(
-						&corev1.Secret{
-							ObjectMeta: ctrl.ObjectMeta{
-								Name:      "secret",
-								Namespace: "default",
-							},
-							Data: map[string][]byte{
-								"secret-filed": []byte("user-password"),
-							},
-						},
-					).
+					WithScheme(scheme).
+					WithObjects(userSecret).
 					Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
@@ -236,13 +265,16 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					FirstName: "new-user-name",
 					LastName:  "new-user-last-name",
 					Email:     "new-user-email@gmail.com",
-					Secret:    "$secret:secret-filed",
+					Secret:    userSecretRef,
 					Status:    nexusApi.UserStatusActive,
 					Roles:     []string{"nx-admin"},
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				return fake.NewClientBuilder().Build()
+				return fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithObjects(userSecret).
+					Build()
 			},
 			nexusApiClient: func(t *testing.T) nexus.User {
 				m := mocks.NewMockUser(t)
@@ -286,7 +318,7 @@ func TestCreateUser_ServeRequest(t *testing.T) {
 					FirstName: "new-user-name",
 					LastName:  "new-user-last-name",
 					Email:     "new-user-email@gmail.com",
-					Secret:    "$secret:secret-filed",
+					Secret:    userSecretRef,
 					Status:    nexusApi.UserStatusActive,
 					Roles:     []string{"nx-admin"},
 				},
