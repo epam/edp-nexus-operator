@@ -11,16 +11,16 @@ resources:
 - bases/edp.epam.com_nexuscleanuppolicies.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
-patchesStrategicMerge:
+patches:
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix.
 # patches here are for enabling the conversion webhook for each CRD
-#- patches/webhook_in_nexuses.yaml
-#- patches/webhook_in_nexusroles.yaml
-#- patches/webhook_in_nexususers.yaml
-#- patches/webhook_in_nexusrepositories.yaml
-#- patches/webhook_in_nexusscripts.yaml
-#- patches/webhook_in_nexusblobstores.yaml
-#- patches/webhook_in_nexuscleanuppolicies.yaml
+#- path: patches/webhook_in_nexuses.yaml
+#- path: patches/webhook_in_nexusroles.yaml
+#- path: patches/webhook_in_nexususers.yaml
+#- path: patches/webhook_in_nexusrepositories.yaml
+#- path: patches/webhook_in_nexusscripts.yaml
+#- path: patches/webhook_in_nexusblobstores.yaml
+#- path: patches/webhook_in_nexuscleanuppolicies.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -40,10 +39,10 @@ func (r *NexusRepositoryValidationWebhook) SetupWebhookWithManager(mgr ctrl.Mana
 var _ webhook.CustomValidator = &NexusRepositoryValidationWebhook{}
 
 // ValidateCreate is a webhook for validating the creation of the NexusRepository CR.
-func (*NexusRepositoryValidationWebhook) ValidateCreate(ctx context.Context, obj runtime.Object) error {
+func (*NexusRepositoryValidationWebhook) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
 	req, err := admission.RequestFromContext(ctx)
 	if err != nil {
-		return apierrors.NewBadRequest(fmt.Errorf("expected admission.Request in ctx: %w", err).Error())
+		return nil, fmt.Errorf("expected admission.Request in ctx: %w", err)
 	}
 
 	log := ctrl.LoggerFrom(ctx).WithName("nexus_repository_validation_webhook").
@@ -55,20 +54,18 @@ func (*NexusRepositoryValidationWebhook) ValidateCreate(ctx context.Context, obj
 	if !ok {
 		log.Info("The wrong object given, skipping validation")
 
-		return nil
+		return nil, nil
 	}
 
 	if err = validateCreate(&createdNexusRepository.Spec); err != nil {
-		return apierrors.NewBadRequest(
-			fmt.Errorf("object NexusRepository %s is invalid: %w", createdNexusRepository.Name, err).Error(),
-		)
+		return nil, fmt.Errorf("object NexusRepository %s is invalid: %w", createdNexusRepository.Name, err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate is a webhook for validating the updating of the NexusRepository CR.
-func (*NexusRepositoryValidationWebhook) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) error {
+func (*NexusRepositoryValidationWebhook) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	log.Info("Validate update")
@@ -77,27 +74,25 @@ func (*NexusRepositoryValidationWebhook) ValidateUpdate(ctx context.Context, old
 	if !ok {
 		log.Info("The wrong object given, skipping validation")
 
-		return nil
+		return nil, nil
 	}
 
 	updatedNexusRepository, ok := newObj.(*nexusApi.NexusRepository)
 	if !ok {
 		log.Info("The wrong object given, skipping validation")
 
-		return nil
+		return nil, nil
 	}
 
-	if err := validateUpdate(&oldNexusRepository.Spec, &updatedNexusRepository.Spec); err != nil {
-		return apierrors.NewBadRequest(
-			fmt.Errorf("object NexusRepository %s is invalid: %w", updatedNexusRepository.Name, err).Error(),
-		)
+	if err = validateUpdate(&oldNexusRepository.Spec, &updatedNexusRepository.Spec); err != nil {
+		return nil, fmt.Errorf("object NexusRepository %s is invalid: %w", updatedNexusRepository.Name, err)
 	}
 
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete is a webhook for validating the deleting of the NexusRepository CR.
 // It is skipped for now. Add kubebuilder:webhook:verbs=delete to enable it.
-func (*NexusRepositoryValidationWebhook) ValidateDelete(_ context.Context, _ runtime.Object) error {
-	return nil
+func (*NexusRepositoryValidationWebhook) ValidateDelete(_ context.Context, _ runtime.Object) (warnings admission.Warnings, err error) {
+	return nil, nil
 }

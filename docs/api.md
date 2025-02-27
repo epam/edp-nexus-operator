@@ -196,7 +196,7 @@ File type blobstore.
           The path to the blobstore contents.
 This can be an absolute path to anywhere on the system Nexus Repository Manager has access to it or can be a path relative to the sonatype-work directory.<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
@@ -466,8 +466,12 @@ Selects a key of a ConfigMap.
         <td>string</td>
         <td>
           Name of the referent.
-More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -502,8 +506,12 @@ Selects a key of a secret.
         <td>string</td>
         <td>
           Name of the referent.
-More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -572,8 +580,12 @@ Selects a key of a ConfigMap.
         <td>string</td>
         <td>
           Name of the referent.
-More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -608,8 +620,12 @@ Selects a key of a secret.
         <td>string</td>
         <td>
           Name of the referent.
-More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -678,8 +694,12 @@ Selects a key of a ConfigMap.
         <td>string</td>
         <td>
           Name of the referent.
-More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -714,8 +734,12 @@ Selects a key of a secret.
         <td>string</td>
         <td>
           Name of the referent.
-More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-TODO: Add other useful fields. apiVersion, kind, uid?<br/>
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -783,7 +807,7 @@ Settings to control the soft quota.
             <i>Format</i>: int64<br/>
             <i>Minimum</i>: 1<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
@@ -792,7 +816,7 @@ Settings to control the soft quota.
           <br/>
             <i>Enum</i>: spaceRemainingQuota, spaceUsedQuota<br/>
         </td>
-        <td>false</td>
+        <td>true</td>
       </tr></tbody>
 </table>
 
@@ -1973,6 +1997,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -1987,13 +2025,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -2001,13 +2032,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -2731,6 +2755,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -2745,13 +2783,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -2759,13 +2790,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3161,6 +3185,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -3175,13 +3213,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -3189,13 +3220,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3591,6 +3615,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -3605,13 +3643,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -3619,13 +3650,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -4021,6 +4045,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -4035,13 +4073,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -4049,13 +4080,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -4815,8 +4839,7 @@ DockerProxy contains data of a Docker Proxy Repository.
         <td><b>indexUrl</b></td>
         <td>string</td>
         <td>
-          Url of Docker Index to use.
-TODO: add cel validation. (Required if indexType is CUSTOM)<br/>
+          Url of Docker Index to use.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -4962,6 +4985,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -4976,13 +5013,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -4990,13 +5020,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -5706,6 +5729,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -5720,13 +5757,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -5734,13 +5764,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -6305,6 +6328,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -6319,13 +6356,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -6333,13 +6363,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -7944,6 +7967,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -7958,13 +7995,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -7972,13 +8002,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -8711,6 +8734,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -8725,13 +8762,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -8739,13 +8769,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -9180,6 +9203,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -9194,13 +9231,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -9208,13 +9238,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -9904,6 +9927,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -9918,13 +9955,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -9932,13 +9962,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -10628,6 +10651,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -10642,13 +10679,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -10656,13 +10686,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -10955,7 +10978,7 @@ Group configuration.
         <td><b>contentDisposition</b></td>
         <td>enum</td>
         <td>
-          TODO: check default value<br/>
+          <br/>
           <br/>
             <i>Enum</i>: INLINE, ATTACHMENT<br/>
         </td>
@@ -11143,7 +11166,7 @@ Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and ma
         <td><b>contentDisposition</b></td>
         <td>enum</td>
         <td>
-          TODO: check default value<br/>
+          <br/>
           <br/>
             <i>Enum</i>: INLINE, ATTACHMENT<br/>
         </td>
@@ -11431,6 +11454,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -11445,13 +11482,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -11459,13 +11489,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -11592,7 +11615,7 @@ Negative cache configuration.
         <td><b>contentDisposition</b></td>
         <td>enum</td>
         <td>
-          TODO: check default value<br/>
+          <br/>
           <br/>
             <i>Enum</i>: INLINE, ATTACHMENT<br/>
         </td>
@@ -12184,6 +12207,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -12198,13 +12235,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -12212,13 +12242,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -12657,7 +12680,7 @@ Yum contains data of hosted repositories of format Yum.
         <td><b>deployPolicy</b></td>
         <td>enum</td>
         <td>
-          TODO: check default value<br/>
+          <br/>
           <br/>
             <i>Enum</i>: PERMISSIVE, STRICT<br/>
         </td>
@@ -12999,6 +13022,20 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -13013,13 +13050,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -13027,13 +13057,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
-        </td>
-        <td>false</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
         </td>
         <td>false</td>
       </tr></tbody>

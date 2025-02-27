@@ -2,16 +2,12 @@ run:
   timeout: 10m
   go: "1.22"
   issues-exit-code: 1
-  skip-dirs:
-    - "mocks"
   skip-dirs-use-default: true
-  skip-files:
-    - ".*_mock\\.go$"
 
   modules-download-mode: mod
 
 output:
-  format: colored-line-number
+  formats: colored-line-number
   print-issued-lines: true
 
   # print linter name in the end of issue text, default is true
@@ -72,7 +68,6 @@ linters:
     - revive
     - staticcheck
     - typecheck
-    - megacheck
     - unused
     - wrapcheck
     - wsl
@@ -112,6 +107,10 @@ issues:
         - funlen
         - cyclop
       text: 'Reconcile'
+  exclude-files:
+    - ".*_mock\\.go$"
+  exclude-dirs:
+    - "mocks"
 
   # Independently of option `exclude` we use default exclude patterns,
   # it can be disabled by this option. To list all
@@ -190,11 +189,6 @@ linters-settings:
     # default is false: such cases aren't reported by default.
     check-blank: false
 
-    # [deprecated] comma-separated list of pairs of the form pkg:regex
-    # the regex is used to ignore names within pkg. (default "fmt:.*").
-    # see https://github.com/kisielk/errcheck#the-deprecated-method for details
-    ignore: fmt:.*,io/ioutil:^Read.*
-
     #    # [deprecated] use exclude-functions instead.
     #    # path to a file containing a list of functions to exclude from checking
     #    # see https://github.com/kisielk/errcheck#excluding-functions for details
@@ -206,6 +200,7 @@ linters-settings:
       - io/ioutil.ReadFile
       - io.Copy(*bytes.Buffer)
       - io.Copy(os.Stdout)
+      - fmt:.*,io/ioutil:^Read.*
 
   errchkjson:
     # With check-error-free-encoding set to true, errchkjson does warn about errors
@@ -358,9 +353,6 @@ linters-settings:
         # - 'import': ruleguard rule imports a package that cannot be found.
         # - 'dsl':    gorule file does not comply with the ruleguard DSL.
         failOn: dsl
-      truncateCmp:
-        # whether to skip int/uint/uintptr types (default true)
-        skipArchDependent: true
       underef:
         # whether to skip (*x).method() calls where x is a pointer receiver (default true)
         skipRecvDeref: true
@@ -380,9 +372,7 @@ linters-settings:
     checks: ["all"]
 
   govet:
-    # report about shadowed variables
-    check-shadowing: true
-
+    enable-all: true
     # settings per analyzer
     settings:
       printf: # analyzer name, run `go tool vet help` to see all analyzers
@@ -391,6 +381,8 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+    disable:
+      - fieldalignment
 
   revive:
     # see https://github.com/mgechev/revive#available-rules for details.
