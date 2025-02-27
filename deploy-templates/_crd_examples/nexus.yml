@@ -3,7 +3,7 @@ kind: Nexus
 metadata:
   name: nexus-sample
 spec:
-  url: http://nexus-sample
+  url: http://host.containers.internal:9085/
   secret: nexus-secret
 
 ---

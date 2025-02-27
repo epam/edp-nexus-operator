@@ -144,7 +144,7 @@ func TestNexusRepositoryValidationWebhook_ValidateCreate(t *testing.T) {
 				},
 			)
 			r := NewNexusRepositoryValidationWebhook()
-			err := r.ValidateCreate(req, tt.obj)
+			_, err := r.ValidateCreate(req, tt.obj)
 
 			tt.wantErr(t, err)
 		})
@@ -352,7 +352,7 @@ func TestNexusRepositoryValidationWebhook_ValidateUpdate(t *testing.T) {
 				},
 			)
 			r := &NexusRepositoryValidationWebhook{}
-			err := r.ValidateUpdate(req, tt.oldObj, tt.newObj)
+			_, err := r.ValidateUpdate(req, tt.oldObj, tt.newObj)
 
 			tt.wantErr(t, err)
 		})

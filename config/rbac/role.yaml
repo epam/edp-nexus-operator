@@ -17,161 +17,11 @@ rules:
   - edp.epam.com
   resources:
   - nexusblobstores
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusblobstores/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusblobstores/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
   - nexuscleanuppolicies
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexuscleanuppolicies/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexuscleanuppolicies/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
   - nexuses
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexuses/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexuses/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
   - nexusrepositories
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusrepositories/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusrepositories/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
   - nexusroles
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusroles/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusroles/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
   - nexusscripts
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusscripts/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
-  - nexusscripts/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - edp.epam.com
-  resources:
   - nexususers
   verbs:
   - create
@@ -184,12 +34,24 @@ rules:
 - apiGroups:
   - edp.epam.com
   resources:
+  - nexusblobstores/finalizers
+  - nexuscleanuppolicies/finalizers
+  - nexuses/finalizers
+  - nexusrepositories/finalizers
+  - nexusroles/finalizers
+  - nexusscripts/finalizers
   - nexususers/finalizers
   verbs:
   - update
 - apiGroups:
   - edp.epam.com
   resources:
+  - nexusblobstores/status
+  - nexuscleanuppolicies/status
+  - nexuses/status
+  - nexusrepositories/status
+  - nexusroles/status
+  - nexusscripts/status
   - nexususers/status
   verbs:
   - get
