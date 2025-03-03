@@ -1,6 +1,15 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Features
+
+- Implement password update for NexusUser ([#51](https://github.com/epam/edp-nexus-operator/issues/51))
+
+### Routine
+
+- Publish release 3.3.0 on the OperatorHub ([#47](https://github.com/epam/edp-nexus-operator/issues/47))
+- Update current development version ([#45](https://github.com/epam/edp-nexus-operator/issues/45))
+
 
 <a name="v3.3.0"></a>
 ## [v3.3.0] - 2024-12-12
