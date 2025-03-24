@@ -1,10 +1,10 @@
 run:
-  timeout: 10m
-  go: "1.22"
+  timeout: 5m
+  go: "1.24"
   issues-exit-code: 1
-  skip-dirs-use-default: true
 
   modules-download-mode: mod
+  allow-parallel-runners: true
 
 output:
   formats: colored-line-number
@@ -12,9 +12,6 @@ output:
 
   # print linter name in the end of issue text, default is true
   print-linter-name: true
-
-  # make issues output unique by line, default is true
-  uniq-by-line: true
 
   # add a prefix to the output file references; default is no prefix
   path-prefix: ""
@@ -53,7 +50,7 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
+    - copyloopvar
     - forbidigo
     - forcetypeassert
     - funlen
@@ -77,6 +74,7 @@ linters:
   fast: false
 
 issues:
+  uniq-by-line: true
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
     # Exclude some linters from running on tests files.
