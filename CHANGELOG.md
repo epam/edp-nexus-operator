@@ -1,12 +1,16 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+
+<a name="v3.4.0"></a>
+## [v3.4.0] - 2025-03-26
 ### Features
 
 - Implement password update for NexusUser ([#51](https://github.com/epam/edp-nexus-operator/issues/51))
 
 ### Routine
 
+- Update k8s version for tests ([#53](https://github.com/epam/edp-nexus-operator/issues/53))
 - Publish release 3.3.0 on the OperatorHub ([#47](https://github.com/epam/edp-nexus-operator/issues/47))
 - Update current development version ([#45](https://github.com/epam/edp-nexus-operator/issues/45))
 
@@ -110,7 +114,8 @@
 <a name="v2.16.0"></a>
 ## [v2.16.0] - 2023-08-17
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.3.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.4.0...HEAD
+[v3.4.0]: https://github.com/epam/edp-nexus-operator/compare/v3.3.0...v3.4.0
 [v3.3.0]: https://github.com/epam/edp-nexus-operator/compare/v3.2.0...v3.3.0
 [v3.2.0]: https://github.com/epam/edp-nexus-operator/compare/v3.1.0...v3.2.0
 [v3.1.0]: https://github.com/epam/edp-nexus-operator/compare/v3.0.0...v3.1.0
