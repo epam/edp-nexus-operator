@@ -133,6 +133,7 @@ Development versions are also available, please refer to the [snapshot Helm Char
 | image.repository | string | `"epamedp/nexus-operator"` | KubeRocketCI nexus-operator Docker image name. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator) |
 | image.tag | string | `nil` | KubeRocketCI nexus-operator Docker image tag. The released image can be found on [Dockerhub](https://hub.docker.com/r/epamedp/nexus-operator/tags) |
 | imagePullPolicy | string | `"IfNotPresent"` |  |
+| imagePullSecrets | list | `[]` | Optional array of imagePullSecrets containing private registry credentials # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry |
 | name | string | `"nexus-operator"` | component name |
 | nodeSelector | object | `{}` |  |
 | resources.limits.memory | string | `"192Mi"` |  |
