@@ -2,6 +2,14 @@
 ## [Unreleased]
 
 
+<a name="v3.5.0"></a>
+## [v3.5.0] - 2025-04-02
+### Routine
+
+- Add ImagePullSecrets field support ([#59](https://github.com/epam/edp-nexus-operator/issues/59))
+- Update current development version ([#61](https://github.com/epam/edp-nexus-operator/issues/61))
+
+
 <a name="v3.4.0"></a>
 ## [v3.4.0] - 2025-03-26
 ### Features
@@ -114,7 +122,8 @@
 <a name="v2.16.0"></a>
 ## [v2.16.0] - 2023-08-17
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.5.0...HEAD
+[v3.5.0]: https://github.com/epam/edp-nexus-operator/compare/v3.4.0...v3.5.0
 [v3.4.0]: https://github.com/epam/edp-nexus-operator/compare/v3.3.0...v3.4.0
 [v3.3.0]: https://github.com/epam/edp-nexus-operator/compare/v3.2.0...v3.3.0
 [v3.2.0]: https://github.com/epam/edp-nexus-operator/compare/v3.1.0...v3.2.0
