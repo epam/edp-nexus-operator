@@ -15,7 +15,7 @@ env:
 jobs:
 
   check-commit-message:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,7 +44,7 @@ jobs:
 
   helm-docs:
     needs: [check-commit-message]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
 
   helm-lint:
     needs: [helm-docs]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
      CHART_DIR: "deploy-templates"
      CT_CONFIGS_DIR: "."
@@ -94,7 +94,7 @@ jobs:
 
   build-and-lint:
     needs: [helm-lint]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -112,7 +112,7 @@ jobs:
 
   docker-lint:
     needs: [build-and-lint]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
