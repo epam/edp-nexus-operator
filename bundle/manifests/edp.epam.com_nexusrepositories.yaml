@@ -2,7 +2,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.15.0
+    controller-gen.kubebuilder.io/version: v0.16.1
   creationTimestamp: null
   name: nexusrepositories.edp.epam.com
 spec:
@@ -186,6 +186,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -464,6 +467,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -622,6 +628,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -779,6 +788,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -936,6 +948,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -1258,9 +1273,7 @@ spec:
                             - CUSTOM
                             type: string
                           indexUrl:
-                            description: |-
-                              Url of Docker Index to use.
-                              TODO: add cel validation. (Required if indexType is CUSTOM)
+                            description: Url of Docker Index to use.
                             type: string
                         type: object
                       httpClient:
@@ -1289,6 +1302,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -1562,6 +1578,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -1784,6 +1803,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -2435,6 +2457,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -2715,6 +2740,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -2892,6 +2920,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -3160,6 +3191,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -3428,6 +3462,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -3573,7 +3610,6 @@ spec:
                       raw:
                         properties:
                           contentDisposition:
-                            description: 'TODO: check default value'
                             enum:
                             - INLINE
                             - ATTACHMENT
@@ -3638,7 +3674,6 @@ spec:
                       raw:
                         properties:
                           contentDisposition:
-                            description: 'TODO: check default value'
                             enum:
                             - INLINE
                             - ATTACHMENT
@@ -3714,6 +3749,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -3805,7 +3843,6 @@ spec:
                       raw:
                         properties:
                           contentDisposition:
-                            description: 'TODO: check default value'
                             enum:
                             - INLINE
                             - ATTACHMENT
@@ -3991,6 +4028,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
@@ -4232,7 +4272,6 @@ spec:
                           Yum.
                         properties:
                           deployPolicy:
-                            description: 'TODO: check default value'
                             enum:
                             - PERMISSIVE
                             - STRICT
@@ -4285,6 +4324,9 @@ spec:
                               username:
                                 description: Username for authentication.
                                 type: string
+                            required:
+                            - password
+                            - username
                             type: object
                           autoBlock:
                             default: true
