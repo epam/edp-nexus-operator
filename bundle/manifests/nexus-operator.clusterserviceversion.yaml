@@ -206,13 +206,14 @@ metadata:
       ]
     capabilities: Deep Insights
     categories: Developer Tools
-    containerImage: docker.io/epamedp/nexus-operator:3.3.0
-    createdAt: "2024-12-25T09:37:07Z"
+    containerImage: docker.io/epamedp/nexus-operator:3.4.0
+    createdAt: "2025-04-22T09:51:45Z"
     description: An Operator for managing Nexus entities.
-    operators.operatorframework.io/builder: operator-sdk-v1.38.0
+    operators.operatorframework.io/builder: operator-sdk-v1.39.2
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/epam/edp-nexus-operator
-  name: nexus-operator.v3.3.0
+    support: KubeRocketCI
+  name: nexus-operator.v3.4.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -317,14 +318,25 @@ spec:
     mediatype: image/png
   install:
     spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: nexus-operator-controller-manager
       deployments:
       - label:
-          app.kubernetes.io/component: manager
-          app.kubernetes.io/created-by: nexus-operator
-          app.kubernetes.io/instance: controller-manager
           app.kubernetes.io/managed-by: kustomize
-          app.kubernetes.io/name: deployment
-          app.kubernetes.io/part-of: nexus-operator
+          app.kubernetes.io/name: nexus-operator
           control-plane: controller-manager
         name: nexus-operator-controller-manager
         spec:
@@ -342,13 +354,15 @@ spec:
             spec:
               containers:
               - args:
+                - --metrics-bind-address=:8443
                 - --leader-elect
+                - --health-probe-bind-address=:8081
                 command:
                 - /manager
                 env:
                 - name: SETUP_SELF_SIGNED_CERTIFICATES
                   value: "false"
-                image: docker.io/epamedp/nexus-operator:3.3.0
+                image: docker.io/epamedp/nexus-operator:3.4.0
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -436,161 +450,11 @@ spec:
           - edp.epam.com
           resources:
           - nexusblobstores
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusblobstores/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusblobstores/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
           - nexuscleanuppolicies
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexuscleanuppolicies/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexuscleanuppolicies/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
           - nexuses
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexuses/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexuses/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
           - nexusrepositories
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusrepositories/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusrepositories/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
           - nexusroles
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusroles/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusroles/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
           - nexusscripts
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusscripts/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
-          - nexusscripts/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - edp.epam.com
-          resources:
           - nexususers
           verbs:
           - create
@@ -603,12 +467,24 @@ spec:
         - apiGroups:
           - edp.epam.com
           resources:
+          - nexusblobstores/finalizers
+          - nexuscleanuppolicies/finalizers
+          - nexuses/finalizers
+          - nexusrepositories/finalizers
+          - nexusroles/finalizers
+          - nexusscripts/finalizers
           - nexususers/finalizers
           verbs:
           - update
         - apiGroups:
           - edp.epam.com
           resources:
+          - nexusblobstores/status
+          - nexuscleanuppolicies/status
+          - nexuses/status
+          - nexusrepositories/status
+          - nexusroles/status
+          - nexusscripts/status
           - nexususers/status
           verbs:
           - get
@@ -623,7 +499,7 @@ spec:
     type: SingleNamespace
   - supported: false
     type: MultiNamespace
-  - supported: true
+  - supported: false
     type: AllNamespaces
   keywords:
   - artifact
@@ -643,7 +519,7 @@ spec:
   provider:
     name: KubeRocketCI
     url: https://docs.kuberocketci.io
-  version: 3.3.0
+  version: 3.4.0
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
