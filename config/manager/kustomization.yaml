@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: docker.io/epamedp/nexus-operator
-  newTag: 3.3.0
+  newTag: 3.5.0

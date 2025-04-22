@@ -5,10 +5,11 @@ metadata:
     alm-examples: '[]'
     capabilities: Deep Insights
     categories: Developer Tools
-    containerImage: docker.io/epamedp/nexus-operator:3.3.0
+    containerImage: docker.io/epamedp/nexus-operator:3.5.0
     description: An Operator for managing Nexus entities.
     repository: https://github.com/epam/edp-nexus-operator
-  name: nexus-operator.v3.3.0
+    support: KubeRocketCI
+  name: nexus-operator.v3.5.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -142,4 +143,4 @@ spec:
   provider:
     name: KubeRocketCI
     url: https://docs.kuberocketci.io
-  version: 3.3.0
+  version: 3.5.0
