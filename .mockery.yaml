@@ -1,12 +1,12 @@
-with-expecter: True
-inpackage: False
-dir: "{{.InterfaceDir}}/mocks"
-mockname: "Mock{{.InterfaceName}}"
-outpkg: "mocks"
-filename: "{{.InterfaceName | lower}}_mock.go"
-all: True
-issue-845-fix: True
+all: true
+dir: '{{.InterfaceDir}}/mocks'
+structname: Mock{{.InterfaceName}}
+pkgname: mocks
+template: testify
+filename: "{{ .InterfaceName | snakecase }}_generated.mock.go"
+template-data:
+  unroll-variadic: true
 packages:
   github.com/epam/edp-nexus-operator/pkg/client/nexus:
     config:
-      recursive: True
+      recursive: true

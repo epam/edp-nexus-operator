@@ -15,7 +15,10 @@ func RegisterValidationWebHook(ctx context.Context, mgr ctrl.Manager, namespace 
 	// for OLM installation we need to skip creating self-signed certificates. Certificates are managed by OLM.
 	if os.Getenv("SETUP_SELF_SIGNED_CERTIFICATES") != "false" {
 		if namespace == "" {
-			return fmt.Errorf("self-signed certificates can't be created in AllNamespaces mode, please specify %s", helper.WatchNamespaceEnvVar)
+			return fmt.Errorf(
+				"self-signed certificates can't be created in AllNamespaces mode, please specify %s",
+				helper.WatchNamespaceEnvVar,
+			)
 		}
 
 		// mgr.GetAPIReader() is used to read objects before cache is started.

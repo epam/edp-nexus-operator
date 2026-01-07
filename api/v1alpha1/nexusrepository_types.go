@@ -139,8 +139,8 @@ type NexusRepositoryStatus struct {
 	Error string `json:"error,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // NexusRepository is the Schema for the nexusrepositories API.
 type NexusRepository struct {
@@ -155,7 +155,7 @@ func (in *NexusRepository) GetNexusRef() common.NexusRef {
 	return in.Spec.NexusRef
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NexusRepositoryList contains a list of NexusRepository.
 type NexusRepositoryList struct {

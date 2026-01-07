@@ -84,6 +84,23 @@ var _ = Describe("webhooks registration", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
+		When("namespace is empty and SETUP_SELF_SIGNED_CERTIFICATES is not false", func() {
+			It("should return error about AllNamespaces mode", func() {
+				By("creating manager")
+				k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
+					Scheme: k8sClient.Scheme(),
+					Metrics: metricsserver.Options{
+						BindAddress: "0",
+					},
+				})
+				Expect(err).ToNot(HaveOccurred())
+
+				By("registering validation webhooks with empty namespace")
+				err = RegisterValidationWebHook(ctx, k8sManager, "")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("self-signed certificates can't be created in AllNamespaces mode"))
+			})
+		})
 	})
 	When("MutatingWebhookConfiguration doesn't exist", func() {
 		It("should return error", func() {

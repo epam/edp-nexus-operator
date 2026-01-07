@@ -73,8 +73,8 @@ type NexusUserStatus struct {
 	Error string `json:"error,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // NexusUser is the Schema for the nexususers API.
 type NexusUser struct {
@@ -89,7 +89,7 @@ func (in *NexusUser) GetNexusRef() common.NexusRef {
 	return in.Spec.NexusRef
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NexusUserList contains a list of NexusUser.
 type NexusUserList struct {

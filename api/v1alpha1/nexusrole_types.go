@@ -48,8 +48,8 @@ type NexusRoleStatus struct {
 	Error string `json:"error,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // NexusRole is the Schema for the nexusroles API.
 type NexusRole struct {
@@ -64,7 +64,7 @@ func (in *NexusRole) GetNexusRef() common.NexusRef {
 	return in.Spec.NexusRef
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NexusRoleList contains a list of NexusRole.
 type NexusRoleList struct {

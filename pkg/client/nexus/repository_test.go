@@ -16,6 +16,7 @@ func TestRepoClient_Get(t *testing.T) {
 	t.Parallel()
 
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// nolint:errcheck // we can skip err here
 		switch req.URL.Path {
 		case "/service/rest/v1/repositories/go/proxy/go-success":
 			rw.WriteHeader(http.StatusOK)
@@ -185,6 +186,7 @@ func TestRepoClient_Delete(t *testing.T) {
 	t.Parallel()
 
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// nolint:errcheck // we can skip err here
 		switch req.URL.Path {
 		case "/service/rest/v1/repositories/go-success":
 			rw.WriteHeader(http.StatusOK)

@@ -39,7 +39,7 @@ type RepoData struct {
 }
 
 // GetRepoData returns repository data based on NexusRepositorySpec.
-// nolint:funlen,cyclop  // We can skip this some rules here because we have a lot of simple conditions.
+// nolint:gocyclo  // We can skip this some rules here because we have a lot of simple conditions.
 func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 	if repo.Apt != nil {
 		if repo.Apt.Hosted != nil {
