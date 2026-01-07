@@ -2,10 +2,7 @@ package nexus
 
 import (
 	"context"
-	"fmt"
 	"os"
-	"path/filepath"
-	goruntime "runtime"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -23,6 +20,7 @@ import (
 
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
 	nexusclient "github.com/epam/edp-nexus-operator/pkg/client/nexus"
+	"github.com/epam/edp-nexus-operator/pkg/testutils"
 )
 
 var (
@@ -56,10 +54,9 @@ var _ = BeforeSuite(func() {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "..", "config", "crd", "bases")},
+		CRDDirectoryPaths:     testutils.GetCRDDirectoryPaths(),
 		ErrorIfCRDPathMissing: true,
-		BinaryAssetsDirectory: filepath.Join("..", "..", "..", "bin", "k8s",
-			fmt.Sprintf("1.31.0-%s-%s", goruntime.GOOS, goruntime.GOARCH)),
+		BinaryAssetsDirectory: testutils.GetFirstFoundEnvTestBinaryDir(),
 	}
 
 	var err error

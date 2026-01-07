@@ -18,3 +18,28 @@ resources:
 - metrics_auth_role.yaml
 - metrics_auth_role_binding.yaml
 - metrics_reader_role.yaml
+# For each CRD, "Admin", "Editor" and "Viewer" roles are scaffolded by
+# default, aiding admins in cluster management. Those roles are
+# not used by the memcached-operator itself. You can comment the following lines
+# if you do not want those helpers be installed with your Project.
+- nexus_admin_role.yaml
+- nexus_editor_role.yaml
+- nexus_viewer_role.yaml
+- nexusblobstore_admin_role.yaml
+- nexusblobstore_editor_role.yaml
+- nexusblobstore_viewer_role.yaml
+- nexuscleanuppolicy_admin_role.yaml
+- nexuscleanuppolicy_editor_role.yaml
+- nexuscleanuppolicy_viewer_role.yaml
+- nexusrepository_admin_role.yaml
+- nexusrepository_editor_role.yaml
+- nexusrepository_viewer_role.yaml
+- nexusrole_admin_role.yaml
+- nexusrole_editor_role.yaml
+- nexusrole_viewer_role.yaml
+- nexusscript_admin_role.yaml
+- nexusscript_editor_role.yaml
+- nexusscript_viewer_role.yaml
+- nexususer_admin_role.yaml
+- nexususer_editor_role.yaml
+- nexususer_viewer_role.yaml

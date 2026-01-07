@@ -50,8 +50,8 @@ type NexusScriptStatus struct {
 	Executed bool `json:"executed,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // NexusScript is the Schema for the nexusscripts API.
 type NexusScript struct {
@@ -66,7 +66,7 @@ func (in *NexusScript) GetNexusRef() common.NexusRef {
 	return in.Spec.NexusRef
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NexusScriptList contains a list of NexusScript.
 type NexusScriptList struct {

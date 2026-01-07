@@ -2,9 +2,6 @@ package webhook
 
 import (
 	"context"
-	"fmt"
-	"path/filepath"
-	goruntime "runtime"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -19,6 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/pkg/testutils"
 )
 
 var (
@@ -42,10 +40,9 @@ var _ = BeforeSuite(func() {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "config", "crd", "bases")},
+		CRDDirectoryPaths:     testutils.GetWebhookCRDDirectoryPaths(),
 		ErrorIfCRDPathMissing: true,
-		BinaryAssetsDirectory: filepath.Join("..", "..", "bin", "k8s",
-			fmt.Sprintf("1.31.0-%s-%s", goruntime.GOOS, goruntime.GOARCH)),
+		BinaryAssetsDirectory: testutils.GetFirstFoundEnvTestBinaryDir(),
 	}
 
 	var err error

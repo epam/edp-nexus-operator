@@ -15,6 +15,17 @@ import (
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
 )
 
+func buildTestK8sClient(t *testing.T, objs ...client.Object) client.Client {
+	sh := runtime.NewScheme()
+	require.NoError(t, nexusApi.AddToScheme(sh))
+	require.NoError(t, corev1.AddToScheme(sh))
+
+	return fake.NewClientBuilder().
+		WithScheme(sh).
+		WithObjects(objs...).
+		Build()
+}
+
 func TestApiClientProvider_GetNexusApiClientFromNexus(t *testing.T) {
 	t.Parallel()
 
@@ -33,24 +44,17 @@ func TestApiClientProvider_GetNexusApiClientFromNexus(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					WithObjects(
-						&corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Name: "nexus-secret",
-							},
-							Data: map[string][]byte{
-								"user":     []byte("user"),
-								"password": []byte("password"),
-							},
+				return buildTestK8sClient(t,
+					&corev1.Secret{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "nexus-secret",
 						},
-					).
-					Build()
+						Data: map[string][]byte{
+							"user":     []byte("user"),
+							"password": []byte("password"),
+						},
+					},
+				)
 			},
 			want:    require.NotNil,
 			wantErr: require.NoError,
@@ -63,23 +67,16 @@ func TestApiClientProvider_GetNexusApiClientFromNexus(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					WithObjects(
-						&corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Name: "nexus-secret",
-							},
-							Data: map[string][]byte{
-								"user": []byte("user"),
-							},
+				return buildTestK8sClient(t,
+					&corev1.Secret{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "nexus-secret",
 						},
-					).
-					Build()
+						Data: map[string][]byte{
+							"user": []byte("user"),
+						},
+					},
+				)
 			},
 			want: require.Nil,
 			wantErr: func(t require.TestingT, err error, i ...interface{}) {
@@ -95,20 +92,13 @@ func TestApiClientProvider_GetNexusApiClientFromNexus(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					WithObjects(
-						&corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Name: "nexus-secret",
-							},
+				return buildTestK8sClient(t,
+					&corev1.Secret{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "nexus-secret",
 						},
-					).
-					Build()
+					},
+				)
 			},
 			want: require.Nil,
 			wantErr: func(t require.TestingT, err error, i ...interface{}) {
@@ -124,13 +114,7 @@ func TestApiClientProvider_GetNexusApiClientFromNexus(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					Build()
+				return buildTestK8sClient(t)
 			},
 			want: require.Nil,
 			wantErr: func(t require.TestingT, err error, i ...interface{}) {
@@ -173,34 +157,27 @@ func TestApiClientProvider_GetNexusApiClientFromNexusRef(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					WithObjects(
-						&corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Name:      "nexus-secret",
-								Namespace: "default",
-							},
-							Data: map[string][]byte{
-								"user":     []byte("user"),
-								"password": []byte("password"),
-							},
+				return buildTestK8sClient(t,
+					&corev1.Secret{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "nexus-secret",
+							Namespace: "default",
 						},
-						&nexusApi.Nexus{
-							ObjectMeta: metav1.ObjectMeta{
-								Name:      "nexus",
-								Namespace: "default",
-							},
-							Spec: nexusApi.NexusSpec{
-								Secret: "nexus-secret",
-							},
+						Data: map[string][]byte{
+							"user":     []byte("user"),
+							"password": []byte("password"),
 						},
-					).
-					Build()
+					},
+					&nexusApi.Nexus{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "nexus",
+							Namespace: "default",
+						},
+						Spec: nexusApi.NexusSpec{
+							Secret: "nexus-secret",
+						},
+					},
+				)
 			},
 			want:    require.NotNil,
 			wantErr: require.NoError,
@@ -215,13 +192,7 @@ func TestApiClientProvider_GetNexusApiClientFromNexusRef(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					Build()
+				return buildTestK8sClient(t)
 			},
 			want: require.Nil,
 			wantErr: func(t require.TestingT, err error, i ...interface{}) {
@@ -264,34 +235,27 @@ func TestApiClientProvider_GetNexusRepositoryClientFromNexusRef(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					WithObjects(
-						&corev1.Secret{
-							ObjectMeta: metav1.ObjectMeta{
-								Name:      "nexus-secret",
-								Namespace: "default",
-							},
-							Data: map[string][]byte{
-								"user":     []byte("user"),
-								"password": []byte("password"),
-							},
+				return buildTestK8sClient(t,
+					&corev1.Secret{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "nexus-secret",
+							Namespace: "default",
 						},
-						&nexusApi.Nexus{
-							ObjectMeta: metav1.ObjectMeta{
-								Name:      "nexus",
-								Namespace: "default",
-							},
-							Spec: nexusApi.NexusSpec{
-								Secret: "nexus-secret",
-							},
+						Data: map[string][]byte{
+							"user":     []byte("user"),
+							"password": []byte("password"),
 						},
-					).
-					Build()
+					},
+					&nexusApi.Nexus{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "nexus",
+							Namespace: "default",
+						},
+						Spec: nexusApi.NexusSpec{
+							Secret: "nexus-secret",
+						},
+					},
+				)
 			},
 			want:    require.NotNil,
 			wantErr: require.NoError,
@@ -306,24 +270,17 @@ func TestApiClientProvider_GetNexusRepositoryClientFromNexusRef(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					WithObjects(
-						&nexusApi.Nexus{
-							ObjectMeta: metav1.ObjectMeta{
-								Name:      "nexus",
-								Namespace: "default",
-							},
-							Spec: nexusApi.NexusSpec{
-								Secret: "nexus-secret",
-							},
+				return buildTestK8sClient(t,
+					&nexusApi.Nexus{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "nexus",
+							Namespace: "default",
 						},
-					).
-					Build()
+						Spec: nexusApi.NexusSpec{
+							Secret: "nexus-secret",
+						},
+					},
+				)
 			},
 			want: require.Nil,
 			wantErr: func(t require.TestingT, err error, i ...interface{}) {
@@ -341,13 +298,7 @@ func TestApiClientProvider_GetNexusRepositoryClientFromNexusRef(t *testing.T) {
 				},
 			},
 			k8sClient: func(t *testing.T) client.Client {
-				sh := runtime.NewScheme()
-				require.NoError(t, nexusApi.AddToScheme(sh))
-				require.NoError(t, corev1.AddToScheme(sh))
-
-				return fake.NewClientBuilder().
-					WithScheme(sh).
-					Build()
+				return buildTestK8sClient(t)
 			},
 			want: require.Nil,
 			wantErr: func(t require.TestingT, err error, i ...interface{}) {

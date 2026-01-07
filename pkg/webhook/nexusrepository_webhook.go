@@ -12,7 +12,8 @@ import (
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
 )
 
-//+kubebuilder:webhook:path=/validate-edp-epam-com-v1alpha1-nexusrepository,mutating=false,failurePolicy=fail,sideEffects=None,groups=edp.epam.com,resources=nexusrepositories,verbs=create;update,versions=v1alpha1,name=vnexusrepository.kb.io,admissionReviewVersions=v1
+// nolint:lll // configuration
+// +kubebuilder:webhook:path=/validate-edp-epam-com-v1alpha1-nexusrepository,mutating=false,failurePolicy=fail,sideEffects=None,groups=edp.epam.com,resources=nexusrepositories,verbs=create;update,versions=v1alpha1,name=vnexusrepository.kb.io,admissionReviewVersions=v1
 
 // NexusRepositoryValidationWebhook is a webhook for validating NexusRepository CRD.
 type NexusRepositoryValidationWebhook struct {
@@ -39,7 +40,10 @@ func (r *NexusRepositoryValidationWebhook) SetupWebhookWithManager(mgr ctrl.Mana
 var _ webhook.CustomValidator = &NexusRepositoryValidationWebhook{}
 
 // ValidateCreate is a webhook for validating the creation of the NexusRepository CR.
-func (*NexusRepositoryValidationWebhook) ValidateCreate(ctx context.Context, obj runtime.Object) (warnings admission.Warnings, err error) {
+func (*NexusRepositoryValidationWebhook) ValidateCreate(
+	ctx context.Context,
+	obj runtime.Object,
+) (warnings admission.Warnings, err error) {
 	req, err := admission.RequestFromContext(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("expected admission.Request in ctx: %w", err)
@@ -65,7 +69,10 @@ func (*NexusRepositoryValidationWebhook) ValidateCreate(ctx context.Context, obj
 }
 
 // ValidateUpdate is a webhook for validating the updating of the NexusRepository CR.
-func (*NexusRepositoryValidationWebhook) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (warnings admission.Warnings, err error) {
+func (*NexusRepositoryValidationWebhook) ValidateUpdate(
+	ctx context.Context,
+	oldObj, newObj runtime.Object,
+) (warnings admission.Warnings, err error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	log.Info("Validate update")
@@ -93,6 +100,9 @@ func (*NexusRepositoryValidationWebhook) ValidateUpdate(ctx context.Context, old
 
 // ValidateDelete is a webhook for validating the deleting of the NexusRepository CR.
 // It is skipped for now. Add kubebuilder:webhook:verbs=delete to enable it.
-func (*NexusRepositoryValidationWebhook) ValidateDelete(_ context.Context, _ runtime.Object) (warnings admission.Warnings, err error) {
+func (*NexusRepositoryValidationWebhook) ValidateDelete(
+	_ context.Context,
+	_ runtime.Object,
+) (warnings admission.Warnings, err error) {
 	return nil, nil
 }

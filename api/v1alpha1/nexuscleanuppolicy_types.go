@@ -77,8 +77,8 @@ func (in *NexusCleanupPolicy) GetNexusRef() common.NexusRef {
 	return in.Spec.NexusRef
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // NexusCleanupPolicy is the Schema for the cleanuppolicies API.
 type NexusCleanupPolicy struct {
@@ -89,7 +89,7 @@ type NexusCleanupPolicy struct {
 	Status NexusCleanupPolicyStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NexusCleanupPolicyList contains a list of NexusCleanupPolicy.
 type NexusCleanupPolicyList struct {

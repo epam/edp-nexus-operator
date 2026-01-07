@@ -30,10 +30,10 @@ func NewNexusRepositoryReconciler(k8sClient client.Client, apiClientProvider api
 	return &NexusRepositoryReconciler{client: k8sClient, apiClientProvider: apiClientProvider}
 }
 
-//+kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusrepositories,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusrepositories/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusrepositories/finalizers,verbs=update
-//+kubebuilder:rbac:groups="",namespace=placeholder,resources=secrets,verbs=get;list;watch
+// +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusrepositories,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusrepositories/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusrepositories/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",namespace=placeholder,resources=secrets,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

@@ -157,9 +157,9 @@ type NexusBlobStoreStatus struct {
 	Error string `json:"error,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.value",description="Status of the blob store"
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Status",type="string",JSONPath=".status.value",description="Status of the blob store"
 
 // NexusBlobStore is the Schema for the nexusblobstores API.
 type NexusBlobStore struct {
@@ -174,7 +174,7 @@ func (in *NexusBlobStore) GetNexusRef() common.NexusRef {
 	return in.Spec.NexusRef
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // NexusBlobStoreList contains a list of NexusBlobStore.
 type NexusBlobStoreList struct {

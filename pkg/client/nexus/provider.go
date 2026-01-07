@@ -25,7 +25,10 @@ func NewApiClientProvider(k8sClient client.Client) *ApiClientProvider {
 }
 
 // GetNexusApiClientFromNexus returns nexus api client from Nexus CR.
-func (p *ApiClientProvider) GetNexusApiClientFromNexus(ctx context.Context, nexus *nexusApi.Nexus) (*nexus3.NexusClient, error) {
+func (p *ApiClientProvider) GetNexusApiClientFromNexus(
+	ctx context.Context,
+	nexus *nexusApi.Nexus,
+) (*nexus3.NexusClient, error) {
 	secret, err := p.getNexusSecret(ctx, nexus)
 	if err != nil {
 		return nil, err
@@ -38,7 +41,11 @@ func (p *ApiClientProvider) GetNexusApiClientFromNexus(ctx context.Context, nexu
 	}), nil
 }
 
-func (p *ApiClientProvider) GetNexusApiClientFromNexusRef(ctx context.Context, namespace string, ref common.HasNexusRef) (*nexus3.NexusClient, error) {
+func (p *ApiClientProvider) GetNexusApiClientFromNexusRef(
+	ctx context.Context,
+	namespace string,
+	ref common.HasNexusRef,
+) (*nexus3.NexusClient, error) {
 	nexus := &nexusApi.Nexus{}
 	if err := p.k8sClient.Get(ctx, types.NamespacedName{
 		Name:      ref.GetNexusRef().Name,
@@ -50,7 +57,11 @@ func (p *ApiClientProvider) GetNexusApiClientFromNexusRef(ctx context.Context, n
 	return p.GetNexusApiClientFromNexus(ctx, nexus)
 }
 
-func (p *ApiClientProvider) GetNexusRepositoryClientFromNexusRef(ctx context.Context, namespace string, ref common.HasNexusRef) (*RepoClient, error) {
+func (p *ApiClientProvider) GetNexusRepositoryClientFromNexusRef(
+	ctx context.Context,
+	namespace string,
+	ref common.HasNexusRef,
+) (*RepoClient, error) {
 	nexus := &nexusApi.Nexus{}
 	if err := p.k8sClient.Get(ctx, types.NamespacedName{
 		Name:      ref.GetNexusRef().Name,
