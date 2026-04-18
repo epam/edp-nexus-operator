@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GOLANG_VERSION: '1.24'
+  GOLANG_VERSION: '1.25'
 
 jobs:
 
@@ -73,17 +73,17 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v5
         with:
           version: v3.12.1
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
           check-latest: true
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.0
+        uses: helm/chart-testing-action@v2.8.0
 
       - name: Run chart-testing (lint)
         run: ct lint --target-branch ${{ github.event.repository.default_branch }} \
@@ -117,7 +117,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Run hadolint
-        uses: hadolint/hadolint-action@v1.5.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile
 
