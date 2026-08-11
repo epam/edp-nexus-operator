@@ -2,6 +2,27 @@
 ## [Unreleased]
 
 
+<a name="v3.6.0"></a>
+## [v3.6.0] - 2026-08-11
+### Routine
+
+- Update Operator SDK from v1.39.2 to v1.42.0 ([#82](https://github.com/epam/edp-nexus-operator/issues/82))
+- Update KubeRocketAI ([#78](https://github.com/epam/edp-nexus-operator/issues/78))
+- Setup KubeRocketAI ([#78](https://github.com/epam/edp-nexus-operator/issues/78))
+- Publish 3.5.0 on the OperatorHub ([#74](https://github.com/epam/edp-nexus-operator/issues/74))
+- Update codeql and codecov scan gh actions ([#74](https://github.com/epam/edp-nexus-operator/issues/74))
+- Bump CodeQL version ([#74](https://github.com/epam/edp-nexus-operator/issues/74))
+- Allow overriding securityContext ([#72](https://github.com/epam/edp-nexus-operator/issues/72))
+- Add multi-architecture build support ([#70](https://github.com/epam/edp-nexus-operator/issues/70))
+- Publish on the OperatorHub ([#63](https://github.com/epam/edp-nexus-operator/issues/63))
+- Bump GitHub Actions runner image to 22.04([#66](https://github.com/epam/edp-nexus-operator/issues/66))
+- Update current development version ([#63](https://github.com/epam/edp-nexus-operator/issues/63))
+
+### Documentation
+
+- add CLAUDE.md with repository guidance
+
+
 <a name="v3.5.0"></a>
 ## [v3.5.0] - 2025-04-02
 ### Routine
@@ -122,7 +143,8 @@
 <a name="v2.16.0"></a>
 ## [v2.16.0] - 2023-08-17
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.5.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.6.0...HEAD
+[v3.6.0]: https://github.com/epam/edp-nexus-operator/compare/v3.5.0...v3.6.0
 [v3.5.0]: https://github.com/epam/edp-nexus-operator/compare/v3.4.0...v3.5.0
 [v3.4.0]: https://github.com/epam/edp-nexus-operator/compare/v3.3.0...v3.4.0
 [v3.3.0]: https://github.com/epam/edp-nexus-operator/compare/v3.2.0...v3.3.0
