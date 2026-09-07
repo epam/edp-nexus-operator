@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: nexus
     app.kubernetes.io/name: nexus
-    app.kubernetes.io/version: 3.61.0
+    app.kubernetes.io/version: 3.82.0
 spec:
   replicas: 1
   selector:
@@ -42,7 +42,9 @@ spec:
           imagePullPolicy: IfNotPresent
       containers:
         - name: nexus-repository-manager
-          image: sonatype/nexus3:3.61.0
+          # Java 17 build. The Java 8 line (<=3.70.x default tag) cannot boot on
+          # kernel 6.x — its bundled Elasticsearch fails to initialize.
+          image: sonatype/nexus3:3.82.0
           ports:
             - name: nexus-ui
               containerPort: 8081
@@ -50,38 +52,54 @@ spec:
           env:
             - name: NEXUS_SECURITY_RANDOMPASSWORD
               value: 'false'
+            # Replaces the image default of 2703m per pool. These tests only
+            # drive the REST API. Keep the javaprefs flag: the image sets it
+            # and the default user root is not writable for uid 200.
+            - name: INSTALL4J_ADD_VM_PARAMS
+              value: >-
+                -Xms1200m -Xmx1200m -XX:MaxDirectMemorySize=1200m
+                -Djava.util.prefs.userRoot=/nexus-data/javaprefs
           resources:
             limits:
-              memory: 6Gi
+              memory: 3Gi
             requests:
               cpu: 100m
-              memory: 2Gi
+              memory: 1Gi
           volumeMounts:
             - name: nexus-data
               mountPath: /nexus-data
             - name: nexus-properties
               mountPath: /nexus-data/etc/nexus.properties
               subPath: nexus.properties
+          # Startup budget: 10 min. Liveness and readiness stay disabled until it
+          # succeeds, so a slow first boot is never killed as unhealthy.
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8081
+              scheme: HTTP
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 60
           livenessProbe:
             httpGet:
               path: /
               port: 8081
               scheme: HTTP
-            initialDelaySeconds: 30
             timeoutSeconds: 10
             periodSeconds: 30
             successThreshold: 1
-            failureThreshold: 6
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /
               port: 8081
               scheme: HTTP
-            initialDelaySeconds: 30
-            timeoutSeconds: 10
-            periodSeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 10
             successThreshold: 1
-            failureThreshold: 6
+            failureThreshold: 3
       securityContext:
         runAsUser: 200
         runAsGroup: 200

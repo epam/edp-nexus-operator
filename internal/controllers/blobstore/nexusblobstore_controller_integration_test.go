@@ -107,12 +107,15 @@ var _ = Describe("NexusBlobStore controller", func() {
 			},
 		}
 		Expect(k8sClient.Create(ctx, newNexusBlobStore)).Should(Succeed())
+		// Timeout is longer than the suite default. Nexus has no credentials
+		// here, so it walks the AWS region provider chain and only reports the
+		// failure once that retry budget runs out.
 		Eventually(func(g Gomega) {
 			createdNexusBlobStore := &nexusApi.NexusBlobStore{}
 			err := k8sClient.Get(ctx, types.NamespacedName{Name: "nexus-blobstore-s3-without-credentials", Namespace: namespace}, createdNexusBlobStore)
 			g.Expect(err).ShouldNot(HaveOccurred())
 			g.Expect(createdNexusBlobStore.Status.Value).Should(Equal(common.StatusError))
 			g.Expect(createdNexusBlobStore.Status.Error).ShouldNot(BeEmpty())
-		}).WithPolling(time.Second).WithTimeout(timeout).Should(Succeed())
+		}).WithPolling(time.Second).WithTimeout(time.Minute).Should(Succeed())
 	})
 })
