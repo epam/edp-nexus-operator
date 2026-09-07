@@ -154,10 +154,22 @@ jobs:
     - name: Deploy nexus server and wait for readiness
       run: |
         kubectl apply -f tests/e2e/helm-success-path/01-install-nexus-server.yaml --namespace nexus
-        kubectl wait --for condition=Available=True deployment nexus --timeout=120s --namespace nexus
+        kubectl wait --for condition=Available=True deployment nexus --timeout=600s --namespace nexus
+
+    - name: Collect nexus diagnostics
+      if: failure()
+      run: |
+        kubectl get pods -o wide --namespace nexus
+        kubectl describe deployment nexus --namespace nexus
+        kubectl describe pods -l app.kubernetes.io/name=nexus --namespace nexus
+        kubectl logs -l app.kubernetes.io/name=nexus --all-containers --tail=-1 --namespace nexus || true
+        kubectl get events --sort-by=.lastTimestamp --namespace nexus
 
     - name: Port-forward nexus service
-      run: kubectl port-forward svc/nexus 8081:8081 --namespace nexus & sleep 5
+      run: |
+        kubectl port-forward svc/nexus 8081:8081 --namespace nexus &
+        # Fail fast here instead of surfacing as a confusing connection error in the tests.
+        timeout 60s bash -c 'until curl -sf http://localhost:8081/ >/dev/null; do sleep 2; done'
 
     - name: Run tests against the Nexus service
       run: |
