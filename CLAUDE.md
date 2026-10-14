@@ -1,6 +1,6 @@
 # edp-nexus-operator
 
-`github.com/epam/edp-nexus-operator` — Go 1.25, kubebuilder operator that configures an **existing** Nexus Repository Manager instance declaratively via Kubernetes CRDs. It never installs Nexus; it only reconciles configuration into it.
+`github.com/epam/edp-nexus-operator` — Go 1.26, kubebuilder operator that configures an **existing** Nexus Repository Manager instance declaratively via Kubernetes CRDs. It never installs Nexus; it only reconciles configuration into it.
 
 CRD group: `edp.epam.com/v1alpha1`
 CRDs: `Nexus`, `NexusRepository`, `NexusBlobStore`, `NexusCleanupPolicy`, `NexusRole`, `NexusUser`, `NexusScript`
