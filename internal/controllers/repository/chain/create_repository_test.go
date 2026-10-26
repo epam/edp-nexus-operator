@@ -9,6 +9,7 @@ import (
 	testifymock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
 	"github.com/epam/edp-nexus-operator/pkg/client/nexus"
@@ -178,7 +179,7 @@ func TestCreateRepository_ServeRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			c := NewCreateRepository(tt.nexusRepositoryApiClient(t))
+			c := NewCreateRepository(tt.nexusRepositoryApiClient(t), fake.NewClientBuilder().Build())
 			err := c.ServeRequest(ctrl.LoggerInto(context.Background(), logr.Discard()), tt.repository)
 			tt.wantErr(t, err)
 		})
