@@ -1951,6 +1951,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -1997,20 +1999,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -2025,6 +2013,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecaptproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -2032,6 +2038,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecaptproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.apt.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecaptproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.apt.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecaptproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -2709,6 +2815,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -2755,20 +2863,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -2783,6 +2877,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecbowerproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -2790,6 +2902,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecbowerproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.bower.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecbowerproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.bower.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecbowerproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3139,6 +3351,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -3185,20 +3399,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -3213,6 +3413,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspeccocoapodsproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -3220,6 +3438,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspeccocoapodsproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.cocoapods.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspeccocoapodsproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.cocoapods.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspeccocoapodsproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3569,6 +3887,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -3615,20 +3935,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -3643,6 +3949,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecconanproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -3650,6 +3974,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecconanproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.conan.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecconanproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.conan.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecconanproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3999,6 +4423,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -4045,20 +4471,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -4073,6 +4485,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspeccondaproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -4080,6 +4510,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspeccondaproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.conda.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspeccondaproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.conda.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspeccondaproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -4939,6 +5469,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -4985,20 +5517,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -5013,6 +5531,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecdockerproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -5020,6 +5556,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecdockerproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.docker.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecdockerproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.docker.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecdockerproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -5683,6 +6319,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -5729,20 +6367,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -5757,6 +6381,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecgoproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -5764,6 +6406,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecgoproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.go.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecgoproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.go.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecgoproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -6282,6 +7024,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -6328,20 +7072,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -6356,6 +7086,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspechelmproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -6363,6 +7111,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspechelmproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.helm.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspechelmproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.helm.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspechelmproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -7133,6 +7981,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthenticationWithPreemptive contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!(has(self.password) && has(self.passwordSecretKeyRef)): password and passwordSecretKeyRef are mutually exclusive</li><li>!(has(self.username) && has(self.usernameSecretKeyRef)): username and usernameSecretKeyRef are mutually exclusive</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -7196,7 +8046,18 @@ HTTPClientAuthenticationWithPreemptive contains HTTP client authentication confi
         <td><b>password</b></td>
         <td>string</td>
         <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecmavenproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
           <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -7220,7 +8081,100 @@ HTTPClientAuthenticationWithPreemptive contains HTTP client authentication confi
         <td><b>username</b></td>
         <td>string</td>
         <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecmavenproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
           <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.maven.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecmavenproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.maven.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecmavenproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -7921,6 +8875,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -7967,20 +8923,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -7995,6 +8937,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecnpmproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -8002,6 +8962,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecnpmproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.npm.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecnpmproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.npm.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecnpmproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -8688,6 +9748,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -8734,20 +9796,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -8762,6 +9810,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecnugetproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -8769,6 +9835,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecnugetproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.nuget.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecnugetproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.nuget.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecnugetproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -9157,6 +10323,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -9203,20 +10371,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -9231,6 +10385,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecp2proxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -9238,6 +10410,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecp2proxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.p2.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecp2proxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.p2.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecp2proxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -9881,6 +11153,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -9927,20 +11201,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -9955,6 +11215,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecpypiproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -9962,6 +11240,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecpypiproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.pypi.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecpypiproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.pypi.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecpypiproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -10605,6 +11983,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -10651,20 +12031,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -10679,6 +12045,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -10686,6 +12070,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.r.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.r.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -11408,6 +12892,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -11454,20 +12940,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -11482,6 +12954,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrawproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -11489,6 +12979,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrawproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.raw.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrawproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.raw.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrawproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -12161,6 +13751,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -12207,20 +13799,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -12235,6 +13813,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrubygemsproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -12242,6 +13838,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrubygemsproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.rubyGems.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrubygemsproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.rubyGems.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrubygemsproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -12976,6 +14672,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>has(self.password) != has(self.passwordSecretKeyRef): exactly one of password or passwordSecretKeyRef must be set</li><li>has(self.username) != has(self.usernameSecretKeyRef): exactly one of username or usernameSecretKeyRef must be set</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -13022,20 +14720,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
-        <td><b>username</b></td>
-        <td>string</td>
-        <td>
-          Username for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>ntlmDomain</b></td>
         <td>string</td>
         <td>
@@ -13050,6 +14734,24 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication.
+Deprecated: use passwordSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecyumproxyhttpclientauthenticationpasswordsecretkeyref">passwordSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -13057,6 +14759,106 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b>username</b></td>
+        <td>string</td>
+        <td>
+          Username for authentication.
+Deprecated: use usernameSecretKeyRef instead.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecyumproxyhttpclientauthenticationusernamesecretkeyref">usernameSecretKeyRef</a></b></td>
+        <td>object</td>
+        <td>
+          UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.<br/>
+          <br/>
+            <i>Validations</i>:<li>self.name != '' && self.key != '': name and key of the secret must not be empty</li>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.yum.proxy.httpClient.authentication.passwordSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecyumproxyhttpclientauthentication)</sup></sup>
+
+
+
+PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+Mutually exclusive with password.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.yum.proxy.httpClient.authentication.usernameSecretKeyRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecyumproxyhttpclientauthentication)</sup></sup>
+
+
+
+UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+Mutually exclusive with username.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>

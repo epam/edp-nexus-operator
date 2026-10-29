@@ -104,7 +104,7 @@ The `Nexus` controller only verifies connectivity (calls `Security.User.List`) a
 
 ### NexusRepository format/type mapping
 
-`pkg/client/nexus/repositorymapper.go:GetRepoData` inspects the `NexusRepositorySpec` (18 format fields, each with hosted/proxy/group sub-structs) and returns a `RepoData{Type, Format, Name, Data}` used to build the REST call. When adding a new repository format, update: `api/v1alpha1/repository_formats.go`, `nexusrepository_types.go`, and `repositorymapper.go`.
+`pkg/client/nexus/repositorymapper.go:GetRepoData` inspects the `NexusRepositorySpec` (18 format fields, each with hosted/proxy/group sub-structs) and returns a `RepoData{Type, Format, Name, Data}` used to build the REST call. When adding a new repository format, update: `api/v1alpha1/repository_formats.go`, `nexusrepository_types.go`, and `repositorymapper.go`. A new proxy type must embed `ProxySpec` or implement `HTTPAuth()`, otherwise the Secret references of its `httpClient.authentication` are not resolved.
 
 ## Conventions
 

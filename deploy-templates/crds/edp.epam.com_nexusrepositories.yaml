@@ -174,8 +174,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -184,12 +211,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -455,8 +513,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -465,12 +550,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -616,8 +732,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -626,12 +769,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -776,8 +950,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -786,12 +987,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -936,8 +1168,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -946,12 +1205,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -1290,8 +1580,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -1300,12 +1617,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -1566,8 +1914,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -1576,12 +1951,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -1791,8 +2197,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -1801,12 +2234,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -2128,7 +2592,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               preemptive:
                                 description: Whether to use pre-emptive authentication.
                                   Use with caution. Defaults to false.
@@ -2141,8 +2633,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: password and passwordSecretKeyRef are mutually
+                                exclusive
+                              rule: '!(has(self.password) && has(self.passwordSecretKeyRef))'
+                            - message: username and usernameSecretKeyRef are mutually
+                                exclusive
+                              rule: '!(has(self.username) && has(self.usernameSecretKeyRef))'
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -2445,8 +2972,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -2455,12 +3009,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -2728,8 +3313,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -2738,12 +3350,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -2908,8 +3551,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -2918,12 +3588,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -3179,8 +3880,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -3189,12 +3917,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -3450,8 +4209,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -3460,12 +4246,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -3737,8 +4554,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -3747,12 +4591,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -4016,8 +4891,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -4026,12 +4928,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository
@@ -4312,8 +5245,35 @@ spec:
                               ntlmHost:
                                 type: string
                               password:
-                                description: Password for authentication.
+                                description: |-
+                                  Password for authentication.
+                                  Deprecated: use passwordSecretKeyRef instead.
                                 type: string
+                              passwordSecretKeyRef:
+                                description: |-
+                                  PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+                                  Mutually exclusive with password.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                               type:
                                 default: username
                                 description: Type of authentication to use.
@@ -4322,12 +5282,43 @@ spec:
                                 - ntlm
                                 type: string
                               username:
-                                description: Username for authentication.
+                                description: |-
+                                  Username for authentication.
+                                  Deprecated: use usernameSecretKeyRef instead.
                                 type: string
-                            required:
-                            - password
-                            - username
+                              usernameSecretKeyRef:
+                                description: |-
+                                  UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+                                  Mutually exclusive with username.
+                                properties:
+                                  key:
+                                    description: The key of the secret to select from.
+                                    type: string
+                                  name:
+                                    default: ""
+                                    description: |-
+                                      Name of the referent.
+                                      This field is effectively required, but due to backwards compatibility is
+                                      allowed to be empty. Instances of this type with an empty value here are
+                                      almost certainly wrong.
+                                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    type: string
+                                required:
+                                - key
+                                type: object
+                                x-kubernetes-map-type: atomic
+                                x-kubernetes-validations:
+                                - message: name and key of the secret must not be
+                                    empty
+                                  rule: self.name != '' && self.key != ''
                             type: object
+                            x-kubernetes-validations:
+                            - message: exactly one of password or passwordSecretKeyRef
+                                must be set
+                              rule: has(self.password) != has(self.passwordSecretKeyRef)
+                            - message: exactly one of username or usernameSecretKeyRef
+                                must be set
+                              rule: has(self.username) != has(self.usernameSecretKeyRef)
                           autoBlock:
                             default: true
                             description: Auto-block outbound connections on the repository

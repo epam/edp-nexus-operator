@@ -1,5 +1,11 @@
 package v1alpha1
 
+import (
+	"k8s.io/utils/ptr"
+
+	"github.com/epam/edp-nexus-operator/api/common"
+)
+
 type ProxySpec struct {
 	// A unique identifier for this repository.
 	// Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.
@@ -146,6 +152,8 @@ type HTTPClientConnection struct {
 }
 
 // HTTPClientAuthentication contains HTTP client authentication configuration data.
+// +kubebuilder:validation:XValidation:rule="has(self.password) != has(self.passwordSecretKeyRef)",message="exactly one of password or passwordSecretKeyRef must be set"
+// +kubebuilder:validation:XValidation:rule="has(self.username) != has(self.usernameSecretKeyRef)",message="exactly one of username or usernameSecretKeyRef must be set"
 type HTTPClientAuthentication struct {
 	NTLMDomain string `json:"ntlmDomain,omitempty"`
 	NTLMHost   string `json:"ntlmHost,omitempty"`
@@ -157,28 +165,114 @@ type HTTPClientAuthentication struct {
 	Type string `json:"type"`
 
 	// Password for authentication.
-	// +required
+	// Deprecated: use passwordSecretKeyRef instead.
+	// +optional
 	Password string `json:"password,omitempty"`
 
 	// Username for authentication.
-	// +required
+	// Deprecated: use usernameSecretKeyRef instead.
+	// +optional
 	Username string `json:"username,omitempty"`
+
+	// UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+	// Mutually exclusive with username.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self.name != '' && self.key != ''",message="name and key of the secret must not be empty"
+	UsernameSecretKeyRef *common.SecretKeySelector `json:"usernameSecretKeyRef,omitempty"`
+
+	// PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+	// Mutually exclusive with password.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self.name != '' && self.key != ''",message="name and key of the secret must not be empty"
+	PasswordSecretKeyRef *common.SecretKeySelector `json:"passwordSecretKeyRef,omitempty"`
 }
 
 // HTTPClientAuthenticationWithPreemptive contains HTTP client authentication configuration data.
+// +kubebuilder:validation:XValidation:rule="!(has(self.password) && has(self.passwordSecretKeyRef))",message="password and passwordSecretKeyRef are mutually exclusive"
+// +kubebuilder:validation:XValidation:rule="!(has(self.username) && has(self.usernameSecretKeyRef))",message="username and usernameSecretKeyRef are mutually exclusive"
 type HTTPClientAuthenticationWithPreemptive struct {
 	NTLMDomain string `json:"ntlmDomain,omitempty"`
 	NTLMHost   string `json:"ntlmHost,omitempty"`
-	Password   string `json:"password,omitempty"`
+
+	// Password for authentication.
+	// Deprecated: use passwordSecretKeyRef instead.
+	// +optional
+	Password string `json:"password,omitempty"`
 
 	// Type of authentication to use.
 	// +optional
 	// +kubebuilder:default=username
 	// +kubebuilder:validation:Enum=username;ntlm
-	Type     string `json:"type"`
+	Type string `json:"type"`
+
+	// Username for authentication.
+	// Deprecated: use usernameSecretKeyRef instead.
+	// +optional
 	Username string `json:"username,omitempty"`
+
+	// UsernameSecretKeyRef selects a key of a Secret in the same namespace that holds the username.
+	// Mutually exclusive with username.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self.name != '' && self.key != ''",message="name and key of the secret must not be empty"
+	UsernameSecretKeyRef *common.SecretKeySelector `json:"usernameSecretKeyRef,omitempty"`
+
+	// PasswordSecretKeyRef selects a key of a Secret in the same namespace that holds the password.
+	// Mutually exclusive with password.
+	// +optional
+	// +kubebuilder:validation:XValidation:rule="self.name != '' && self.key != ''",message="name and key of the secret must not be empty"
+	PasswordSecretKeyRef *common.SecretKeySelector `json:"passwordSecretKeyRef,omitempty"`
+
 	// Whether to use pre-emptive authentication. Use with caution. Defaults to false.
 	Preemptive *bool `json:"preemptive,omitempty"`
+}
+
+// HTTPAuthCredentials gives uniform access to the credential fields of an HTTP client authentication block.
+// +kubebuilder:object:generate=false
+type HTTPAuthCredentials interface {
+	// SecretKeyRefs returns the username and password Secret selectors; either may be nil.
+	SecretKeyRefs() (username, password *common.SecretKeySelector)
+	// SetResolvedCredentials stores non-nil values in the inline fields and clears both Secret selectors.
+	SetResolvedCredentials(username, password *string)
+}
+
+func (a *HTTPClientAuthentication) SecretKeyRefs() (username, password *common.SecretKeySelector) {
+	return a.UsernameSecretKeyRef, a.PasswordSecretKeyRef
+}
+
+func (a *HTTPClientAuthentication) SetResolvedCredentials(username, password *string) {
+	a.Username = ptr.Deref(username, a.Username)
+	a.Password = ptr.Deref(password, a.Password)
+	a.UsernameSecretKeyRef = nil
+	a.PasswordSecretKeyRef = nil
+}
+
+func (a *HTTPClientAuthenticationWithPreemptive) SecretKeyRefs() (username, password *common.SecretKeySelector) {
+	return a.UsernameSecretKeyRef, a.PasswordSecretKeyRef
+}
+
+func (a *HTTPClientAuthenticationWithPreemptive) SetResolvedCredentials(username, password *string) {
+	a.Username = ptr.Deref(username, a.Username)
+	a.Password = ptr.Deref(password, a.Password)
+	a.UsernameSecretKeyRef = nil
+	a.PasswordSecretKeyRef = nil
+}
+
+// HTTPAuth returns the proxy HTTP client authentication, or nil when it is not configured.
+func (p *ProxySpec) HTTPAuth() HTTPAuthCredentials {
+	if p.Authentication == nil {
+		return nil
+	}
+
+	return p.Authentication
+}
+
+// HTTPAuth returns the proxy HTTP client authentication, or nil when it is not configured.
+func (m *MavenProxyRepository) HTTPAuth() HTTPAuthCredentials {
+	if m.HTTPClient.Authentication == nil {
+		return nil
+	}
+
+	return m.HTTPClient.Authentication
 }
 
 type Cleanup struct {

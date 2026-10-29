@@ -20,6 +20,14 @@ spec:
       httpClient:
         autoBlock: true
         blocked: true
+        authentication:
+          type: username
+          usernameSecretKeyRef:
+            name: go-proxy-credentials
+            key: username
+          passwordSecretKeyRef:
+            name: go-proxy-credentials
+            key: password
         connection:
           timeout: 1440
           retries: 1440
@@ -30,6 +38,15 @@ spec:
       storage:
         blobStoreName: "blob-store-name"
         strictContentTypeValidation: true
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: go-proxy-credentials
+data:
+  username: dXNlcg==
+  password: cGFzc3dvcmQ=
 
 ---
 apiVersion: edp.epam.com/v1alpha1
