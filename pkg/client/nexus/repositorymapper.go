@@ -3,6 +3,7 @@ package nexus
 import (
 	"errors"
 
+	"github.com/epam/edp-nexus-operator/api/common"
 	"github.com/epam/edp-nexus-operator/api/v1alpha1"
 )
 
@@ -36,6 +37,68 @@ type RepoData struct {
 	Format string
 	Name   string
 	Data   interface{}
+	// Proxy is set for every proxy repository.
+	Proxy *ProxyData
+}
+
+// Authentication returns httpClient.authentication of a proxy repository. It is nil for any other repository.
+func (r *RepoData) Authentication() *ProxyAuth {
+	if r == nil || r.Proxy == nil {
+		return nil
+	}
+
+	return r.Proxy.Auth
+}
+
+// ProxyData is the part of a proxy repository spec the request body is built from.
+type ProxyData struct {
+	// Auth is nil when httpClient.authentication is absent.
+	Auth *ProxyAuth
+}
+
+// ProxyAuth is a view of httpClient.authentication shared by the Maven and the other proxy formats.
+type ProxyAuth struct {
+	Type        string
+	Username    string
+	Password    string
+	PasswordRef *common.SecretKeySelector
+	NTLMHost    string
+	NTLMDomain  string
+	// Preemptive is set only for Maven.
+	Preemptive *bool
+}
+
+func proxyDataFromSpec(spec *v1alpha1.ProxySpec) *ProxyData {
+	auth := spec.Authentication
+	if auth == nil {
+		return &ProxyData{}
+	}
+
+	return &ProxyData{Auth: &ProxyAuth{
+		Type:        auth.Type,
+		Username:    auth.Username,
+		Password:    auth.Password, //nolint:staticcheck // plain password stays supported until it is removed
+		PasswordRef: auth.PasswordRef,
+		NTLMHost:    auth.NTLMHost,
+		NTLMDomain:  auth.NTLMDomain,
+	}}
+}
+
+func proxyDataFromMaven(repo *v1alpha1.MavenProxyRepository) *ProxyData {
+	auth := repo.HTTPClient.Authentication
+	if auth == nil {
+		return &ProxyData{}
+	}
+
+	return &ProxyData{Auth: &ProxyAuth{
+		Type:        auth.Type,
+		Username:    auth.Username,
+		Password:    auth.Password, //nolint:staticcheck // plain password stays supported until it is removed
+		PasswordRef: auth.PasswordRef,
+		NTLMHost:    auth.NTLMHost,
+		NTLMDomain:  auth.NTLMDomain,
+		Preemptive:  auth.Preemptive,
+	}}
 }
 
 // GetRepoData returns repository data based on NexusRepositorySpec.
@@ -57,6 +120,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatApt,
 				Name:   repo.Apt.Proxy.Name,
 				Data:   repo.Apt.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Apt.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -79,6 +143,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatBower,
 				Name:   repo.Bower.Proxy.Name,
 				Data:   repo.Bower.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Bower.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -101,6 +166,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatCocoapods,
 				Name:   repo.Cocoapods.Proxy.Name,
 				Data:   repo.Cocoapods.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Cocoapods.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -114,6 +180,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatConan,
 				Name:   repo.Conan.Proxy.Name,
 				Data:   repo.Conan.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Conan.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -127,6 +194,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatConda,
 				Name:   repo.Conda.Proxy.Name,
 				Data:   repo.Conda.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Conda.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -149,6 +217,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatDocker,
 				Name:   repo.Docker.Proxy.Name,
 				Data:   repo.Docker.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Docker.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -184,6 +253,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatGo,
 				Name:   repo.Go.Proxy.Name,
 				Data:   repo.Go.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Go.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -215,6 +285,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatHelm,
 				Name:   repo.Helm.Proxy.Name,
 				Data:   repo.Helm.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Helm.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -237,6 +308,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatMaven,
 				Name:   repo.Maven.Proxy.Name,
 				Data:   repo.Maven.Proxy,
+				Proxy:  proxyDataFromMaven(repo.Maven.Proxy),
 			}, nil
 		}
 
@@ -268,6 +340,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatNpm,
 				Name:   repo.Npm.Proxy.Name,
 				Data:   repo.Npm.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Npm.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -299,6 +372,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatNuget,
 				Name:   repo.Nuget.Proxy.Name,
 				Data:   repo.Nuget.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Nuget.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -321,6 +395,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatP2,
 				Name:   repo.P2.Proxy.Name,
 				Data:   repo.P2.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.P2.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -334,6 +409,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatPypi,
 				Name:   repo.Pypi.Proxy.Name,
 				Data:   repo.Pypi.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Pypi.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -374,6 +450,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatR,
 				Name:   repo.R.Proxy.Name,
 				Data:   repo.R.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.R.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -405,6 +482,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatRaw,
 				Name:   repo.Raw.Proxy.Name,
 				Data:   repo.Raw.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Raw.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -436,6 +514,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatRubyGems,
 				Name:   repo.RubyGems.Proxy.Name,
 				Data:   repo.RubyGems.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.RubyGems.Proxy.ProxySpec),
 			}, nil
 		}
 
@@ -467,6 +546,7 @@ func GetRepoData(repo *v1alpha1.NexusRepositorySpec) (*RepoData, error) {
 				Format: FormatYum,
 				Name:   repo.Yum.Proxy.Name,
 				Data:   repo.Yum.Proxy,
+				Proxy:  proxyDataFromSpec(&repo.Yum.Proxy.ProxySpec),
 			}, nil
 		}
 

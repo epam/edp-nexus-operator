@@ -1951,6 +1951,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -1997,13 +1999,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -2025,6 +2020,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecaptproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -2032,6 +2044,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.apt.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecaptproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -2709,6 +2762,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -2755,13 +2810,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -2783,6 +2831,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecbowerproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -2790,6 +2855,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.bower.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecbowerproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3139,6 +3245,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -3185,13 +3293,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -3213,6 +3314,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspeccocoapodsproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -3220,6 +3338,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.cocoapods.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspeccocoapodsproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3569,6 +3728,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -3615,13 +3776,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -3643,6 +3797,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecconanproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -3650,6 +3821,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.conan.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecconanproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -3999,6 +4211,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -4045,13 +4259,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -4073,6 +4280,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspeccondaproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -4080,6 +4304,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.conda.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspeccondaproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -4939,6 +5204,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -4985,13 +5252,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -5013,6 +5273,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecdockerproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -5020,6 +5297,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.docker.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecdockerproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -5683,6 +6001,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -5729,13 +6049,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -5757,6 +6070,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecgoproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -5764,6 +6094,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.go.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecgoproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -6282,6 +6653,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -6328,13 +6701,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -6356,6 +6722,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspechelmproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -6363,6 +6746,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.helm.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspechelmproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -7133,6 +7557,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthenticationWithPreemptive contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li><li>(has(self.username) && size(self.username) > 0) == ((has(self.password) && size(self.password) > 0) || has(self.passwordRef)): username requires password or passwordRef, and a password requires username</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -7196,7 +7622,17 @@ HTTPClientAuthenticationWithPreemptive contains HTTP client authentication confi
         <td><b>password</b></td>
         <td>string</td>
         <td>
-          <br/>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecmavenproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
         </td>
         <td>false</td>
       </tr><tr>
@@ -7221,6 +7657,47 @@ HTTPClientAuthenticationWithPreemptive contains HTTP client authentication confi
         <td>string</td>
         <td>
           <br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.maven.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecmavenproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -7921,6 +8398,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -7967,13 +8446,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -7995,6 +8467,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecnpmproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -8002,6 +8491,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.npm.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecnpmproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -8688,6 +9218,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -8734,13 +9266,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -8762,6 +9287,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecnugetproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -8769,6 +9311,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.nuget.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecnugetproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -9157,6 +9740,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -9203,13 +9788,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -9231,6 +9809,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecp2proxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -9238,6 +9833,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.p2.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecp2proxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -9881,6 +10517,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -9927,13 +10565,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -9955,6 +10586,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecpypiproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -9962,6 +10610,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.pypi.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecpypiproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -10605,6 +11294,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -10651,13 +11342,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -10679,6 +11363,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -10686,6 +11387,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.r.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -11408,6 +12150,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -11454,13 +12198,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -11482,6 +12219,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrawproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -11489,6 +12243,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.raw.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrawproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -12161,6 +12956,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -12207,13 +13004,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -12235,6 +13025,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecrubygemsproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -12242,6 +13049,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.rubyGems.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecrubygemsproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
@@ -12976,6 +13824,8 @@ HTTP client configuration.
         <td>object</td>
         <td>
           HTTPClientAuthentication contains HTTP client authentication configuration data.<br/>
+          <br/>
+            <i>Validations</i>:<li>!((has(self.password) && size(self.password) > 0) && has(self.passwordRef)): password and passwordRef are mutually exclusive</li><li>(has(self.password) && size(self.password) > 0) || has(self.passwordRef): one of password or passwordRef must be set</li><li>!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0): passwordRef name and key must not be empty</li>
         </td>
         <td>false</td>
       </tr><tr>
@@ -13022,13 +13872,6 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </tr>
     </thead>
     <tbody><tr>
-        <td><b>password</b></td>
-        <td>string</td>
-        <td>
-          Password for authentication.<br/>
-        </td>
-        <td>true</td>
-      </tr><tr>
         <td><b>username</b></td>
         <td>string</td>
         <td>
@@ -13050,6 +13893,23 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
         </td>
         <td>false</td>
       </tr><tr>
+        <td><b>password</b></td>
+        <td>string</td>
+        <td>
+          Password for authentication. Mutually exclusive with passwordRef.
+
+Deprecated: use passwordRef. The value is stored in the resource in clear text.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
+        <td><b><a href="#nexusrepositoryspecyumproxyhttpclientauthenticationpasswordref">passwordRef</a></b></td>
+        <td>object</td>
+        <td>
+          Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.<br/>
+        </td>
+        <td>false</td>
+      </tr><tr>
         <td><b>type</b></td>
         <td>enum</td>
         <td>
@@ -13057,6 +13917,47 @@ HTTPClientAuthentication contains HTTP client authentication configuration data.
           <br/>
             <i>Enum</i>: username, ntlm<br/>
             <i>Default</i>: username<br/>
+        </td>
+        <td>false</td>
+      </tr></tbody>
+</table>
+
+
+### NexusRepository.spec.yum.proxy.httpClient.authentication.passwordRef
+<sup><sup>[↩ Parent](#nexusrepositoryspecyumproxyhttpclientauthentication)</sup></sup>
+
+
+
+Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+The value must not have leading or trailing whitespace.
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+        <td><b>key</b></td>
+        <td>string</td>
+        <td>
+          The key of the secret to select from.<br/>
+        </td>
+        <td>true</td>
+      </tr><tr>
+        <td><b>name</b></td>
+        <td>string</td>
+        <td>
+          Name of the referent.
+This field is effectively required, but due to backwards compatibility is
+allowed to be empty. Instances of this type with an empty value here are
+almost certainly wrong.
+More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names<br/>
+          <br/>
+            <i>Default</i>: <br/>
         </td>
         <td>false</td>
       </tr></tbody>
