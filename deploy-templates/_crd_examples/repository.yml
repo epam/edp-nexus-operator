@@ -71,3 +71,48 @@ spec:
       cleanup:
         policyNames:
           - "cleanup-policy"
+---
+# Proxy with credentials from a Secret. The Secret must be in the namespace of the resource.
+# A Secret value with leading or trailing whitespace (for example a trailing newline) is rejected.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dhi-io-credentials
+type: Opaque
+stringData:
+  password: change-me
+---
+apiVersion: edp.epam.com/v1alpha1
+kind: NexusRepository
+metadata:
+  name: krci-container-proxy-dhi-io
+spec:
+  nexusRef:
+    name: nexus-sample
+  docker:
+    proxy:
+      name: krci-container-proxy-dhi-io
+      online: true
+      proxy:
+        remoteUrl: https://dhi.io
+        contentMaxAge: 1440
+        metadataMaxAge: 1440
+      httpClient:
+        autoBlock: true
+        authentication:
+          type: username
+          username: dhi-user
+          passwordRef:
+            name: dhi-io-credentials
+            key: password
+      negativeCache:
+        enabled: true
+        timeToLive: 1440
+      storage:
+        blobStoreName: "default"
+        strictContentTypeValidation: true
+      docker:
+        forceBasicAuth: true
+        v1Enabled: false
+      dockerProxy:
+        indexType: REGISTRY
