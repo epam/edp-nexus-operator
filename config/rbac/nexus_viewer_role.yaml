@@ -14,7 +14,7 @@ rules:
 - apiGroups:
   - edp.epam.com
   resources:
-  - nexus
+  - nexuses
   verbs:
   - get
   - list
@@ -22,6 +22,6 @@ rules:
 - apiGroups:
   - edp.epam.com
   resources:
-  - nexus/status
+  - nexuses/status
   verbs:
   - get

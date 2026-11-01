@@ -1,0 +1,143 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexus-admin
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuses
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuses/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexus-viewer
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuses/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusrepository-admin
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusrepositories
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusrepositories/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusrepository-viewer
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusrepositories
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusrepositories/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusblobstore-admin
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusblobstores
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusblobstores/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusblobstore-viewer
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusblobstores
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusblobstores/status
+    verbs:
+      - get

@@ -5,13 +5,20 @@ metadata:
     app.kubernetes.io/name: nexus-operator
     app.kubernetes.io/managed-by: kustomize
   name: nexusblobstore-admin-role
+# Only role that may write this kind; bind to platform admins only.
 rules:
 - apiGroups:
   - edp.epam.com
   resources:
   - nexusblobstores
   verbs:
-  - '*'
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
   - edp.epam.com
   resources:
