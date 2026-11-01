@@ -356,3 +356,107 @@ func TestNexusRepositoryValidationWebhook_ValidateUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestNexusRepositoryValidationWebhook_deprecatedPasswordWarning(t *testing.T) {
+	t.Parallel()
+
+	const warning = "httpClient.authentication.password is deprecated; use passwordRef"
+
+	ref := &common.SecretKeySelector{Key: "password"}
+	ref.Name = "cred"
+
+	dockerWithAuth := func(auth *nexusApi.HTTPClientAuthentication) *nexusApi.NexusRepository {
+		return &nexusApi.NexusRepository{Spec: nexusApi.NexusRepositorySpec{
+			Docker: &nexusApi.DockerSpec{Proxy: &nexusApi.DockerProxyRepository{
+				ProxySpec: nexusApi.ProxySpec{Name: "docker-proxy", HTTPClient: nexusApi.HTTPClient{Authentication: auth}},
+			}},
+			NexusRef: common.NexusRef{Name: "nexus"},
+		}}
+	}
+
+	mavenWithAuth := func(auth *nexusApi.HTTPClientAuthenticationWithPreemptive) *nexusApi.NexusRepository {
+		return &nexusApi.NexusRepository{Spec: nexusApi.NexusRepositorySpec{
+			Maven: &nexusApi.MavenSpec{Proxy: &nexusApi.MavenProxyRepository{
+				Name:       "maven-proxy",
+				HTTPClient: nexusApi.HTTPClientWithPreemptiveAuth{Authentication: auth},
+			}},
+			NexusRef: common.NexusRef{Name: "nexus"},
+		}}
+	}
+
+	//nolint:staticcheck // covers the deprecated password field
+	plain := &nexusApi.HTTPClientAuthentication{Type: "username", Username: "alice", Password: "pw"}
+	//nolint:staticcheck // covers the deprecated password field
+	mavenPlain := &nexusApi.HTTPClientAuthenticationWithPreemptive{Type: "username", Username: "alice", Password: "pw"}
+	withRef := &nexusApi.HTTPClientAuthentication{Type: "username", Username: "alice", PasswordRef: ref}
+	mavenWithRef := &nexusApi.HTTPClientAuthenticationWithPreemptive{Type: "username", Username: "alice", PasswordRef: ref}
+
+	tests := []struct {
+		name string
+		obj  *nexusApi.NexusRepository
+		want admission.Warnings
+	}{
+		{
+			name: "plain password",
+			obj:  dockerWithAuth(plain),
+			want: admission.Warnings{warning},
+		},
+		{
+			name: "maven plain password",
+			obj:  mavenWithAuth(mavenPlain),
+			want: admission.Warnings{warning},
+		},
+		{
+			name: "password reference",
+			obj:  dockerWithAuth(withRef),
+		},
+		{
+			name: "maven password reference",
+			obj:  mavenWithAuth(mavenWithRef),
+		},
+		{
+			name: "no authentication",
+			obj:  dockerWithAuth(nil),
+		},
+		{
+			name: "hosted repository",
+			obj: &nexusApi.NexusRepository{Spec: nexusApi.NexusRepositorySpec{
+				Docker:   &nexusApi.DockerSpec{Hosted: &nexusApi.DockerHostedRepository{}},
+				NexusRef: common.NexusRef{Name: "nexus"},
+			}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := admission.NewContextWithRequest(
+				ctrl.LoggerInto(context.Background(), logr.Discard()),
+				admission.Request{AdmissionRequest: v1.AdmissionRequest{Name: "nexus-repository", Namespace: "default"}},
+			)
+			r := NewNexusRepositoryValidationWebhook()
+
+			warnings, err := r.ValidateCreate(ctx, tt.obj)
+			require.NoError(t, err)
+			require.Equal(t, tt.want, warnings)
+
+			warnings, err = r.ValidateUpdate(ctx, tt.obj.DeepCopy(), tt.obj)
+			require.NoError(t, err)
+			require.Equal(t, tt.want, warnings)
+		})
+	}
+}
+
+func TestNexusRepositoryValidationWebhook_invalidObjectHasNoWarning(t *testing.T) {
+	t.Parallel()
+
+	ctx := admission.NewContextWithRequest(
+		ctrl.LoggerInto(context.Background(), logr.Discard()),
+		admission.Request{AdmissionRequest: v1.AdmissionRequest{Name: "nexus-repository", Namespace: "default"}},
+	)
+
+	warnings, err := NewNexusRepositoryValidationWebhook().ValidateCreate(ctx, &nexusApi.NexusRepository{})
+	require.Error(t, err)
+	require.Nil(t, warnings)
+}

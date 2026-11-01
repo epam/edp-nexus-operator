@@ -10,6 +10,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	nexusApi "github.com/epam/edp-nexus-operator/api/v1alpha1"
+	"github.com/epam/edp-nexus-operator/pkg/client/nexus"
 )
 
 // nolint:lll // configuration
@@ -65,7 +66,7 @@ func (*NexusRepositoryValidationWebhook) ValidateCreate(
 		return nil, fmt.Errorf("object NexusRepository %s is invalid: %w", createdNexusRepository.Name, err)
 	}
 
-	return nil, nil
+	return deprecatedPasswordWarning(&createdNexusRepository.Spec), nil
 }
 
 // ValidateUpdate is a webhook for validating the updating of the NexusRepository CR.
@@ -95,7 +96,7 @@ func (*NexusRepositoryValidationWebhook) ValidateUpdate(
 		return nil, fmt.Errorf("object NexusRepository %s is invalid: %w", updatedNexusRepository.Name, err)
 	}
 
-	return nil, nil
+	return deprecatedPasswordWarning(&updatedNexusRepository.Spec), nil
 }
 
 // ValidateDelete is a webhook for validating the deleting of the NexusRepository CR.
@@ -105,4 +106,20 @@ func (*NexusRepositoryValidationWebhook) ValidateDelete(
 	_ runtime.Object,
 ) (warnings admission.Warnings, err error) {
 	return nil, nil
+}
+
+// deprecatedPasswordWarning returns an admission warning when a proxy sets httpClient.authentication.password.
+//
+// Deprecated: removed together with HTTPClientAuthentication.Password.
+func deprecatedPasswordWarning(spec *nexusApi.NexusRepositorySpec) admission.Warnings {
+	repoData, err := nexus.GetRepoData(spec)
+	if err != nil {
+		return nil
+	}
+
+	if auth := repoData.Authentication(); auth == nil || auth.Password == "" {
+		return nil
+	}
+
+	return admission.Warnings{"httpClient.authentication.password is deprecated; use passwordRef"}
 }
