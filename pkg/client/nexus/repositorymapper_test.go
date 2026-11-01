@@ -4,7 +4,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"k8s.io/utils/ptr"
 
+	"github.com/epam/edp-nexus-operator/api/common"
 	"github.com/epam/edp-nexus-operator/api/v1alpha1"
 )
 
@@ -31,6 +33,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatApt,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "apt-proxy",
 				Data: &v1alpha1.AptProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -77,6 +80,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatBower,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "bower-proxy",
 				Data: &v1alpha1.BowerProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -146,6 +150,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatCocoapods,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "cocoapods-proxy",
 				Data: &v1alpha1.CocoapodsProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -169,6 +174,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatConan,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "conan-proxy",
 				Data: &v1alpha1.ConanProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -192,6 +198,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatConda,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "conda-proxy",
 				Data: &v1alpha1.CondaProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -215,6 +222,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatDocker,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "docker-proxy",
 				Data: &v1alpha1.DockerProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -303,6 +311,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatGo,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "go-proxy",
 				Data: &v1alpha1.GoProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -372,6 +381,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatHelm,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "helm-proxy",
 				Data: &v1alpha1.HelmProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -393,6 +403,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatMaven,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "maven-proxy",
 				Data: &v1alpha1.MavenProxyRepository{
 					Name: "maven-proxy",
@@ -460,6 +471,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatNpm,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "npm-proxy",
 				Data: &v1alpha1.NpmProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -529,6 +541,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatNuget,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "nuget-proxy",
 				Data: &v1alpha1.NugetProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -598,6 +611,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatP2,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "p2-proxy",
 				Data: &v1alpha1.P2ProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -621,6 +635,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatPypi,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "pypi-proxy",
 				Data: &v1alpha1.PypiProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -690,6 +705,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatR,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "r-proxy",
 				Data: &v1alpha1.RProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -713,6 +729,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatRaw,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "raw-proxy",
 				Data: &v1alpha1.RawProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -736,6 +753,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatRubyGems,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "rubygems-proxy",
 				Data: &v1alpha1.RubyGemsProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -759,6 +777,7 @@ func TestGetRepoData(t *testing.T) {
 			want: &RepoData{
 				Format: FormatYum,
 				Type:   TypeProxy,
+				Proxy:  &ProxyData{},
 				Name:   "yum-proxy",
 				Data: &v1alpha1.YumProxyRepository{
 					ProxySpec: v1alpha1.ProxySpec{
@@ -776,6 +795,70 @@ func TestGetRepoData(t *testing.T) {
 
 			require.Equal(t, tt.want, got)
 			tt.wantErr(t, err)
+		})
+	}
+}
+
+func TestGetRepoData_proxyAuth(t *testing.T) {
+	t.Parallel()
+
+	ref := &common.SecretKeySelector{Key: "password"}
+	ref.Name = "cred"
+
+	tests := []struct {
+		name string
+		repo *v1alpha1.NexusRepositorySpec
+		want *ProxyData
+	}{
+		{
+			name: "no authentication",
+			repo: &v1alpha1.NexusRepositorySpec{Go: &v1alpha1.GoSpec{Proxy: &v1alpha1.GoProxyRepository{}}},
+			want: &ProxyData{},
+		},
+		{
+			name: "plain password",
+			repo: &v1alpha1.NexusRepositorySpec{Go: &v1alpha1.GoSpec{Proxy: &v1alpha1.GoProxyRepository{
+				ProxySpec: v1alpha1.ProxySpec{HTTPClient: v1alpha1.HTTPClient{
+					Authentication: &v1alpha1.HTTPClientAuthentication{
+						Type: "ntlm", Username: "alice", Password: "pw-1", NTLMHost: "h", NTLMDomain: "d",
+					},
+				}},
+			}}},
+			want: &ProxyData{Auth: &ProxyAuth{
+				Type: "ntlm", Username: "alice", Password: "pw-1", NTLMHost: "h", NTLMDomain: "d",
+			}},
+		},
+		{
+			name: "password reference",
+			repo: &v1alpha1.NexusRepositorySpec{Docker: &v1alpha1.DockerSpec{Proxy: &v1alpha1.DockerProxyRepository{
+				ProxySpec: v1alpha1.ProxySpec{HTTPClient: v1alpha1.HTTPClient{
+					Authentication: &v1alpha1.HTTPClientAuthentication{Type: "username", Username: "alice", PasswordRef: ref},
+				}},
+			}}},
+			want: &ProxyData{Auth: &ProxyAuth{Type: "username", Username: "alice", PasswordRef: ref}},
+		},
+		{
+			name: "maven preemptive",
+			repo: &v1alpha1.NexusRepositorySpec{Maven: &v1alpha1.MavenSpec{Proxy: &v1alpha1.MavenProxyRepository{
+				HTTPClient: v1alpha1.HTTPClientWithPreemptiveAuth{
+					Authentication: &v1alpha1.HTTPClientAuthenticationWithPreemptive{
+						Type: "username", Username: "alice", PasswordRef: ref, Preemptive: ptr.To(true),
+					},
+				},
+			}}},
+			want: &ProxyData{Auth: &ProxyAuth{
+				Type: "username", Username: "alice", PasswordRef: ref, Preemptive: ptr.To(true),
+			}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := GetRepoData(tt.repo)
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got.Proxy)
 		})
 	}
 }

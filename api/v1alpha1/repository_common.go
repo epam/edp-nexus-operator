@@ -1,5 +1,7 @@
 package v1alpha1
 
+import "github.com/epam/edp-nexus-operator/api/common"
+
 type ProxySpec struct {
 	// A unique identifier for this repository.
 	// Only letters, digits, underscores(_), hyphens(-), and dots(.) are allowed and may not start with underscore or dot.
@@ -146,6 +148,9 @@ type HTTPClientConnection struct {
 }
 
 // HTTPClientAuthentication contains HTTP client authentication configuration data.
+// +kubebuilder:validation:XValidation:rule="!((has(self.password) && size(self.password) > 0) && has(self.passwordRef))",message="password and passwordRef are mutually exclusive"
+// +kubebuilder:validation:XValidation:rule="(has(self.password) && size(self.password) > 0) || has(self.passwordRef)",message="one of password or passwordRef must be set"
+// +kubebuilder:validation:XValidation:rule="!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0)",message="passwordRef name and key must not be empty"
 type HTTPClientAuthentication struct {
 	NTLMDomain string `json:"ntlmDomain,omitempty"`
 	NTLMHost   string `json:"ntlmHost,omitempty"`
@@ -156,9 +161,16 @@ type HTTPClientAuthentication struct {
 	// +kubebuilder:validation:Enum=username;ntlm
 	Type string `json:"type"`
 
-	// Password for authentication.
-	// +required
+	// Password for authentication. Mutually exclusive with passwordRef.
+	//
+	// Deprecated: use passwordRef. The value is stored in the resource in clear text.
+	// +optional
 	Password string `json:"password,omitempty"`
+
+	// Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+	// The value must not have leading or trailing whitespace.
+	// +optional
+	PasswordRef *common.SecretKeySelector `json:"passwordRef,omitempty"`
 
 	// Username for authentication.
 	// +required
@@ -166,10 +178,23 @@ type HTTPClientAuthentication struct {
 }
 
 // HTTPClientAuthenticationWithPreemptive contains HTTP client authentication configuration data.
+// +kubebuilder:validation:XValidation:rule="!((has(self.password) && size(self.password) > 0) && has(self.passwordRef))",message="password and passwordRef are mutually exclusive"
+// +kubebuilder:validation:XValidation:rule="!has(self.passwordRef) || (has(self.passwordRef.name) && size(self.passwordRef.name) > 0 && size(self.passwordRef.key) > 0)",message="passwordRef name and key must not be empty"
+// +kubebuilder:validation:XValidation:rule="(has(self.username) && size(self.username) > 0) == ((has(self.password) && size(self.password) > 0) || has(self.passwordRef))",message="username requires password or passwordRef, and a password requires username"
 type HTTPClientAuthenticationWithPreemptive struct {
 	NTLMDomain string `json:"ntlmDomain,omitempty"`
 	NTLMHost   string `json:"ntlmHost,omitempty"`
-	Password   string `json:"password,omitempty"`
+
+	// Password for authentication. Mutually exclusive with passwordRef.
+	//
+	// Deprecated: use passwordRef. The value is stored in the resource in clear text.
+	// +optional
+	Password string `json:"password,omitempty"`
+
+	// Reference to the Secret key that holds the password. The Secret must be in the namespace of the resource.
+	// The value must not have leading or trailing whitespace.
+	// +optional
+	PasswordRef *common.SecretKeySelector `json:"passwordRef,omitempty"`
 
 	// Type of authentication to use.
 	// +optional
