@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make mocks)",
+      "Bash(make lint-fix 2>&1)",
+      "Bash(make generate:*)",
+      "Bash(make manifests:*)",
+      "Bash(go build:*)",
+      "Bash(go test:*)",
+      "Bash(make test:*)",
+      "Bash(kubectl --context kind-krci *)",
+      "Bash(helm list*)",
+      "Bash(helm get *)",
+      "Bash(helm template *)",
+      "Bash(curl -s -o /dev/null -w * http://localhost:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lane-allow.py"
+          }
+        ]
+      }
+    ]
+  }
+}

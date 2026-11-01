@@ -79,3 +79,6 @@ tags
 .idea/**
 vendor/**
 # End of https://www.gitignore.io/api/go,vim,emacs,visualstudiocode
+
+# lane skill items (.claude/skills/lane)
+.work/
