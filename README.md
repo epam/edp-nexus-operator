@@ -104,6 +104,12 @@ In order to install the Nexus operator, follow the steps below:
 
     Inspect [CR templates folder](./deploy-templates/_crd_examples/) for more examples.
 
+## Proxy repository credentials
+
+A proxy `NexusRepository` takes the password of its remote from a Secret: set `httpClient.authentication.passwordRef` (`name` and `key` of a Secret in the same namespace) next to `username`. `httpClient.authentication.password` is deprecated. See [repository.yml](./deploy-templates/_crd_examples/repository.yml) for an example.
+
+Whoever may create `Nexus`, `NexusRepository` or `NexusBlobStore` resources can make the operator or Nexus send Secrets of the namespace to an address in the resource. Read [security considerations](./docs/security.md) before granting write access to these kinds. Upgrade steps: [upgrade notes](./docs/upgrade-notes.md).
+
 ## Local Development
 
 In order to develop the operator, first set up a local environment. For details, please refer to the [Local Development](https://docs.kuberocketci.io/docs/developer-guide/local-development) page.
