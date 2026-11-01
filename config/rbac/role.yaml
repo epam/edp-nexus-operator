@@ -17,15 +17,9 @@ rules:
   - edp.epam.com
   resources:
   - nexusblobstores
-  - nexuscleanuppolicies
   - nexuses
   - nexusrepositories
-  - nexusroles
-  - nexusscripts
-  - nexususers
   verbs:
-  - create
-  - delete
   - get
   - list
   - patch
@@ -57,3 +51,18 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - edp.epam.com
+  resources:
+  - nexuscleanuppolicies
+  - nexusroles
+  - nexusscripts
+  - nexususers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

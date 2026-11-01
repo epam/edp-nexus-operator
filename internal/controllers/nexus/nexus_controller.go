@@ -39,7 +39,7 @@ type NexusReconciler struct {
 	apiClientProvider apiClientProvider
 }
 
-// +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexuses,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexuses,verbs=get;list;watch;update;patch
 // +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexuses/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexuses/finalizers,verbs=update
 // +kubebuilder:rbac:groups="",namespace=placeholder,resources=secrets,verbs=get;list;watch

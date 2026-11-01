@@ -27,13 +27,12 @@ var (
 	viewerVerbs = sets.New("get", "list", "watch")
 
 	// Kinds whose spec pairs a Secret reference with an author-controlled address.
-	// The scaffolded Kustomize Nexus roles name the resource "nexus", the other roles use the plural.
 	guardedKinds = []struct {
 		name               string
 		kustomizeResources []string
 		helmResource       string
 	}{
-		{name: "nexus", kustomizeResources: []string{"nexus", "nexuses"}, helmResource: "nexuses"},
+		{name: "nexus", kustomizeResources: []string{"nexuses"}, helmResource: "nexuses"},
 		{name: "nexusrepository", kustomizeResources: []string{"nexusrepositories"}, helmResource: "nexusrepositories"},
 		{name: "nexusblobstore", kustomizeResources: []string{"nexusblobstores"}, helmResource: "nexusblobstores"},
 	}
@@ -73,11 +72,11 @@ func decodeRoles(t *testing.T, content string) []rbacv1.ClusterRole {
 	}
 }
 
-// renderHelperRoles drops template control lines and replaces inline expressions with a placeholder.
-func renderHelperRoles(t *testing.T) []rbacv1.ClusterRole {
+// renderTemplate drops template control lines and replaces inline expressions with a placeholder.
+func renderTemplate(t *testing.T, name string) []rbacv1.ClusterRole {
 	t.Helper()
 
-	lines := strings.Split(readFile(t, filepath.Join(templateDir, "helper_roles.yaml")), "\n")
+	lines := strings.Split(readFile(t, filepath.Join(templateDir, name)), "\n")
 	kept := make([]string, 0, len(lines))
 
 	for _, line := range lines {
@@ -115,7 +114,7 @@ func verbsOn(role rbacv1.ClusterRole, resources ...string) sets.Set[string] {
 	return verbs
 }
 
-// assertHelperRoles checks the roles that target a kind: one admin with explicit verbs, one viewer, no other.
+// assertHelperRoles checks the roles that target a kind: one admin with explicit verbs, one read-only viewer, no other.
 func assertHelperRoles(t *testing.T, roles []rbacv1.ClusterRole, adminName, viewerName string, resources []string) {
 	t.Helper()
 
@@ -200,7 +199,7 @@ func TestKustomizeOtherKindsKeepEditorRole(t *testing.T) {
 func TestHelmHelperRoles(t *testing.T) {
 	t.Parallel()
 
-	roles := renderHelperRoles(t)
+	roles := renderTemplate(t, "helper_roles.yaml")
 	require.Len(t, roles, 2*len(guardedKinds))
 
 	for _, kind := range guardedKinds {
@@ -222,21 +221,15 @@ func TestHelmHelperRoles(t *testing.T) {
 	}
 }
 
-func TestHelmHelperRolesSwitch(t *testing.T) {
+// The helper roles are not optional: no template condition and no value may switch them off.
+func TestHelmHelperRolesAlwaysRendered(t *testing.T) {
 	t.Parallel()
 
-	template := strings.TrimSpace(readFile(t, filepath.Join(templateDir, "helper_roles.yaml")))
-	require.True(t, strings.HasPrefix(template, "{{- if .Values.helperRoles.enabled }}"))
-	require.True(t, strings.HasSuffix(template, "{{- end }}"))
-
-	var values struct {
-		HelperRoles struct {
-			Enabled bool `json:"enabled"`
-		} `json:"helperRoles"`
-	}
-
-	require.NoError(t, yaml.Unmarshal([]byte(readFile(t, valuesFile)), &values))
-	require.True(t, values.HelperRoles.Enabled)
+	content := readFile(t, filepath.Join(templateDir, "helper_roles.yaml"))
+	require.NotContains(t, content, "{{- if")
+	require.NotContains(t, content, "{{ if")
+	require.NotContains(t, content, ".Values.helperRoles")
+	require.NotContains(t, readFile(t, valuesFile), "helperRoles")
 }
 
 func TestHelperRolesAreNotBound(t *testing.T) {
@@ -267,5 +260,54 @@ func TestHelperRolesAreNotBound(t *testing.T) {
 		}
 
 		require.NotRegexp(t, helperName, content, "%s must not bind a helper role", file)
+	}
+}
+
+func operatorRole(t *testing.T, roles []rbacv1.ClusterRole) rbacv1.ClusterRole {
+	t.Helper()
+
+	require.Len(t, roles, 1)
+
+	return roles[0]
+}
+
+// The operator reconciles the guarded kinds but never creates or deletes them.
+func TestOperatorRoleCannotCreateOrDeleteGuardedKinds(t *testing.T) {
+	t.Parallel()
+
+	generated := operatorRole(t, decodeRoles(t, readFile(t, filepath.Join(rbacDir, "role.yaml"))))
+	chart := operatorRole(t, renderTemplate(t, "role.yaml"))
+
+	for _, kind := range guardedKinds {
+		resource := kind.helmResource
+		resources := map[string][]string{
+			"main":       {resource},
+			"status":     {resource + "/status"},
+			"finalizers": {resource + "/finalizers"},
+		}
+
+		for source, role := range map[string]rbacv1.ClusterRole{"controller-gen": generated, "helm": chart} {
+			main := verbsOn(role, resources["main"]...)
+			require.False(t, main.HasAny("create", "delete", "deletecollection", "*"), "%s %s", source, resource)
+			require.True(t, main.HasAll("get", "list", "watch", "update", "patch"), "%s %s", source, resource)
+			require.True(t, verbsOn(role, resources["status"]...).HasAll("update", "patch"), "%s %s status", source, resource)
+			require.True(t, verbsOn(role, resources["finalizers"]...).Has("update"), "%s %s finalizers", source, resource)
+		}
+
+		for name, res := range resources {
+			require.Equal(t, verbsOn(generated, res...), verbsOn(chart, res...), "%s %s", resource, name)
+		}
+	}
+}
+
+func TestOperatorRoleKeepsCreateAndDeleteOnOtherKinds(t *testing.T) {
+	t.Parallel()
+
+	generated := operatorRole(t, decodeRoles(t, readFile(t, filepath.Join(rbacDir, "role.yaml"))))
+	chart := operatorRole(t, renderTemplate(t, "role.yaml"))
+
+	for _, resource := range []string{"nexuscleanuppolicies", "nexusroles", "nexusscripts", "nexususers"} {
+		require.True(t, verbsOn(generated, resource).HasAll("create", "delete"), "controller-gen %s", resource)
+		require.True(t, verbsOn(chart, resource).HasAll("create", "delete"), "helm %s", resource)
 	}
 }

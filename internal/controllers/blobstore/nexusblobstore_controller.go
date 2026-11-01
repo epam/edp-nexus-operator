@@ -25,7 +25,7 @@ func NewNexusBlobStoreReconciler(k8sClient client.Client, apiClientProvider cont
 	return &NexusBlobStoreReconciler{client: k8sClient, apiClientProvider: apiClientProvider}
 }
 
-// +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusblobstores,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusblobstores,verbs=get;list;watch;update;patch
 // +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusblobstores/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=edp.epam.com,namespace=placeholder,resources=nexusblobstores/finalizers,verbs=update
 

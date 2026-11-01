@@ -29,8 +29,6 @@ rules:
     resources:
       - nexuses
     verbs:
-      - create
-      - delete
       - get
       - list
       - patch
@@ -55,8 +53,6 @@ rules:
     resources:
       - nexusrepositories
     verbs:
-      - create
-      - delete
       - get
       - list
       - patch
@@ -159,8 +155,6 @@ rules:
     resources:
       - nexusblobstores
     verbs:
-      - create
-      - delete
       - get
       - list
       - patch
