@@ -1,4 +1,4 @@
-# permissions for end users to view cleanuppolicies.
+# permissions for end users to view nexuscleanuppolicies.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -14,7 +14,7 @@ rules:
 - apiGroups:
   - edp.epam.com
   resources:
-  - cleanuppolicies
+  - nexuscleanuppolicies
   verbs:
   - get
   - list
@@ -22,6 +22,6 @@ rules:
 - apiGroups:
   - edp.epam.com
   resources:
-  - cleanuppolicies/status
+  - nexuscleanuppolicies/status
   verbs:
   - get

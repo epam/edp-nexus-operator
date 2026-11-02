@@ -136,9 +136,12 @@ The `Nexus` controller only verifies connectivity (calls `Security.User.List`) a
 
 `kubebuilder create api` scaffolds `*_admin_role.yaml`, `*_editor_role.yaml` and `*_viewer_role.yaml` once; `make manifests` regenerates only `config/rbac/role.yaml`.
 
+- Every kind has an admin and a viewer helper role, both `ClusterRole`. Delete the scaffolded editor role.
+- `tests/rbac` checks that no editor role exists and that helper roles target `nexus*` resources.
+
 For a kind that pairs a Secret reference with an author-controlled destination (`Nexus`, `NexusRepository`, `NexusBlobStore`):
 
-- No editor role. The admin role, with explicit verbs and no `'*'`, is the only helper role that may write the kind, in Kustomize (`config/rbac/`) and Helm (`deploy-templates/templates/helper_roles.yaml`, always rendered, no value switch).
+- The admin role, with explicit verbs and no `'*'`, is the only helper role that may write the kind, in Kustomize (`config/rbac/`) and Helm (`deploy-templates/templates/helper_roles.yaml`, always rendered, no value switch).
 - No aggregation labels and no bindings.
 - The `+kubebuilder:rbac` markers and `deploy-templates/templates/role.yaml` grant the operator no `create` or `delete` on the kind.
 - `tests/rbac` checks all of the above; keep it in step when adding a kind.

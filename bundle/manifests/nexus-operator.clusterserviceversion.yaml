@@ -206,14 +206,14 @@ metadata:
       ]
     capabilities: Deep Insights
     categories: Developer Tools
-    containerImage: docker.io/epamedp/nexus-operator:3.5.0
-    createdAt: "2025-07-15T10:56:50Z"
+    containerImage: docker.io/epamedp/nexus-operator:3.7.0
+    createdAt: "2026-11-02T08:32:29Z"
     description: An Operator for managing Nexus entities.
-    operators.operatorframework.io/builder: operator-sdk-v1.41.1
+    operators.operatorframework.io/builder: operator-sdk-v1.42.3
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/epam/edp-nexus-operator
     support: KubeRocketCI
-  name: nexus-operator.v3.5.0
+  name: nexus-operator.v3.7.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -350,6 +350,7 @@ spec:
               annotations:
                 kubectl.kubernetes.io/default-container: manager
               labels:
+                app.kubernetes.io/name: nexus-operator
                 control-plane: controller-manager
             spec:
               containers:
@@ -357,12 +358,13 @@ spec:
                 - --metrics-bind-address=:8443
                 - --leader-elect
                 - --health-probe-bind-address=:8081
+                - --webhook-cert-path=/tmp/k8s-webhook-server/serving-certs
                 command:
                 - /manager
                 env:
                 - name: SETUP_SELF_SIGNED_CERTIFICATES
                   value: "false"
-                image: docker.io/epamedp/nexus-operator:3.5.0
+                image: docker.io/epamedp/nexus-operator:3.7.0
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -394,16 +396,17 @@ spec:
                     - ALL
                 volumeMounts:
                 - mountPath: /tmp/k8s-webhook-server/serving-certs
-                  name: cert
+                  name: webhook-certs
                   readOnly: true
               securityContext:
                 runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
               serviceAccountName: nexus-operator-controller-manager
               terminationGracePeriodSeconds: 10
               volumes:
-              - name: cert
+              - name: webhook-certs
                 secret:
-                  defaultMode: 420
                   secretName: webhook-server-cert
       permissions:
       - rules:
@@ -450,15 +453,9 @@ spec:
           - edp.epam.com
           resources:
           - nexusblobstores
-          - nexuscleanuppolicies
           - nexuses
           - nexusrepositories
-          - nexusroles
-          - nexusscripts
-          - nexususers
           verbs:
-          - create
-          - delete
           - get
           - list
           - patch
@@ -490,6 +487,21 @@ spec:
           - get
           - patch
           - update
+        - apiGroups:
+          - edp.epam.com
+          resources:
+          - nexuscleanuppolicies
+          - nexusroles
+          - nexusscripts
+          - nexususers
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
         serviceAccountName: nexus-operator-controller-manager
     strategy: deployment
   installModes:
@@ -519,7 +531,7 @@ spec:
   provider:
     name: KubeRocketCI
     url: https://docs.kuberocketci.io
-  version: 3.5.0
+  version: 3.7.0
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

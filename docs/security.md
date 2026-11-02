@@ -39,7 +39,7 @@ address that receives it.
 ## Helper roles
 
 - Kustomize ships `nexus-admin-role`, `nexusrepository-admin-role`, `nexusblobstore-admin-role` and the matching
-  viewer roles. There are no editor roles for these three kinds.
+  viewer roles. There are no editor roles.
 - The Helm chart always ships the same roles as ClusterRoles named `edp-<name>-<namespace>-<kind>-{admin,viewer}`.
   There is no value to switch them off.
 - Only the admin role may create, update, patch or delete `Nexus`, `NexusRepository` and `NexusBlobStore`. It lists

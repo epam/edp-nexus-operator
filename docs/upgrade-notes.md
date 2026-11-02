@@ -62,10 +62,13 @@ kubectl get nexusrepositories -A -o json | jq -r '.items[] | . as $i | .spec | t
 
 ### RBAC
 
-- Kustomize: the editor roles of `Nexus`, `NexusRepository` and `NexusBlobStore` are removed, and their admin roles
-  list explicit verbs (no `deletecollection`). Rebind subjects of `<kind>-editor-role` to the admin role (platform
-  admins only) or to a role you own.
-- Helm: new ClusterRoles `edp-<name>-<namespace>-{nexus,nexusrepository,nexusblobstore}-{admin,viewer}`. They are not
+- Kustomize and the OperatorHub bundle: the editor roles of all kinds are removed. Rebind subjects of
+  `<kind>-editor-role` to the admin role (platform admins only) or to a role you own.
+- Admin roles of `Nexus`, `NexusRepository` and `NexusBlobStore` list explicit verbs (no `deletecollection`).
+- Viewer roles are `ClusterRole`s for every kind. The `NexusCleanupPolicy` viewer role now targets
+  `nexuscleanuppolicies`.
+- Helm: new ClusterRoles `edp-<name>-<namespace>-<kind>-{admin,viewer}` for every kind (`nexus`, `nexusrepository`,
+  `nexusblobstore`, `nexuscleanuppolicy`, `nexusrole`, `nexusscript`, `nexususer`). They are not
   bound. There is no value to switch them off.
 - The operator ServiceAccount no longer has `create` and `delete` on `Nexus`, `NexusRepository` and `NexusBlobStore`;
   `get`, `list`, `watch`, `update` and `patch` stay. Anything that created or deleted these kinds with the operator's
