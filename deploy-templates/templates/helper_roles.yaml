@@ -141,3 +141,171 @@ rules:
       - nexusblobstores/status
     verbs:
       - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexuscleanuppolicy-admin
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuscleanuppolicies
+    verbs:
+      - '*'
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuscleanuppolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexuscleanuppolicy-viewer
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuscleanuppolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexuscleanuppolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusrole-admin
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusroles
+    verbs:
+      - '*'
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusroles/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusrole-viewer
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusroles
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusroles/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusscript-admin
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusscripts
+    verbs:
+      - '*'
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusscripts/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexusscript-viewer
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusscripts
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexusscripts/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexususer-admin
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexususers
+    verbs:
+      - '*'
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexususers/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "nexus-operator.labels" . | nindent 4 }}
+  name: edp-{{ .Values.name }}-{{ .Release.Namespace }}-nexususer-viewer
+rules:
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexususers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - edp.epam.com
+    resources:
+      - nexususers/status
+    verbs:
+      - get

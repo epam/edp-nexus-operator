@@ -30,6 +30,13 @@ IMG ?= docker.io/epamedp/nexus-operator:$(VERSION)
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 
+# Published channel. Override with `make bundle CHANNELS=... DEFAULT_CHANNEL=...`.
+CHANNELS ?= stable
+DEFAULT_CHANNEL ?= stable
+
+# OpenShift versions written to bundle/metadata/annotations.yaml.
+OPENSHIFT_VERSIONS ?= v4.7-v4.22
+
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
 # To re-generate a bundle for other specific channels without changing the standard setup, you can:
@@ -151,7 +158,7 @@ KUSTOMIZE ?= $(LOCALBIN)/kustomize
 KUSTOMIZE_INSTALL_SCRIPT ?= "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"
 .PHONY: kustomize
 kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
-$(KUSTOMIZE): $(LOCALBIN)
+$(KUSTOMIZE): | $(LOCALBIN)
 	curl -s $(KUSTOMIZE_INSTALL_SCRIPT) | bash -s -- $(subst v,,$(KUSTOMIZE_VERSION)) $(LOCALBIN)
 
 HELMDOCS = $(LOCALBIN)/helm-docs
@@ -192,9 +199,13 @@ endef
 
 .PHONY: bundle
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
+	sed -i.bak 's|containerImage: .*|containerImage: $(IMG)|' config/manifests/bases/nexus-operator.clusterserviceversion.yaml
+	rm -f config/manifests/bases/nexus-operator.clusterserviceversion.yaml.bak
 	$(OPERATOR_SDK) generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
+	grep -q com.redhat.openshift.versions bundle/metadata/annotations.yaml || \
+		printf '\n  # Annotations for OpenShift.\n  com.redhat.openshift.versions: "%s"\n' '$(OPENSHIFT_VERSIONS)' >> bundle/metadata/annotations.yaml
 	$(OPERATOR_SDK) bundle validate ./bundle
 
 .PHONY: setup-envtest
@@ -208,7 +219,7 @@ setup-envtest: envtest ## Download the binaries required for ENVTEST in the loca
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 .PHONY: envtest
 envtest: $(ENVTEST) ## Download setup-envtest locally if necessary.
-$(ENVTEST): $(LOCALBIN)
+$(ENVTEST): | $(LOCALBIN)
 	$(call go-install-tool,$(ENVTEST),sigs.k8s.io/controller-runtime/tools/setup-envtest,$(ENVTEST_VERSION))
 
 

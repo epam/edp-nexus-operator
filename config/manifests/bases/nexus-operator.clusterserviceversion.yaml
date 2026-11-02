@@ -5,7 +5,7 @@ metadata:
     alm-examples: '[]'
     capabilities: Deep Insights
     categories: Developer Tools
-    containerImage: docker.io/epamedp/nexus-operator:3.5.0
+    containerImage: docker.io/epamedp/nexus-operator:3.7.0
     description: An Operator for managing Nexus entities.
     repository: https://github.com/epam/edp-nexus-operator
     support: KubeRocketCI

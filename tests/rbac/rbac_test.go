@@ -37,6 +37,14 @@ var (
 		{name: "nexusblobstore", kustomizeResources: []string{"nexusblobstores"}, helmResource: "nexusblobstores"},
 	}
 
+	// Kinds without a Secret reference to a spec address: admin and viewer roles, no editor.
+	otherKinds = map[string]string{
+		"nexuscleanuppolicy": "nexuscleanuppolicies",
+		"nexusrole":          "nexusroles",
+		"nexusscript":        "nexusscripts",
+		"nexususer":          "nexususers",
+	}
+
 	templateExpr = regexp.MustCompile(`\{\{.*?\}\}`)
 )
 
@@ -184,15 +192,35 @@ func TestKustomizeHelperRoles(t *testing.T) {
 	}
 }
 
-func TestKustomizeOtherKindsKeepEditorRole(t *testing.T) {
+func TestKustomizeOtherKindsHaveAdminAndViewerOnly(t *testing.T) {
 	t.Parallel()
 
 	files := kustomizeResourceFiles(t)
 
-	for _, kind := range []string{"nexuscleanuppolicy", "nexusrole", "nexusscript", "nexususer"} {
+	for kind, resource := range otherKinds {
 		require.Contains(t, files, kind+"_admin_role.yaml")
-		require.Contains(t, files, kind+"_editor_role.yaml")
 		require.Contains(t, files, kind+"_viewer_role.yaml")
+		require.NotContains(t, files, kind+"_editor_role.yaml")
+		require.NoFileExists(t, filepath.Join(rbacDir, kind+"_editor_role.yaml"))
+
+		viewers := decodeRoles(t, readFile(t, filepath.Join(rbacDir, kind+"_viewer_role.yaml")))
+		require.Len(t, viewers, 1)
+		require.Equal(t, "ClusterRole", viewers[0].Kind)
+		require.Equal(t, viewerVerbs, verbsOn(viewers[0], resource), "viewer verbs of %s", kind)
+	}
+}
+
+func TestKustomizeViewerRolesAreClusterRoles(t *testing.T) {
+	t.Parallel()
+
+	for _, file := range kustomizeResourceFiles(t) {
+		if !strings.HasSuffix(file, "_viewer_role.yaml") && !strings.HasSuffix(file, "_admin_role.yaml") {
+			continue
+		}
+
+		for _, role := range decodeRoles(t, readFile(t, filepath.Join(rbacDir, file))) {
+			require.Equal(t, "ClusterRole", role.Kind, file)
+		}
 	}
 }
 
@@ -200,7 +228,7 @@ func TestHelmHelperRoles(t *testing.T) {
 	t.Parallel()
 
 	roles := renderTemplate(t, "helper_roles.yaml")
-	require.Len(t, roles, 2*len(guardedKinds))
+	require.Len(t, roles, 2*(len(guardedKinds)+len(otherKinds)))
 
 	for _, kind := range guardedKinds {
 		var kindRoles []rbacv1.ClusterRole
@@ -216,8 +244,31 @@ func TestHelmHelperRoles(t *testing.T) {
 		assertHelperRoles(t, kindRoles, prefix+"-admin", prefix+"-viewer", []string{kind.helmResource})
 	}
 
+	for kind, resource := range otherKinds {
+		prefix := "edp-X-X-" + kind
+
+		var viewer *rbacv1.ClusterRole
+
+		names := sets.New[string]()
+
+		for i, role := range roles {
+			if strings.HasSuffix(role.Name, "-"+kind+"-admin") || strings.HasSuffix(role.Name, "-"+kind+"-viewer") {
+				names.Insert(role.Name)
+
+				if role.Name == prefix+"-viewer" {
+					viewer = &roles[i]
+				}
+			}
+		}
+
+		require.Equal(t, sets.New(prefix+"-admin", prefix+"-viewer"), names, "admin and viewer only for %s", kind)
+		require.NotNil(t, viewer)
+		require.Equal(t, viewerVerbs, verbsOn(*viewer, resource), "viewer verbs of %s", kind)
+	}
+
 	for _, role := range roles {
 		require.Equal(t, "ClusterRole", role.Kind)
+		require.NotContains(t, role.Name, "editor")
 	}
 }
 
