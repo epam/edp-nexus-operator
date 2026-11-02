@@ -2,6 +2,19 @@
 ## [Unreleased]
 
 
+<a name="v3.7.0"></a>
+## [v3.7.0] - 2026-11-02
+### Routine
+
+- generate OperatorHub bundle 3.7.0
+- Bump to Go 1.26.9
+- Update current development version
+
+### Documentation
+
+- document Secret exposure, Secret references and upgrade steps
+
+
 <a name="v3.6.0"></a>
 ## [v3.6.0] - 2026-08-11
 ### Routine
@@ -143,7 +156,8 @@
 <a name="v2.16.0"></a>
 ## [v2.16.0] - 2023-08-17
 
-[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.6.0...HEAD
+[Unreleased]: https://github.com/epam/edp-nexus-operator/compare/v3.7.0...HEAD
+[v3.7.0]: https://github.com/epam/edp-nexus-operator/compare/v3.6.0...v3.7.0
 [v3.6.0]: https://github.com/epam/edp-nexus-operator/compare/v3.5.0...v3.6.0
 [v3.5.0]: https://github.com/epam/edp-nexus-operator/compare/v3.4.0...v3.5.0
 [v3.4.0]: https://github.com/epam/edp-nexus-operator/compare/v3.3.0...v3.4.0
