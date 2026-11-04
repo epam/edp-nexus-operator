@@ -142,7 +142,7 @@ var _ = Describe("NexusRepository httpClient authentication", func() {
 			},
 			Entry("password and passwordRef together",
 				goProxyWithAuth("secretref-cel-both", &nexusApi.HTTPClientAuthentication{
-					Type: "username", Username: "alice", Password: "pw", PasswordRef: secretRefSelector("secretref-cred", "password"),
+					Type: "username", Username: "alice", Password: "pw", PasswordRef: secretRefSelector("secretref-cred", "password"), //nolint:staticcheck // covers the deprecated password field
 				}),
 				"password and passwordRef are mutually exclusive"),
 			Entry("username without a password source",
@@ -175,7 +175,7 @@ var _ = Describe("NexusRepository httpClient authentication", func() {
 				"username requires password or passwordRef, and a password requires username"),
 			Entry("maven password and passwordRef together",
 				mavenProxyWithAuth("secretref-cel-maven-both", &nexusApi.HTTPClientAuthenticationWithPreemptive{
-					Type: "username", Username: "alice", Password: "pw", PasswordRef: secretRefSelector("secretref-cred", "password"),
+					Type: "username", Username: "alice", Password: "pw", PasswordRef: secretRefSelector("secretref-cred", "password"), //nolint:staticcheck // covers the deprecated password field
 				}),
 				"password and passwordRef are mutually exclusive"),
 		)

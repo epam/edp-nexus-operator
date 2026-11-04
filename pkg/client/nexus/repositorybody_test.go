@@ -91,7 +91,9 @@ func TestWithAuthentication_matchesCRDBodyWithPlainPassword(t *testing.T) {
 	data := &v1alpha1.MavenProxyRepository{
 		HTTPClient: v1alpha1.HTTPClientWithPreemptiveAuth{
 			Authentication: &v1alpha1.HTTPClientAuthenticationWithPreemptive{
-				Type: "username", Username: "alice", Password: "pw-1", Preemptive: ptr.To(true),
+				Type: "username", Username: "alice",
+				Password:   "pw-1", //nolint:staticcheck // covers the deprecated password field
+				Preemptive: ptr.To(true),
 			},
 		},
 	}

@@ -11,6 +11,11 @@ import (
 
 var ErrNotFound = errors.New("not found")
 
+const (
+	paramFormat = "format"
+	paramType   = "type"
+)
+
 type ClientConfig struct {
 	BaseURL  string
 	UserName string
@@ -30,9 +35,9 @@ func (s *RepoClient) Get(ctx context.Context, id, format, repoType string) (inte
 
 	resp, err := s.r(ctx).
 		SetPathParams(map[string]string{
-			"id":     id,
-			"format": format,
-			"type":   repoType,
+			"id":        id,
+			paramFormat: format,
+			paramType:   repoType,
 		}).
 		SetResult(&res).
 		Get("/service/rest/v1/repositories/{format}/{type}/{id}")
@@ -55,8 +60,8 @@ func (s *RepoClient) Get(ctx context.Context, id, format, repoType string) (inte
 func (s *RepoClient) Create(ctx context.Context, format, repoType string, data interface{}) error {
 	resp, err := s.r(ctx).
 		SetPathParams(map[string]string{
-			"format": format,
-			"type":   repoType,
+			paramFormat: format,
+			paramType:   repoType,
 		}).
 		SetBody(data).
 		Post("/service/rest/v1/repositories/{format}/{type}")
@@ -75,9 +80,9 @@ func (s *RepoClient) Create(ctx context.Context, format, repoType string, data i
 func (s *RepoClient) Update(ctx context.Context, id, format, repoType string, data interface{}) error {
 	resp, err := s.r(ctx).
 		SetPathParams(map[string]string{
-			"id":     id,
-			"format": format,
-			"type":   repoType,
+			"id":        id,
+			paramFormat: format,
+			paramType:   repoType,
 		}).
 		SetBody(data).
 		Put("/service/rest/v1/repositories/{format}/{type}/{id}")

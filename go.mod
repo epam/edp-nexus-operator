@@ -1,6 +1,6 @@
 module github.com/epam/edp-nexus-operator
 
-go 1.26.9
+go 1.27.3
 
 require (
 	github.com/datadrivers/go-nexus-client v1.14.0

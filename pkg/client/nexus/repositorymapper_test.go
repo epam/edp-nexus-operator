@@ -820,7 +820,9 @@ func TestGetRepoData_proxyAuth(t *testing.T) {
 			repo: &v1alpha1.NexusRepositorySpec{Go: &v1alpha1.GoSpec{Proxy: &v1alpha1.GoProxyRepository{
 				ProxySpec: v1alpha1.ProxySpec{HTTPClient: v1alpha1.HTTPClient{
 					Authentication: &v1alpha1.HTTPClientAuthentication{
-						Type: "ntlm", Username: "alice", Password: "pw-1", NTLMHost: "h", NTLMDomain: "d",
+						Type: "ntlm", Username: "alice",
+						Password: "pw-1", //nolint:staticcheck // covers the deprecated password field
+						NTLMHost: "h", NTLMDomain: "d",
 					},
 				}},
 			}}},
