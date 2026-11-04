@@ -278,7 +278,7 @@ func TestCreateRepository_ServeRequest_plainPasswordBodyUnchanged(t *testing.T) 
 	t.Parallel()
 
 	repository := dockerProxyWithAuth(&nexusApi.HTTPClientAuthentication{
-		Type: "username", Username: "alice", Password: "pw-plain",
+		Type: "username", Username: "alice", Password: "pw-plain", //nolint:staticcheck // covers the deprecated password field
 	})
 
 	want, err := json.Marshal(repository.Spec.Docker.Proxy)
@@ -415,7 +415,7 @@ func TestCreateRepository_ServeRequest_redactsResolvedPassword(t *testing.T) {
 		t.Parallel()
 
 		plain := dockerProxyWithAuth(&nexusApi.HTTPClientAuthentication{
-			Type: "username", Username: "alice", Password: "pw-plain",
+			Type: "username", Username: "alice", Password: "pw-plain", //nolint:staticcheck // covers the deprecated password field
 		})
 
 		var bodies []string
@@ -440,7 +440,7 @@ func TestCreateRepository_ServeRequest_authenticationErrors(t *testing.T) {
 	}{
 		{
 			name:    "both password sources",
-			auth:    &nexusApi.HTTPClientAuthentication{Type: "username", Username: "a", Password: "p", PasswordRef: ref("cred", "password")},
+			auth:    &nexusApi.HTTPClientAuthentication{Type: "username", Username: "a", Password: "p", PasswordRef: ref("cred", "password")}, //nolint:staticcheck // covers the deprecated password field
 			wantErr: "mutually exclusive",
 		},
 		{

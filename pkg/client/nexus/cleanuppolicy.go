@@ -18,6 +18,8 @@ type NexusCleanupPolicy struct {
 	CriteriaAssetRegex      *string `json:"criteriaAssetRegex"`
 }
 
+const paramName = "name"
+
 type NexusCleanupPolicyClient struct {
 	config ClientConfig
 }
@@ -31,7 +33,7 @@ func (s *NexusCleanupPolicyClient) Get(ctx context.Context, name string) (*Nexus
 
 	resp, err := s.r(ctx).
 		SetPathParams(map[string]string{
-			"name": name,
+			paramName: name,
 		}).
 		SetResult(res).
 		Get("/service/rest/internal/cleanup-policies/{name}")
@@ -70,7 +72,7 @@ func (s *NexusCleanupPolicyClient) Create(ctx context.Context, policy *NexusClea
 func (s *NexusCleanupPolicyClient) Update(ctx context.Context, name string, policy *NexusCleanupPolicy) error {
 	resp, err := s.r(ctx).
 		SetPathParams(map[string]string{
-			"name": name,
+			paramName: name,
 		}).
 		SetBody(policy).
 		Put("/service/rest/internal/cleanup-policies/{name}")
@@ -89,7 +91,7 @@ func (s *NexusCleanupPolicyClient) Update(ctx context.Context, name string, poli
 func (s *NexusCleanupPolicyClient) Delete(ctx context.Context, name string) error {
 	resp, err := s.r(ctx).
 		SetPathParams(map[string]string{
-			"name": name,
+			paramName: name,
 		}).
 		Delete("/service/rest/internal/cleanup-policies/{name}")
 
